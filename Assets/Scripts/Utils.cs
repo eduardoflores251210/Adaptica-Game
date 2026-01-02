@@ -68,16 +68,29 @@ public static class SpaceUtils
 			return ((value / 63241.1f));
 
 		}
+		/// <summary>
+		/// convierte kilometros a unidades astronomicas 
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
 		public static float KmToAU(float value)
 		{
 			return value / 149597870.7f; 
 		}
-
+		/// <summary>
+		/// convierte Unidades astronomicas a Kilometros
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
 		public static float AuToKm(float value)
 		{
 			return value * 149597870.7f;
 		}
-
+		/// <summary>
+		/// convierte kilometros a metros
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
 		public static float KmToM(float value)
 		{
 			return value * 1000;
