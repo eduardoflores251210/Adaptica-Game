@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: PlantUI Shared Data
+  m_EditorClassIdentifier: 
+  m_TableCollectionName: PlantUI
+  m_TableCollectionNameGuidString: 2c2abc14e44290844b749f7f3604bacf
+  m_Entries:
+  - m_Id: 35259150336
+    m_Key: Gizmo_el
+    m_Metadata:
+      m_Items: []
+  - m_Id: 285885591552
+    m_Key: Snap_el
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12191606239232
+    m_Key: NotEnoughSunError
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14948081856512
+    m_Key: NotEnoughWaterError
+    m_Metadata:
+      m_Items: []
+  - m_Id: 39933659836416
+    m_Key: PartDesc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40084235350016
+    m_Key: DefvalName
+    m_Metadata:
+      m_Items: []
+  - m_Id: 73865629528064
+    m_Key: Tab_Leaves
+    m_Metadata:
+      m_Items: []
+  - m_Id: 75206380744704
+    m_Key: Tab_Branches
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76572364894208
+    m_Key: Move_Tool
+    m_Metadata:
+      m_Items: []
+  - m_Id: 79985374916608
+    m_Key: Tab_Flowers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 80426213044224
+    m_Key: Tab_Fruit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 80828299997184
+    m_Key: Tab_Sporangium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 81228730200064
+    m_Key: Tab_Roots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 387905283158016
+    m_Key: FoldStem
+    m_Metadata:
+      m_Items: []
+  - m_Id: 388197919748096
+    m_Key: FoldParts
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 1206876135016366469
+  references:
+    version: 2
+    RefIds:
+    - rid: 1206876135016366469
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1763759809864

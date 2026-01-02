@@ -1,0 +1,8 @@
+.unity-progress-bar__container {
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
+    max-height: 75%;
+    max-width: 97%;
+    align-self: center;
+}

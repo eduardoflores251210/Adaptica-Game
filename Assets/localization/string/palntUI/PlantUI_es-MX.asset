@@ -1,0 +1,94 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: PlantUI_es-MX
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: es-MX
+  m_SharedData: {fileID: 11400000, guid: 2c2abc14e44290844b749f7f3604bacf, type: 2}
+  m_Metadata:
+    m_Items:
+    - rid: 1206876137903095809
+  m_TableData:
+  - m_Id: 35259150336
+    m_Localized: Gizmo/flechas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 285885591552
+    m_Localized: Ajustar al tallo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12191606239232
+    m_Localized: La planta no capta suficiente sol para sobrevivir
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14948081856512
+    m_Localized: las raices de tu planta no captan el suficiente agua para sobrevivir
+    m_Metadata:
+      m_Items: []
+  - m_Id: 39933659836416
+    m_Localized: '{0}
+
+
+      {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 1206876137903095809
+  - m_Id: 40084235350016
+    m_Localized: Planta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 73865629528064
+    m_Localized: Hojas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 75206380744704
+    m_Localized: Ramas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76572364894208
+    m_Localized: 'Herramienta de movimiento
+
+      selecionada'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 79985374916608
+    m_Localized: Flores
+    m_Metadata:
+      m_Items: []
+  - m_Id: 80426213044224
+    m_Localized: Frutas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 80828299997184
+    m_Localized: Esporangios
+    m_Metadata:
+      m_Items: []
+  - m_Id: 81228730200064
+    m_Localized: Raices
+    m_Metadata:
+      m_Items: []
+  - m_Id: 387905283158016
+    m_Localized: Tallo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 388197919748096
+    m_Localized: Partes
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 1206876137903095809
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 00f09bc751240000

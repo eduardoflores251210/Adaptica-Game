@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 652e236a43923eb49bafe5395a075a96, type: 3}
+  m_Name: VegeralPartsDatabase
+  m_EditorClassIdentifier: 
+  allParts:
+  - {fileID: 11400000, guid: e0f1452adf079444c91902e6157114a7, type: 2}
+  - {fileID: 11400000, guid: c78077e27d570b0449b128d5f1db4fb1, type: 2}
+  - {fileID: 11400000, guid: 25188820e50165048afcdd11c22e9b51, type: 2}

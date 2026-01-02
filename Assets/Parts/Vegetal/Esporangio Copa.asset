@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5197019b10814e549a1baa0f8eca9ac7, type: 3}
+  m_Name: Esporangio Copa
+  m_EditorClassIdentifier: 
+  partID: -1
+  displayName: Esporangio en copa
+  description: 
+  icon: {fileID: 0}
+  prefab: {fileID: 9131955397748704421, guid: fe1d2197acbcd3a4481c2b9dd31c6712, type: 3}
+  categories: 10000000
+  size: 1
+  healthBoost: 2
+  tags: []
+  Stats:
+    stats: []
+  SunLightPower: 50
+  WaterAbsortionBoost: 10
+  function: 5

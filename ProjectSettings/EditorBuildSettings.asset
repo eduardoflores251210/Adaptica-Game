@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MainMenui.unity
+    guid: 936951464c2038c4a919dd45f5b156de
+  - enabled: 1
+    path: Assets/Scenes/CeEditor.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Scenes/Microbe Viewer.unity
+    guid: c37bacb7d37074d439b35333ec2ee996
+  - enabled: 1
+    path: Assets/Scenes/FormationCinematic.unity
+    guid: 410792401ce16b644b44851968982931
+  - enabled: 1
+    path: Assets/Scenes/CellStage.unity
+    guid: d45f2a076c675ab4c9819da3e8f3a5e8
+  - enabled: 1
+    path: Assets/Scenes/PlantEditor.unity
+    guid: b86fa975dc779e846aa7278804f78c75
+  - enabled: 1
+    path: Assets/Scenes/Spae stage.unity
+    guid: 9c76b260387e10149ba53b024fcb3a72
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 94909584c2493ba43a8a1f9fde917513, type: 2}
+    com.unity.input.settings: {fileID: 11400000, guid: 45dd730caf1d33d4e974ca5eb3ae1e76, type: 2}
+    com.unity.localization.settings: {fileID: 11400000, guid: 508f003e9c0680d40a07b7c6efc8bfb3, type: 2}
+  m_UseUCBPForAssetBundles: 0

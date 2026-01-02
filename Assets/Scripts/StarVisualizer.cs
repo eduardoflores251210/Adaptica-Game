@@ -1,0 +1,304 @@
+﻿using aaa;
+using SerializableTypes;
+using SerializableTypes.Space;
+using StandartUtilities.Extentions;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.Assertions.Must;
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "UNT0022:Inefficient position/rotation assignment", Justification = "<pendiente>")]
+public class StarVisualizer : MonoBehaviour
+{
+	[Header("Opciones de visualización")]
+	public float GalaxyScale = 1f;
+	public Material BasMat; // SI O SI DEBE USAR EL SHADER StarShader
+	public Material BholMat; //este material brilla por que es el del disco de acrecion
+	public Material OpaceMat; //este material es opaco por que planetas y enanas negras
+	public Transform starParent; // Objeto padre opcional
+	public GalaxyGenerator Generator;
+	public bool IsDebug = false;
+	Mesh Sphere = null;
+	// Materiales por tipo de estrella
+	public Dictionary<StarTypes, Material> Mats = new Dictionary<StarTypes, Material>();
+	// ParticleSystems compartidos por tipo
+	public Dictionary<StarTypes, ParticleSystem> Particles = new Dictionary<StarTypes, ParticleSystem>();
+	public bool Done = false;
+	[HideInInspector]
+	[NonSerialized]
+	public List<GalaxySector> list;
+
+	public int BatchSize = 50;
+	public bool IsInMainMenu = false;
+	public bool HideRouguePlanets = true;
+	[Header("Opcional")]
+	public SectorTurnOnOffEr ChunckManager;
+
+	void Start()
+	{
+		if (Sphere == null)
+		{
+			GameObject tmp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+			Sphere = tmp.GetComponent<MeshFilter>().mesh.CopyMesh();
+			Destroy(tmp);
+		}
+		// Crear materiales por tipo
+		foreach (StarTypes st in Enum.GetValues(typeof(StarTypes)))
+		{
+			Material material = new Material(BasMat);
+			material.SetFloat("_Temp_K", StarData.Temperatures[st]);
+			Mats[st] = material;
+			if (st == StarTypes.X)
+			{
+				Mats[st] = BholMat;
+			}
+			else if (st == StarTypes.EN)
+			{
+				Mats[st] = OpaceMat;
+			}
+
+			// Crear ParticleSystem compartido para este tipo
+			GameObject psGO = new GameObject($"Particles_{st}");
+			psGO.transform.parent = this.transform;
+			ParticleSystem ps = psGO.AddComponent<ParticleSystem>();
+			var main = ps.main;
+			main.simulationSpace = ParticleSystemSimulationSpace.World;
+			main.loop = true;
+			main.playOnAwake = true;
+			main.startSize = 1f;
+			main.startLifetime = Mathf.Infinity;
+			ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+#pragma warning disable CS0618 // El tipo o el miembro están obsoletos
+			ps.startSpeed = 0;
+#pragma warning restore CS0618 // El tipo o el miembro están obsoletos
+			Particles[st] = ps;
+
+		}
+		try
+		{
+			StartCoroutine(LookCoroutine());
+		}
+		catch (Exception e) { Debug.Log(e); }
+	}
+
+	public IEnumerator LookCoroutine()
+	{
+#pragma warning disable IDE0059 // Asignación innecesaria de un valor
+		GalaxyData data = null;
+#pragma warning restore IDE0059 // Asignación innecesaria de un valor
+		try { data = GalaxyData.LoadGalaxy(); }
+		catch (Exception e) { Debug.Log(e); yield break; }
+
+		if (data == null) yield break;
+
+		list = new List<GalaxySector>();
+		foreach (var st in data.SectorPositions)
+		{
+			GalaxyData.LoadSector(st, out var Sec);
+			if (Sec != null) list.Add(Sec);
+			yield return null;
+		}
+
+		if (list.Count > 0) yield return StartCoroutine(VisualizeStars(list, data));
+	}
+	public GalaxyData galaxy = null;
+
+	public IEnumerator VisualizeStars(List<GalaxySector> sectors, GalaxyData data = null)
+	{
+		if (starParent == null) starParent = this.transform;
+		galaxy= data;
+		foreach (var sector in sectors)
+		{
+			GameObject SectorGO = GameObject.CreatePrimitive(PrimitiveType.Plane);
+			SectorGO.name = ($"Sector_{sector.Position}");
+			SectorGO.transform.position = (((Vector3)sector.Position.To3DXZ()).Multiply3d(((Vector2)Generator.sectorSize).To3DXZ())) * GalaxyScale;
+			SectorGO.transform.localScale = Vector3.one;
+			var MeshFiltaaa = SectorGO.GetComponent<MeshFilter>();
+			MeshFiltaaa.mesh = MeshFiltaaa.mesh.ScaleMesh(((Vector2)Generator.sectorSize).To3DXZ());
+			SectorGO.GetComponent<MeshRenderer>().enabled = IsDebug;
+			if (ChunckManager != null)
+			{
+				if (ChunckManager.Sectors == null)
+					ChunckManager.Sectors = new List<GameObject>();
+				else 
+					ChunckManager.Sectors.Add(SectorGO);
+			}
+
+			int Batch = 0;
+			foreach (var star in sector.Stars)
+			{
+				if(star == null) continue;
+				if (star.IsNull()) continue;
+				if (!IsInMainMenu)
+				{
+
+					GameObject starGO = new GameObject(star.id);
+					starGO.transform.position = star.transform.Pos * GalaxyScale;
+					starGO.transform.rotation = Quaternion.Euler(star.transform.Rot);
+					starGO.transform.parent = SectorGO.transform;
+					var SPSDATA = starGO.AddComponent<SpaceStageStar>();
+					starGO.AddComponent<SphereCollider>();
+					SPSDATA.ID = star.id;
+					SPSDATA.BinTransform = star.transform;
+					SPSDATA.Type = star.type;
+					SPSDATA.SectorPos =sector.Position;
+				}
+				// Partículas compartidas por tipo
+				if (Particles.ContainsKey(star.type))
+				{
+					ParticleSystem ps = Particles[star.type];
+					ParticleSystem.EmitParams emit = new ParticleSystem.EmitParams();
+					emit.position = star.transform.Pos * GalaxyScale;
+					ps.Emit(emit, 1);
+				}else
+				{
+
+				}
+
+				Batch++;
+				if (Batch >= BatchSize)
+				{
+					Batch = 0;
+					yield return null;
+				}
+			}
+			GalObjCollection collection = data.GetRougueStuffInThisSector(sector.Position);
+				; //esto tarda demasiado tiempo en salir 
+			yield return null;
+			if (!HideRouguePlanets)
+			{
+				if (collection != null)
+				{
+					if (collection.planets != null)
+					{
+						if (collection.planets.Count != 0)
+						{
+							foreach (var planet in collection.planets)
+							{
+								if (!IsInMainMenu)
+								{
+
+									GameObject PlanetGO = new GameObject(planet.id);
+									PlanetGO.transform.position = planet.transform.Pos * GalaxyScale;
+									PlanetGO.transform.rotation = Quaternion.Euler(planet.transform.Rot);
+									PlanetGO.transform.parent = SectorGO.transform;
+									var SPPDATA = PlanetGO.AddComponent<SpaceStageRouguePlanet>();
+									PlanetGO.AddComponent<SphereCollider>();
+									SPPDATA.ID = planet.id;
+									SPPDATA.BinTransform = planet.transform;
+									SPPDATA.Type = planet.type;
+								}
+								// Partículas compartidas por tipo
+								if (Particles.ContainsKey(StarTypes.EN))
+								{
+									ParticleSystem ps = Particles[StarTypes.EN];
+									ParticleSystem.EmitParams emit = new ParticleSystem.EmitParams();
+									emit.position = planet.transform.Pos * GalaxyScale;
+									ps.Emit(emit, 1);
+								}
+								Batch++;
+								if (Batch >= BatchSize)
+								{
+									Batch = 0;
+									yield return null;
+								}
+							}
+						}
+					}
+				}
+			}
+			SectorGO.transform.parent = starParent;
+			if (ChunckManager != null)
+			{
+				SectorGO.SetActive(false);
+			}
+			yield return null;
+		}
+		foreach (var ps in Particles)
+		{
+			ps.Value.Pause();
+			var renderer = ps.Value.GetComponent<ParticleSystemRenderer>();
+			renderer.material = Mats[ps.Key];
+			if (ps.Key == StarTypes.X)
+			{
+				renderer.material = BholMat;
+			}
+		}
+		Done = true;
+	}
+
+
+}
+
+
+
+// Namespace de prueba
+namespace aaa
+{
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0044:Convertir el miembro en 'readonly'", Justification = "<pendiente>")]
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Estilos de nombres", Justification = "<pendiente>")]
+	public static class aaaa
+	{
+		static double aaaaaaaaaaaaaaaaaaa = 3.14;
+		public static Vector3 To3DXZ(this Vector2 a)
+		{
+			return new Vector3(a.x, 0, a.y);
+		}
+		public static Vector3 To3DXY(this Vector2 a)
+		{
+#pragma warning disable UNT0035 // A Vector3 can be converted into a Vector2.
+			return new Vector3(a.x, a.y, 0);
+#pragma warning restore UNT0035 // A Vector3 can be converted into a Vector2.
+		}
+		public static Vector3Int To3DXZ(this Vector2Int a)
+		{
+			return new Vector3Int(a.x, 0, a.y);
+		}
+		public static Vector3Int To3DXY(this Vector2Int a)
+		{
+			return new Vector3Int(a.x, a.y, 0);
+		}
+		/// <summary>
+		/// Escala la malla directamente modificando sus vértices.
+		/// Esto NO requiere cambiar el Transform del GameObject.
+		/// </summary>
+		/// <param name="mesh">La malla a escalar.</param>
+		/// <param name="scale">Vector de escala por eje.</param>
+		public static Mesh ScaleMesh(this Mesh mesha, Vector3 scale)
+		{
+			if (mesha == null) throw new Exception("W");
+
+			Vector3[] verts = mesha.vertices;
+
+			for (int i = 0; i < verts.Length; i++)
+			{
+				verts[i] = Vector3.Scale(verts[i], scale);
+			}
+			Mesh mesh = new Mesh();
+			mesh.vertices = verts;
+			mesh.triangles = mesha.triangles;
+			mesh.RecalculateBounds();
+			mesh.RecalculateNormals();
+			return mesh;
+		}
+		public static Mesh CopyMesh(this Mesh mesh)
+		{
+			var colors = mesh.colors;
+			var colors32 = mesh.colors32;
+			var tris = mesh.triangles;
+			var vers = mesh.vertices;
+			var uvs = mesh.uv;
+			Mesh Mesh2 = new Mesh();
+			Mesh2.vertices = vers; Mesh2.triangles = tris;
+			Mesh2.uv = uvs;
+			Mesh2.colors = colors;
+			Mesh2.colors32 = colors32;
+			Mesh2.RecalculateBounds();
+			Mesh2.RecalculateNormals();
+			Mesh2.RecalculateTangents();
+			return Mesh2;
+		}
+	}
+}

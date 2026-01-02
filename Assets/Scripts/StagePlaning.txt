@@ -1,0 +1,35 @@
+Esto no es codigo C#. aunque este en la carpeta de Scripts  XD.
+Es un archivo de texto plano utilizado para planificar las etapas del desarrollo del proyecto.
+
+Celula:
+	A menudo lo llamo celula pero en realidad se llama Microbio.
+	Es la primera etapa del juego.
+	EL jugador controla un microbio Multicelular temprano.
+	el objetivo es comer, sovrevir y evolucionar. como en Spore.
+	El jugador puede evolucionar su microbio agregando nuevas partes y habilidades.
+	Los otros microbios son tontos y solo buscan comida.
+Criatura:
+	La segunda etapa del juego.
+	El jugador controla una criatura acuática.
+	El objetivo es explorar el océano, encontrar comida y evitar depredadores.
+	El jugador puede evolucionar su criatura agregando nuevas partes y habilidades.
+	Los otros animales tienen IA básica y pueden cazar o huir.
+	Puede migrar a tierra o devuelta al agua en cualquier momento. a diferencia de Thrive y Spore.
+	En tierra, el jugador debe encontrar comida y evitar depredadores terrestres.
+	ademas en tierra los meteoritos que caen pueden darte una concusion temporal.
+Tribal:
+	basicamente edad de piedra
+	El objetivo es desarollar tecnologias y interactuar con otras tribus
+	es un city builder
+City: 
+	es un city builder mas avanzado el objetivo es mejorar la tecnologia inicias en la edad feudal
+	este estadio es especial por que No termina en si aun puede acceder sus caracteristicas desde espacio y civilización
+	aunque si solo sobrevive el editor de ciudades en los otros estadios no la parte feudal antes que pienses eso
+Civilización:
+	es un juego de estrategia en tiempo real como victoria 2
+	hay acceso al editor de ciudad de City
+Space:
+	En esta etapa exploras el universo interactuas ocn demas especies
+	colizas planetas
+	teraforams planetas.
+	y el resto de cosas que su version de spore

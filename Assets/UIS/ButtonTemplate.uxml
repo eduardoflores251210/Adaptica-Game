@@ -1,0 +1,4 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UIS/sfdddfsdfsdsfsddfs.uss?fileID=7433441132597879392&amp;guid=c4436d509f060744e8655647c860f26f&amp;type=3#sfdddfsdfsdsfsddfs" />
+    <engine:Button name="SRX" focusable="true" class="PBu" style="top: auto; right: auto; position: relative; background-image: none; width: 100%; height: 100%; display: flex; visibility: visible; opacity: 1;" />
+</engine:UXML>

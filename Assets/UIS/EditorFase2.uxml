@@ -1,0 +1,10 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UIS/sfdddfsdfsdsfsddfs.uss?fileID=7433441132597879392&amp;guid=c4436d509f060744e8655647c860f26f&amp;type=3#sfdddfsdfsdsfsddfs" />
+    <engine:VisualElement style="flex-grow: 1; background-color: rgba(111, 111, 111, 0.36); position: absolute; width: 100%; height: 100%;" />
+    <engine:Label text="Guardar" name="Label" class="text-auto-size text-auto-size-max-275-50" style="font-size: 713px; height: 27%; width: 100%; -unity-text-align: upper-center; border-left-color: rgba(0, 0, 0, 0); border-right-color: rgba(0, 0, 0, 0); border-top-color: rgba(0, 0, 0, 0); border-bottom-color: rgba(0, 0, 0, 0);" />
+    <engine:TextField label="Nombre" value="Mi criatura" password="false" name="Nam" />
+    <engine:TextField label="Descripcion" placeholder-text="filler text" multiline="true" value="&#10;&#10;&#10;&#10;&#10;&#10;" name="Desc" style="border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;" />
+    <engine:Button text="Guardar" name="Sig" class="PBu" style="left: 25%; width: 50%;" />
+    <engine:Button text="Atras" name="Atrs" class="PBu" style="left: auto; width: 15%; right: 0; position: absolute; top: auto; bottom: 0;" />
+    <engine:Label name="WARNING" />
+</engine:UXML>

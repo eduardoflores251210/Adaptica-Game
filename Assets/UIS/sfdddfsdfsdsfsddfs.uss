@@ -1,0 +1,110 @@
+.PBu {
+    opacity: 0.81;
+    border-left-color: rgb(132, 132, 132);
+    border-right-color: rgb(91, 91, 91);
+    border-top-color: rgba(166, 166, 166, 0.72);
+    border-bottom-color: rgba(22, 22, 22, 0.89);
+    background-color: rgb(185, 185, 185);
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.Paint {
+    border-left-color: rgba(41, 178, 177, 0.64);
+    border-top-color: rgb(71, 214, 248);
+    border-bottom-color: rgb(65, 56, 56);
+    background-color: rgb(84, 192, 204);
+}
+
+.unity-foldout__checkmark {
+    background-image: url("project://database/Assets/Textures/UI/TRIANGLE%2017.png?fileID=2800000&guid=6ce9f74fa9b67414196840226aa2aad7&type=3#TRIANGLE 17");
+    background-color: rgba(0, 0, 0, 0);
+    -unity-background-image-tint-color: rgb(0, 0, 0);
+}
+
+#G .unity-base-slider__dragger {
+    background-color: rgb(0, 255, 0);
+}
+
+#R .unity-base-slider__dragger {
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgb(255, 0, 0);
+}
+
+.aaaaa {
+    max-width: none;
+    border-top-color: rgb(255, 255, 255);
+    border-left-color: rgb(60, 60, 60);
+    background-image: none;
+    cursor: initial;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-left-radius: 1px;
+    border-top-right-radius: 1px;
+    border-bottom-right-radius: 1px;
+    border-bottom-left-radius: 1px;
+    border-right-color: rgb(159, 151, 151);
+    border-bottom-color: rgb(75, 75, 75);
+    background-color: rgb(200, 200, 200);
+}
+
+#B .unity-base-slider__dragger {
+    background-color: rgb(0, 0, 255);
+}
+
+.PBu:hover {
+    background-color: rgb(176, 176, 176);
+}
+
+.PBu:active {
+    background-color: rgb(144, 144, 144);
+}
+
+.PaintButton {
+}
+
+.PaintButton:hover {
+    background-color: rgb(77, 175, 186);
+}
+
+.PaintButton:active {
+    background-color: rgb(67, 151, 161);
+}
+
+#SRX .unity-toggle__checkmark {
+    cursor: initial;
+    background-image: url("project://database/Assets/Textures/UI/Iconos%20ZW.png?fileID=-865778052&guid=329b2f4b0b818d944ac2408d16ff98d6&type=3#Fem");
+    background-color: rgb(255, 255, 255);
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.PBu :disabled {
+    background-color: rgb(58, 58, 58);
+}
+
+#unity-text-input {
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-left-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-top-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    border-top-left-radius: 1px;
+    border-top-right-radius: 1px;
+    border-bottom-right-radius: 1px;
+    border-bottom-left-radius: 1px;
+}
+
+.Tool {
+    border-left-color: rgba(178, 41, 41, 0.64);
+    border-top-color: rgb(248, 71, 71);
+    border-bottom-color: rgb(65, 56, 56);
+    background-color: rgb(204, 84, 84);
+}

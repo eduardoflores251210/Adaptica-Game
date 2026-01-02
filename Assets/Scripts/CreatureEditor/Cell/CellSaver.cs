@@ -1,0 +1,192 @@
+using SerializableTypes;
+using SerializableTypes.Biology;
+using SerializableTypes.Space;
+using StandartUtilities;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+																																												
+public class CellSaver : MonoBehaviour
+{
+	public NamedescManager namedescManager;
+	public PartManager partmanager;
+	public PhaseManager phasemanager;
+	public SegmentManager segmentmanager;
+
+	/// <summary>
+	/// Guarda el microbio
+	/// </summary>
+	public void Save()
+	{
+		string SavePath = Paths.Cells;
+		bool ooo = !System.IO.Directory.Exists(SavePath);
+		if (ooo) { System.IO.Directory.CreateDirectory(SavePath); }
+		if (partmanager == null ||  phasemanager == null || segmentmanager == null || namedescManager == null)
+		{
+			return;
+		}
+		List<PartComp> Fp = new List<PartComp>();
+		List<PartComp> Mp = new List<PartComp>();
+		bool hasmale;
+		if (partmanager.MaleParts != null) 
+		{
+			if (partmanager.MaleParts.Count == 0)
+			{
+				hasmale = false;
+			}
+			else hasmale = true;
+		} else { hasmale = false ;}
+		foreach (var f in partmanager.FemaleParts) {
+			Fp.Add(f.GetComponent<PartComp>());
+		} 
+		if (hasmale)
+		{
+			foreach(var m in partmanager.MaleParts)
+			{
+				Mp.Add(m.GetComponent<PartComp>());
+			}
+		}
+		MicrobeData microbe = SerializeMicrobe(segmentmanager.Segments, Fp, Mp, namedescManager.Name, namedescManager.Description, partmanager.MaleColor, partmanager.FemaleColor, partmanager.IsDimorphic(), phasemanager.Mesh, partmanager.savedRepType, partmanager.savedRepMethod);
+		string json = JsonUtility.ToJson(microbe, prettyPrint: true);
+		string fullPath = System.IO.Path.Combine(SavePath, $"{microbe.Name}.json");
+		System.IO.File.WriteAllText(fullPath, json);
+        Debug.Log("¡Célula guardada en: " + fullPath + "!");
+
+        bool Load_Stage = false;
+        PlanetData planetfat = new();
+        string LdStgSndr = "";
+        var Mailman = CrossScenePackageSender.Instance;
+        if (Mailman != null)
+        {
+            // Revisar paquetes tipados tipo bool
+            if (Mailman.IsThereAnyTypedMailForHim<bool>("CellSaver", out var boolMail))
+            {
+                foreach (var pkg in boolMail)
+                {
+                    if (pkg.Tags.Length > 1 && pkg.Tags[1] == "LodStg")
+                    {
+                        Load_Stage = pkg.Contents;
+                        LdStgSndr = pkg.Sender;
+                        Mailman.DeleteMyPackage(pkg);
+                    }
+                }
+            }
+
+            // Revisar paquetes tipados tipo PlanetData
+            if (Mailman.IsThereAnyTypedMailForHim<PlanetData>("CellSaver", out var planetMail))
+            {
+                planetfat = planetMail[0].Contents;
+                Mailman.DeleteMyPackage(planetMail[0]);
+            }
+        }
+
+        if (Load_Stage)
+        {
+            Mailman.SendTypedPackage(gameObject.name, "Player", microbe, new string[1] { nameof(MicrobeData) });
+            if (LdStgSndr != "EnterEdit")
+            {
+                
+                SavedGame game = new SavedGame(planetfat.id, false, Stages.Microbe, microbe.Name, new(), GetDiet(microbe), 0d);
+                string jsgm = JsonUtility.ToJson(obj: game, prettyPrint: true);
+                if (!Directory.Exists(Paths.SaveFiles))
+                    Directory.CreateDirectory(Paths.SaveFiles);
+                File.WriteAllText(Path.Combine(Paths.SaveFiles, $"Game{planetfat.id}.json"), jsgm);
+            }
+            SceneManager.LoadScene(4); // estado Microbio
+        }
+        else SceneManager.LoadScene(0); // menu principal
+    }
+	
+	private Diets GetDiet(MicrobeData microbe)
+	{
+		Diets diet = Diets.none;
+		bool hasHerb = false;
+		bool HasOmn = false;
+		bool hasCarn = false;
+		foreach (var pf in microbe.PartsF)
+		{
+			var pt = partmanager.Database.GetPartByID(pf.Id);
+			if (pt.categories.Contains(PartCategories.Mouths))
+			{
+				if (pt.tags.Contains("Herb"))
+				{
+					hasHerb = true;
+				}
+				if (pt.tags.Contains("Carn"))
+				{
+					hasCarn = true;
+				}
+				if (pt.tags.Contains("Omn"))
+				{
+					HasOmn = true;
+				}
+			}
+		}
+		if (hasHerb && !( hasCarn || HasOmn))
+		{
+			diet = Diets.Herbivore;
+		}
+		if (hasCarn &&  !( hasHerb || HasOmn))
+		{
+			diet = Diets.Carnivore;
+		}
+		if (HasOmn || (hasHerb && hasCarn))
+		{
+			diet = Diets.Omnivore;
+		}
+		return diet;
+	}
+
+	SegmentData SerializeSegment(Metaball mt)
+	{
+		SegmentData  segment = new SegmentData();
+		segment.radius = mt.Radius;
+		segment.transform = (StdUtils.Serializable.Transform)mt.transform;
+		return segment;
+	}
+	SerializedPartData SeriallizePart(PartComp part)
+	{
+		SerializedPartData data = new(part.ID, (StdUtils.Serializable.Transform)part.transform);
+		return data;
+	}
+	MicrobeData SerializeMicrobe(List<Metaball> Segments, List<PartComp> PartsF, List<PartComp> PartsM, String Name, String Descrition, Color MaleColor, Color FemaleColor,Boolean HasMale, UnityEngine.Mesh mesh,reproductionTypes reproductionTypes,ReproductionMethod reproductionMethod)
+	{
+		List<SerializedPartData> PartsSM = new List<SerializedPartData>();
+		List<SerializedPartData> PartsSF = new List<SerializedPartData>();
+		List<SegmentData> Segs = new List<SegmentData>();
+		foreach (var part in PartsF)
+		{
+			PartsSF.Add(SeriallizePart((PartComp)part));
+		}
+		foreach (var part in PartsM)
+		{
+			PartsSM.Add(SeriallizePart((PartComp)part));
+		}
+		foreach (var sg  in Segments)
+		{
+			Segs.Add(SerializeSegment(sg));
+		}
+		StdUtils.Serializable.Mesh Smesh = (StdUtils.Serializable.Mesh)mesh;
+		return new MicrobeData(Name, Descrition, HasMale, reproductionTypes, reproductionMethod, PartsSF, PartsSM, FemaleColor, MaleColor,Segs,Smesh);
+	}
+}
+public static class Paths
+{
+	public static string Cells = Path.Join(Application.persistentDataPath, "SavedCells");
+	public static string Plants = Path.Join(Application.persistentDataPath, "SavedPlants");
+	public static string Creatures = Path.Join(Application.persistentDataPath, "SavedCreatures");
+	public static string Galaxy = Path.Join(Application.persistentDataPath, "Galaxy");
+    public static string GalaxySectors = Path.Join(Galaxy, "Region");
+    public static string Planets = Path.Join(Paths.GalaxySectors, "Planets");
+    public static string Baricenters = Path.Join(Paths.GalaxySectors, "Baricenters");
+    public static string MiscGalaxy = Path.Join(Paths.GalaxySectors, "Misc");
+    public static string SaveFiles = Path.Join(Application.persistentDataPath, "Saves"); 
+    public static string BackUPCreations = Path.Join(Application.persistentDataPath, "BackUps");
+	public static string BackUPCells = Path.Join(BackUPCreations, "Cells");
+	public static string BackUPCreatures = Path.Join(BackUPCreations, "Creatures");
+
+}
