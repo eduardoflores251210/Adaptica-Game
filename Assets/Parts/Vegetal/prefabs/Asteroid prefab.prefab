@@ -14,8 +14,9 @@ GameObject:
   - component: {fileID: 7316145969921805256}
   - component: {fileID: 5345350578147246404}
   - component: {fileID: 5071547900788867558}
+  - component: {fileID: -4424518025028902935}
   m_Layer: 0
-  m_Name: New Prefab
+  m_Name: Asteroid prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -152,3 +153,22 @@ MonoBehaviour:
   gravityStrength: 9.8
   maxSpeed: 90
   ExplosionPrefab: {fileID: 553662785279423542, guid: 02c4dd446f1f11f47bb737ed2e5d56bc, type: 3}
+--- !u!114 &-4424518025028902935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6280658151125455815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 629956c923ee65b4289f010f57692d1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Meshes:
+  - {fileID: 6834884107459821023, guid: 9eea46a8c02e3c64aaf4fff669d45c96, type: 3}
+  - {fileID: 12492812159257231, guid: 9eea46a8c02e3c64aaf4fff669d45c96, type: 3}
+  - {fileID: -3391244897856938242, guid: 9eea46a8c02e3c64aaf4fff669d45c96, type: 3}
+  - {fileID: -8583971094305936905, guid: 9eea46a8c02e3c64aaf4fff669d45c96, type: 3}
+  - {fileID: 2408122803977246385, guid: 9eea46a8c02e3c64aaf4fff669d45c96, type: 3}
+  - {fileID: -2545186393766772349, guid: 9eea46a8c02e3c64aaf4fff669d45c96, type: 3}
