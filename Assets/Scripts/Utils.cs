@@ -1403,6 +1403,92 @@ namespace ActualUtils
 			return game;
 		}
 		public static string J(string a, string b) => Path.Combine(a, b); //si me da peresa escribir Path.Join
+		/// <summary>
+		/// intentra cargar la ultima revision del microbio de la partida 
+		/// </summary>
+		/// <param name="savefile"></param>
+		/// <param name="name"></param>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public static bool TryToLoadLastMicrobeRevision(string savefile, out MicrobeData data)
+		{
+			string dir1 = J(pt.SaveFiles, savefile);
+			string dir2 = J(dir1, "Microbe");
+
+			var files = Directory.GetFiles(dir2);
+			// Ordenar por fecha de modificación ascendente (más antiguos primero)
+			var sortedFiles = files.OrderBy(f => File.GetLastWriteTime(f)).ToList();
+
+			List<MicrobeData> Revisions = new();
+			foreach (var json in sortedFiles)
+			{
+				string Jsontex = File.ReadAllText(json);
+				try
+				{
+					MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(Jsontex);
+					if (true)
+						Revisions.Add(microbe);
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError(ex);
+					continue;
+				}
+			}
+			if (Revisions.Count > 0)
+			{
+				int revission = Revisions.Count - 1;
+				data = Revisions[revission];
+				return true;
+			}
+			else
+			{
+				data =
+				 MicrobeData.GetDefaultMicrobe();
+				return false;
+			}
+
+		}
+		/// <summary>
+		/// intenta cargar el microbio de la partida con X revision  
+		/// </summary>
+		/// <param name="savefile"></param>
+		/// <param name="name"></param>
+		/// <param name="revission"></param>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public static bool TryLoadMicrobeRevission(string savefile, int revission, out MicrobeData data)
+		{
+			string dir1 = J(pt.SaveFiles, savefile);
+			string dir2 = J(dir1, "Microbe");
+
+			var files = Directory.GetFiles(dir2);
+			// Ordenar por fecha de modificación ascendente (más antiguos primero)
+			var sortedFiles = files.OrderBy(f => File.GetLastWriteTime(f)).ToList();
+
+			List<MicrobeData> Revisions = new();
+			foreach (var json in sortedFiles)
+			{
+				string Jsontex = File.ReadAllText(json);
+				try
+				{
+					MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(Jsontex);
+					if (true)
+						Revisions.Add(microbe);
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError(ex);
+					continue;
+				}
+			}
+			MicrobeData a;
+			if (Revisions.Count > 0) { 
+				data= Revisions[revission];
+				return true;
+			}
+			else {data =  MicrobeData.GetDefaultMicrobe(); return false;}
+		}
 	}
 
 }
