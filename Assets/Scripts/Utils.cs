@@ -1339,14 +1339,31 @@ namespace SerializableTypes
 namespace ActualUtils
 {
 	using pt = Paths;
-
+	/// <summary>
+	/// Creara y Cargara partidas en el nuevo sistema de guardado 
+	/// </summary>
 	public static class Saver
 	{
+		/// <summary>
+		/// Crea una nueva partida guardada con la siguiente estructura
+		/// pt.Savefiles
+		///		[partida nombre en SHA 512]
+		///			CreationPrivate
+		///				Creatures
+		///				Microbe
+		///				TribalClothes
+		///				FeudalCLothes 
+		///				NationClothes
+		///			Save.json
+		/// </summary>
+		/// <param name="CreatureName">Nombre de la ciratura</param>
+		/// <param name="PlanetID">ID del planeta </param>
+		/// <returns></returns>
 		public static SavedGame CreateSavefile(string CreatureName, ulong PlanetID)
 		{
-			if (!Directory.Exists(Paths.SaveFiles))
+			if (!Directory.Exists(pt.SaveFiles))
 			{
-				Directory.CreateDirectory(Paths.SaveFiles);
+				Directory.CreateDirectory(pt.SaveFiles);
 			}
 			string SHA = "";
 			using SHA512 sHA = SHA512.Create();
@@ -1362,7 +1379,7 @@ namespace ActualUtils
 			}
 			string fil = J(pt.SaveFiles, SHA);
 			Directory.CreateDirectory(fil);
-			string CC = J(fil, "CreationPriavate");
+			string CC = J(fil, "CreationPrivate");
 			Directory.CreateDirectory(CC);
 			Directory.CreateDirectory(J(CC, "Microbe"));
 			Directory.CreateDirectory(J(CC, "Creatures"));
@@ -1379,7 +1396,10 @@ namespace ActualUtils
 				isCPUEmpire = false,
 				PlanetID = PlanetID
 			};
-			
+			string SAV = J(fil, "Save.Json");
+			string JAV = JsonUtility.ToJson(game, true);
+			File.WriteAllText(SAV, JAV);
+
 			return game;
 		}
 		public static string J(string a, string b) => Path.Combine(a, b); //si me da peresa escribir Path.Join
