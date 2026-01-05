@@ -1,4 +1,5 @@
 ﻿using FixedMath;
+using SerializableTypes;
 using SerializableTypes.Biology;
 using SerializableTypes.Space;
 using StandartUtilities;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Mesh = StandartUtilities.StdUtils.Serializable.Mesh; //ignorar este remanenre 
@@ -159,6 +161,7 @@ namespace SerializableTypes
 			CreatureDiet = creatureDiet;
 			this.ingameTime = ingameTime;
 		}
+		public SavedGame() { }
 		public SavedGame(string planetID, bool isCPUEmpire, Stages curentStage, string creatureName, List<HistoryActions> actions, Diets creatureDiet, double ingameTime = 0)
 		{
 			PlanetID = BodyID.FromString(planetID).GetID();
@@ -1333,3 +1336,53 @@ namespace SerializableTypes
 
 }
 
+namespace ActualUtils
+{
+	using pt = Paths;
+
+	public static class Saver
+	{
+		public static SavedGame CreateSavefile(string CreatureName, ulong PlanetID)
+		{
+			if (!Directory.Exists(Paths.SaveFiles))
+			{
+				Directory.CreateDirectory(Paths.SaveFiles);
+			}
+			string SHA = "";
+			using SHA512 sHA = SHA512.Create();
+			{
+				string inp = DateTime.Now.ToString("o") + Random.ColorHSV().ToHexString();
+				byte[] AA = Encoding.UTF8.GetBytes(inp);
+				byte[] BB = sHA.ComputeHash(AA);
+				// Convertir a hexadecimal
+				StringBuilder sb = new StringBuilder();
+				foreach (byte b in BB)
+					sb.Append(b.ToString("x2"));
+				SHA = sb.ToString();
+			}
+			string fil = J(pt.SaveFiles, SHA);
+			Directory.CreateDirectory(fil);
+			string CC = J(fil, "CreationPriavate");
+			Directory.CreateDirectory(CC);
+			Directory.CreateDirectory(J(CC, "Microbe"));
+			Directory.CreateDirectory(J(CC, "Creatures"));
+			Directory.CreateDirectory(J(CC, "TribalCothes"));
+			Directory.CreateDirectory(J(CC, "FeudalCothes"));
+			Directory.CreateDirectory(J(CC, "NationCothes"));
+			SavedGame game = new()
+			{
+				CurentStage = Stages.Microbe,
+				CreatureName = CreatureName,
+				Actions = new(),
+				CreatureDiet = Diets.none,
+				ingameTime = 0,
+				isCPUEmpire = false,
+				PlanetID = PlanetID
+			};
+			
+			return game;
+		}
+		public static string J(string a, string b) => Path.Combine(a, b); //si me da peresa escribir Path.Join
+	}
+
+}
