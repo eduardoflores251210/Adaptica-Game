@@ -53,9 +53,6 @@ public class SC_RigidbodyWalker : MonoBehaviour
 	private void OnDisable()
 	{
 		map.Disable();
-		enableRotateAction.started -= ctx => isRotating = true;
-		enableRotateAction.canceled -= ctx => isRotating = false;
-		rotateAction.performed -= ctx => { if (isRotating) RotatePlayer(ctx.ReadValue<Vector2>()); };
 	}
 
 	private void FixedUpdate()
