@@ -1383,9 +1383,9 @@ namespace ActualUtils
 			Directory.CreateDirectory(CC);
 			Directory.CreateDirectory(J(CC, "Microbe"));
 			Directory.CreateDirectory(J(CC, "Creatures"));
-			Directory.CreateDirectory(J(CC, "TribalCothes"));
-			Directory.CreateDirectory(J(CC, "FeudalCothes"));
-			Directory.CreateDirectory(J(CC, "NationCothes"));
+			Directory.CreateDirectory(J(CC, "TribalClothes"));
+			Directory.CreateDirectory(J(CC, "FeudalClothes"));
+			Directory.CreateDirectory(J(CC, "NationClothes"));
 			SavedGame game = new()
 			{
 				CurentStage = Stages.Microbe,
