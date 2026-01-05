@@ -55,9 +55,10 @@ public class CreatureModeSelector : MonoBehaviour
                         { go.SetActive(false) ; }
                 }
             }
-            //el jugasdor de panqueque es el target de la camara de formapredeterminada por eso no lo asignamos
-        }
-    }
+			Camera.main.GetComponent<CameraOrbitController>().enabled = true; //activamos el Casmera orbit
+
+		}
+	}
 
     // Update is called once per frame
     void Update()
