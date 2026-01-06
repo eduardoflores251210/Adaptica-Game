@@ -127,8 +127,8 @@ namespace SerializableTypes
 	/// Microbio (cof cof Celúla de spore)
 	/// criatura (tiene el mismo nombre que en spore)
 	/// tribal (no ha empezado desarollo pero tiene el mismo nombre que en spore)
-	/// city  (no ha empezado el desarollo pero tiene el mismo nombre que su equivalente descartado en spore)
-	/// Civilization (no ha empezado desarollo pero tiene el mismo nombre que en spore)
+	/// city  (no ha empesado el desarollo pero tiene el mismo nombre que su equivalente descartado en spore)
+	/// Civilization (no ha empesado desarollo pero tiene el mismo nombre que en spore)
 	/// Space (estructuras de datos en cosntrucción aunque ya puedes visitar sistemas pero no planetas) tiene el mismo nombre que en spore
 	/// </summary>
 	public enum Stages
@@ -1403,31 +1403,122 @@ namespace ActualUtils
 			return game;
 		}
 		public static string J(string a, string b) => Path.Combine(a, b); //si me da peresa escribir Path.Join
+
+		/// <summary>
+		/// List all save folders (names)
+		/// </summary>
+		public static List<string> ListSavefiles()
+		{
+			if (!Directory.Exists(pt.SaveFiles)) return new List<string>();
+			return Directory.GetDirectories(pt.SaveFiles).Select(d => Path.GetFileName(d)).ToList();
+		}
+
+		/// <summary>
+		/// Try to load Save.Json for a savefolder
+		/// </summary>
+		public static bool TryLoadSave(string savefile, out SavedGame game)
+		{
+			game = null;
+			string dir = J(pt.SaveFiles, savefile);
+			string sav = J(dir, "Save.Json");
+			if (!File.Exists(sav)) return false;
+			try
+			{
+				string json = File.ReadAllText(sav);
+				game = JsonUtility.FromJson<SavedGame>(json);
+				return game != null;
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Delete a savefile folder
+		/// </summary>
+		public static bool DeleteSavefile(string savefile)
+		{
+			string dir = J(pt.SaveFiles, savefile);
+			if (!Directory.Exists(dir)) return false;
+			try
+			{
+				Directory.Delete(dir, true);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Save a microbe revision into the save's Microbe folder (timestamped)
+		/// </summary>
+		public static bool SaveMicrobeRevision(string savefile, MicrobeData microbe)
+		{
+			if (microbe == null) return false;
+			string dir1 = J(pt.SaveFiles, savefile);
+			string dir2 = J(dir1, "Microbe");
+			try
+			{
+				if (!Directory.Exists(dir2)) Directory.CreateDirectory(dir2);
+				string nameSafe;
+				if (string.IsNullOrEmpty(microbe.Name)) nameSafe = "microbe";
+				else
+				{
+					var invalid = Path.GetInvalidFileNameChars();
+					nameSafe = new string(microbe.Name.Select(c => invalid.Contains(c) ? '_' : c).ToArray());
+				}
+				string filename = $"{DateTime.Now.ToString("yyyyMMddHHmmss")}_{nameSafe}.json";
+				string full = Path.Combine(dir2, filename);
+				File.WriteAllText(full, JsonUtility.ToJson(microbe, true));
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Get list of microbe revision file names ordered by modification time (ascending)
+		/// </summary>
+		public static List<string> GetMicrobeRevisionFiles(string savefile)
+		{
+			string dir1 = J(pt.SaveFiles, savefile);
+			string dir2 = J(dir1, "Microbe");
+			if (!Directory.Exists(dir2)) return new List<string>();
+			var files = Directory.GetFiles(dir2).OrderBy(f => File.GetLastWriteTime(f)).Select(Path.GetFileName).ToList();
+			return files;
+		}
+
 		/// <summary>
 		/// intentra cargar la ultima revision del microbio de la partida 
 		/// </summary>
-		/// <param name="savefile"></param>
-		/// <param name="name"></param>
-		/// <param name="data"></param>
-		/// <returns></returns>
 		public static bool TryToLoadLastMicrobeRevision(string savefile, out MicrobeData data)
 		{
+			data = MicrobeData.GetDefaultMicrobe();
 			string dir1 = J(pt.SaveFiles, savefile);
 			string dir2 = J(dir1, "Microbe");
 
+			if (!Directory.Exists(dir2)) return false;
+
 			var files = Directory.GetFiles(dir2);
-			// Ordenar por fecha de modificación ascendente (más antiguos primero)
 			var sortedFiles = files.OrderBy(f => File.GetLastWriteTime(f)).ToList();
 
-			List<MicrobeData> Revisions = new();
-			foreach (var json in sortedFiles)
+			if (sortedFiles.Count == 0) return false;
+			for (int i = 0; i < sortedFiles.Count; i++)
 			{
-				string Jsontex = File.ReadAllText(json);
 				try
 				{
-					MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(Jsontex);
-					if (true)
-						Revisions.Add(microbe);
+					string json = File.ReadAllText(sortedFiles[i]);
+					MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(json);
+					if (microbe != null)
+						data = microbe;
 				}
 				catch (Exception ex)
 				{
@@ -1435,59 +1526,41 @@ namespace ActualUtils
 					continue;
 				}
 			}
-			if (Revisions.Count > 0)
-			{
-				int revission = Revisions.Count - 1;
-				data = Revisions[revission];
-				return true;
-			}
-			else
-			{
-				data =
-				 MicrobeData.GetDefaultMicrobe();
-				return false;
-			}
-
+			// return last revision
+			data = JsonUtility.FromJson<MicrobeData>(File.ReadAllText(sortedFiles.Last()));
+			return data != null;
 		}
+
 		/// <summary>
 		/// intenta cargar el microbio de la partida con X revision  
 		/// </summary>
-		/// <param name="savefile"></param>
-		/// <param name="name"></param>
-		/// <param name="revission"></param>
-		/// <param name="data"></param>
-		/// <returns></returns>
 		public static bool TryLoadMicrobeRevission(string savefile, int revission, out MicrobeData data)
 		{
+			data = MicrobeData.GetDefaultMicrobe();
 			string dir1 = J(pt.SaveFiles, savefile);
 			string dir2 = J(dir1, "Microbe");
 
-			var files = Directory.GetFiles(dir2);
-			// Ordenar por fecha de modificación ascendente (más antiguos primero)
-			var sortedFiles = files.OrderBy(f => File.GetLastWriteTime(f)).ToList();
+			if (!Directory.Exists(dir2)) return false;
 
-			List<MicrobeData> Revisions = new();
-			foreach (var json in sortedFiles)
+			var files = Directory.GetFiles(dir2);
+			var sortedFiles = files.OrderBy(f => File.GetLastWriteTime(f)).ToList();
+			if (sortedFiles.Count == 0) return false;
+			if (revission < 0 || revission >= sortedFiles.Count) return false;
+			try
 			{
-				string Jsontex = File.ReadAllText(json);
-				try
+				string json = File.ReadAllText(sortedFiles[revission]);
+				MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(json);
+				if (microbe != null)
 				{
-					MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(Jsontex);
-					if (true)
-						Revisions.Add(microbe);
-				}
-				catch (Exception ex)
-				{
-					Debug.LogError(ex);
-					continue;
+					data = microbe;
+					return true;
 				}
 			}
-			MicrobeData a;
-			if (Revisions.Count > 0) { 
-				data= Revisions[revission];
-				return true;
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
 			}
-			else {data =  MicrobeData.GetDefaultMicrobe(); return false;}
+			return false;
 		}
 	}
 

@@ -1,3 +1,4 @@
+using ActualUtils;
 using SerializableTypes;
 using SerializableTypes.Biology;
 using SerializableTypes.Space;
@@ -11,7 +12,7 @@ using UnityEngine.UIElements;
 public class LoadMenuPopulator : MonoBehaviour
 {
     
-    private string jsonFolderPath = "";
+    private string SavesFolderPath = "";
     public string ContainerName;
     public VisualTreeAsset buttonTemplate; // Plantilla de botón en UI Toolkit
     public UIDocument document;
@@ -26,10 +27,10 @@ public class LoadMenuPopulator : MonoBehaviour
 
     private void OnEnable()
     {
-        jsonFolderPath = Paths.SaveFiles;
+        SavesFolderPath = Paths.SaveFiles; //eso esta mal ahora es subcarpetas por archivo de guardado
 
-        // Obtener referencia al root VisualElement del UI Document
-        var root = document.rootVisualElement;
+		// Obtener referencia al root VisualElement del UI Document
+		var root = document.rootVisualElement;
         ButtonContaniner = root.Q(ContainerName);
         Welement = root.Q<VisualElement>(ElementoDeVentana);
        
@@ -38,7 +39,7 @@ public class LoadMenuPopulator : MonoBehaviour
         CloseButton.clicked += () => toggleWindow();
         if (OpenButton != null)
             OpenButton.clicked += () => toggleWindow();
-        LoadJsonButtons();
+        LoadButtons();
         toggleWindow(); //inicia activa pero hay que ocultarla al inicio mejor
     }
     public void toggleWindow()
@@ -151,20 +152,22 @@ public class LoadMenuPopulator : MonoBehaviour
         catch (System.Exception) { return false; }
     }
 
-    private void LoadJsonButtons()
+    private void LoadButtons()
     {
-        if (!Directory.Exists(jsonFolderPath))
+        if (!Directory.Exists(SavesFolderPath))
         {
-            Debug.LogWarning($"La carpeta {jsonFolderPath} no existe.");
+            Debug.LogWarning($"La carpeta {SavesFolderPath} no existe.");
             return;
         }
 
-        string[] jsonFiles = Directory.GetFiles(jsonFolderPath, "*.json");
-        int buttonCount = 0;
+        string[] jsonFiles = Directory.GetFiles(SavesFolderPath, "*.json"); //logica inutil por que no es compatible con el nuevo sistema de guardado por carpetas
+		int buttonCount = 0;
+        var ACTUALSAVES = Saver.ListSavefiles();
 
-        foreach (var file in jsonFiles)
+		foreach (var fil in jsonFiles)
         {
-            Debug.Log(file);
+            string file = Path.Combine(fil, "Save.json"); //ahora cada guardado es una carpeta con varios archivos dentro
+			Debug.Log(file);
             string content = File.ReadAllText(file).Trim();
             if (TryRepair(content,file))
             {
