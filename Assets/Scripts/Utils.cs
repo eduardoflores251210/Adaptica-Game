@@ -1,4 +1,5 @@
-﻿using FixedMath;
+﻿using ActualUtils;
+using FixedMath;
 using SerializableTypes;
 using SerializableTypes.Biology;
 using SerializableTypes.Space;
@@ -806,8 +807,12 @@ namespace SerializableTypes
 				Debug.LogError("No se pudo obtener CrossScenePackageSender");
 				return;
 			}
+			string filePath;
+			if (string.IsNullOrEmpty(Saver.CurrentSaveName))
 
-			string filePath = Path.Combine(Paths.Cells, $"{creatureName}.json");
+				filePath = Path.Combine(Paths.Cells, $"{creatureName}.json");
+			else
+				filePath = null;
 
 			if (!File.Exists(filePath))
 			{
@@ -815,12 +820,14 @@ namespace SerializableTypes
 				LoadEmptyMicrobe(mailMan);
 				return;
 			}
-
+			MicrobeData microbe;
 			try
 			{
 				string json = File.ReadAllText(filePath);
-				MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(json);
-
+				if (filePath != null)
+					microbe = JsonUtility.FromJson<MicrobeData>(json);
+				else
+					Saver.TryToLoadLastMicrobeRevision(Saver.CurrentSaveName,out microbe);
 				if (microbe == null )
 				{
 					Debug.LogWarning("SavedGame no tiene criatura válida, cargando microbio vacío");
@@ -1562,6 +1569,69 @@ namespace ActualUtils
 			}
 			return false;
 		}
-	}
+		public static SavedGame CurrentGame;
+		public static string CurrentSaveName;
+		public static void LoadGameComplete(string name)
+		{
+			SavedGame a;
+			if (!TryLoadSave(name, out a))
+			{
+				Debug.LogError("No se pudo cargar la partida " + name);
+				return;
+			}
+			CurrentGame = a;
+			CurrentSaveName = name;
+			StageLoader.LoadStageFromSavePath(J(J(Paths.SaveFiles, name), "Save.json"));
 
+		}
+		public static void UnloadCurrentGame(bool Save = false, SavedGame NewData = null)
+		{
+			CurrentGame = null;
+			CurrentSaveName = null;
+			if (Save)
+			{
+				CurrentGame = NewData;
+				SaveCurrentGame();
+			}
+			SceneManager.LoadScene(0);// Main Menu
+		}
+		public static void SaveCurrentGame()
+		{
+			if (CurrentGame == null || string.IsNullOrEmpty(CurrentSaveName))
+			{
+				Debug.LogError("No hay partida cargada para guardar");
+				return;
+			}
+			string dir = J(Paths.SaveFiles, CurrentSaveName);
+			string sav = J(dir, "Save.Json");
+			try
+			{
+				string json = JsonUtility.ToJson(CurrentGame, true);
+				File.WriteAllText(sav, json);
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+			}
+		}
+		public static void SaveGame(SavedGame game, string saveName)
+		{
+			if (game == null || string.IsNullOrEmpty(saveName))
+			{
+				Debug.LogError("No hay partida válida para guardar");
+				return;
+			}
+			string dir = J(Paths.SaveFiles, saveName);
+			string sav = J(dir, "Save.Json");
+			try
+			{
+				string json = JsonUtility.ToJson(game, true);
+				File.WriteAllText(sav, json);
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+			}
+		}
+	}
 }
