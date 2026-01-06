@@ -164,9 +164,10 @@ public class LoadMenuPopulator : MonoBehaviour
 		int buttonCount = 0;
         var ACTUALSAVES = Saver.ListSavefiles();
 
-		foreach (var fil in jsonFiles)
+		foreach (var fil in ACTUALSAVES)
         {
-            string file = Path.Combine(fil, "Save.json"); //ahora cada guardado es una carpeta con varios archivos dentro
+            string fil2 = Path.Combine(SavesFolderPath, fil);
+			string file = Path.Combine(fil2, "Save.json"); //ahora cada guardado es una carpeta con varios archivos dentro
 			Debug.Log(file);
             string content = File.ReadAllText(file).Trim();
             if (TryRepair(content,file))
@@ -179,7 +180,7 @@ public class LoadMenuPopulator : MonoBehaviour
                 // Ejemplo de acción al presionar el botón
                 button.clicked += () =>
 				{
-					StageLoader.LoadStageFromSavePath(file);
+					Saver.LoadGameComplete(fil);
 				};
 
                 // Añadir al contenedor
