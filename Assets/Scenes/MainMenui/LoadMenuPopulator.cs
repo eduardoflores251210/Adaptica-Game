@@ -193,3 +193,5 @@ public class LoadMenuPopulator : MonoBehaviour
         Debug.Log($"{buttonCount} botones creados desde JSONs no vacíos.");
     }
 }
+//creo que todo ya esta corregido para el nuevo sistema de guardado por carpetas
+//ahora me falta convertir manualmente mis partidas de prueba guardadas al nuevo sistema

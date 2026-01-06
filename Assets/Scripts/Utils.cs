@@ -141,6 +141,16 @@ namespace SerializableTypes
 		Civilization, //No ha empesado desarollo		ademas se le llama actualmente NACION
 		Space //estructuras de datos en cosntrucción  aunque ya puedes visitar sistemas pero no planetas
 	}
+	public enum CreatureTypes
+	{
+		Microbe,
+		Animal,
+		TribeMember,
+		FeudalCitizen,
+		Citizen,
+		SpaceCitizen,
+	}
+
 	[Serializable]
 	public class SavedGame
 	{
@@ -1627,6 +1637,55 @@ namespace ActualUtils
 			{
 				string json = JsonUtility.ToJson(game, true);
 				File.WriteAllText(sav, json);
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+			}
+		}
+		public static void SaveCreature( string json, CreatureTypes creatureType)
+		{
+			if (CurrentGame == null || string.IsNullOrEmpty(CurrentSaveName))
+			{
+				Debug.LogError("No hay partida cargada para guardar criatura");
+				return;
+			}
+			string dir = J(Paths.SaveFiles, CurrentSaveName);
+			string creDir = J(dir, "CreationPrivate");
+			string creatureFolder = creatureType switch
+			{
+				CreatureTypes.Microbe => "Microbe",
+				CreatureTypes.Animal => "Creatures",
+				CreatureTypes.TribeMember => "TribalClothes", //si aunque dice Clothes se refiere a las criaturas vestidas no a la ropa en si
+				CreatureTypes.FeudalCitizen => "FeudalClothes",
+				CreatureTypes.Citizen => "NationClothes",
+				_ => null
+			};
+			if (creatureFolder == null)
+			{
+				Debug.LogError("Tipo de criatura no válido para guardar");
+				return;
+			}
+			string fullDir = J(creDir, creatureFolder);
+			try
+			{
+				if (!Directory.Exists(fullDir)) Directory.CreateDirectory(fullDir);
+				string nameSafe;
+
+				using SHA512 sHA = SHA512.Create();
+				{
+					string inp = DateTime.Now.ToString("o") + Random.ColorHSV().ToHexString();
+					byte[] AA = Encoding.UTF8.GetBytes(inp);
+					byte[] BB = sHA.ComputeHash(AA);
+					// Convertir a hexadecimal
+					StringBuilder sb = new StringBuilder();
+					foreach (byte b in BB)
+						sb.Append(b.ToString("x2"));
+					nameSafe = sb.ToString();
+				}
+				string filename = $"{nameSafe}.json"; //nombre basado en hash de tiempo y random para evitar colisiones
+				string full = Path.Combine(fullDir, filename);
+				File.WriteAllText(full, json);
 			}
 			catch (Exception ex)
 			{
