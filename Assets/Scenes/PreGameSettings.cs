@@ -14,23 +14,6 @@ public class PreGameSettings : MonoBehaviour
 
 	void Awake()
 	{
-		// Prueba para ver si los mircrobios con clase base se pueden cargar bien
-		if (SerializableTypes.CreationLoader.TryToLoadMicrobe("Snil", out var data))
-		{
-			Debug.Log("Microbe 'Snil' loaded successfully.");
-		}
-		else
-		{
-			Debug.LogWarning("Failed to load microbe 'Snil', Trying to Load WIRM...");
-			if (SerializableTypes.CreationLoader.TryToLoadMicrobe("WIRM", out data))
-			{
-				Debug.Log("Microbe 'WIRM' loaded successfully.");
-			}
-			else
-			{
-				Debug.LogError("Failed to load microbe 'WIRM' as well. :(");
-			}
-		}
 
 
 		if (!Debug.isDebugBuild)
