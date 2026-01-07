@@ -841,7 +841,7 @@ MonoBehaviour:
   SpeedMultiplier: 0
   isOnCreatureStage: 0
   Health: 0
-  MaxHealth: 0
+  MaxHealth: 20
   CurrentEvoPoints: 0
   MaxEvoPointsGotStat: 0
   StageProgress: 0
