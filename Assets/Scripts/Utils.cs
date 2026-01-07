@@ -1573,9 +1573,16 @@ namespace ActualUtils
 			string dir2 = J(dir1, "CreationPrivate");
 			string dir3 = J(dir2, "Microbe");
 
-			if (!Directory.Exists(dir3)) return false;
+			string dir4;
+			if (Application.platform == RuntimePlatform.WindowsPlayer ||
+				Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsServer)
+				dir4 = @"\\?\" + dir3; // para rutas largas en windows
+			else
+			dir4 = dir3;
 
-			var files = Directory.GetFiles(dir3);
+			if (!Directory.Exists(dir4)) return false;
+
+			var files = Directory.GetFiles(dir4);
 			var sortedFiles = files.OrderBy(f => File.GetLastWriteTime(f)).ToList();
 
 			if (sortedFiles.Count == 0) return false;
