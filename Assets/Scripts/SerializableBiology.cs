@@ -255,7 +255,7 @@ namespace SerializableTypes.Biology
 				}
 			}
 
-			if (PartsM != null)
+			if (PartsM != null	&& HasMale) //si no tiene macho no rota partesM por  que sera la misma referencia que partesF (F es Femenino y M Masculino)
 			{
 				foreach (var part in PartsM)
 				{
@@ -326,12 +326,12 @@ namespace SerializableTypes.Biology
 				{
 					part.transform.Pos -= offset;
 				}
-
-				// Aplicar offset a PartsM
-				foreach (var part in microbe.PartsM)
-				{
+				if (HasMale)
+					// Aplicar offset a PartsM
+					foreach (var part in microbe.PartsM)
+					{
 					part.transform.Pos -= offset;
-				}
+					}
 				
 				//aplicar offset a Segments
 				foreach (var Seg in microbe.Segments)
@@ -485,7 +485,55 @@ namespace SerializableTypes.Biology
 		{
 			return new AnimalData(Name, Description, HasMale, RepType, RepMeth, PartsF, PartsM, FemaleColor, MaleColor, Segments, Mesh);
 		}
+		public void TransFromMicrobe(Transform transformation)
+		{
+			// Aplicar transformación a la malla
+			int i = 0;
+			foreach (var item in Mesh.Vertices)
+			{
+				Mesh.Vertices[i] = item+ transformation.Pos;
+				i++;
+			}
+			Mesh.RotateEuler(transformation.Rot);
+			i = 0; //reaprovechar variable reseteandola a 0	
+			foreach (var item in Mesh.Vertices)
+			{
+				Mesh.Vertices[i] = Vector3.Scale(item, transformation.Scale);
+				i++;
+			}//creo que un for seria mas eficiente pero bueno
+			 // Aplicar transformación a las partes femeninas
+			if (PartsF != null)
+			{
+				foreach (var part in PartsF)
+				{
+					Transform temp = part.transform;
+					temp.Rot = new Vector3(
+						temp.Rot.x * transformation.Scale.x,
+						temp.Rot.y * transformation.Scale.y,
+						temp.Rot.z * transformation.Scale.z);
+					temp.Pos = temp.Pos + transformation.Pos;
+					temp.Scale = Vector3.Scale(temp.Scale, transformation.Scale);
+					part.transform = temp;
+				}
+			}
+			// Aplicar transformación a las partes masculinas
+			if (PartsM != null && HasMale)
+			{
+				foreach (var part in PartsM)
+				{
+					Transform temp = part.transform;
+					temp.Rot = temp.Rot + transformation.Rot;
+					//ahora a quitar lo sobrante de la suma de rotación si pasa 360
+					if (temp.Rot.x > 360f) temp.Rot.x -= 360f;
+					if (temp.Rot.y > 360f) temp.Rot.y -= 360f;
+					if (temp.Rot.z > 360f) temp.Rot.z -= 360f;
 
+					temp.Pos = temp.Pos + transformation.Pos;
+					temp.Scale = Vector3.Scale(temp.Scale, transformation.Scale);
+					part.transform = temp;
+				}
+			}
+		}
 	}
 
 	[Serializable]
@@ -493,13 +541,13 @@ namespace SerializableTypes.Biology
 	{
 		public reproductionTypes RepType;
 		public ReproductionMethod RepMeth; //DICE metodo no metanfetamina
-		public List<MicrobeData> Limbs;
+		public List<MicrobeData> Limbs; // SI internamente las Extremidades son Microbios por que  asi es mas facil de hacer que sean Dinamicas 
 		public AnimalData(string name, string description, bool hasMale, reproductionTypes repType, ReproductionMethod repMeth, List<SerializedPartData> partsF, List<SerializedPartData> partsM, Color femaleColor, Color maleColor, List<SegmentData> segments, Mesh mesh)
 	: base(name, description, hasMale, femaleColor, maleColor, partsF, partsM, segments, mesh)
 		{
 			RepMeth = repMeth;
 			RepType = repType;
-			Limbs = new();
+			Limbs = new(); //si listas vacia por defecto
 		}
 		public AnimalData(string name, string description, bool hasMale, reproductionTypes repType, ReproductionMethod repMeth, List<SerializedPartData> partsF, List<SerializedPartData> partsM, Color femaleColor, Color maleColor, List<SegmentData> segments, Mesh mesh, List<MicrobeData> limbs)
 	: base(name, description, hasMale, femaleColor, maleColor, partsF, partsM, segments, mesh)
@@ -529,30 +577,37 @@ namespace SerializableTypes.Biology
 			return sb.ToString();
 		}
 		/// <summary>
-		/// Centra un MicrobeData moviendo su Mesh y sus PartsF/PartsM
+		/// Centra un MicrobeData digo AnimalData moviendo su Mesh y sus PartsF/PartsM
 		/// </summary>
 		public void CenterAnimal()
 		{
-			AnimalData microbe = this;
-			if (microbe.Mesh != null)
+			if (Mesh != null)
 			{
 				// Centrar la malla principal y obtener el offset
-				Vector3 offset = microbe.Mesh.CenterMesh();
+				Vector3 offset = Mesh.CenterMesh();
 
 				// Aplicar offset a PartsF
-				foreach (var part in microbe.PartsF)
+				foreach (var part in PartsF)
 				{
 					part.transform.Pos -= offset;
 				}
 
 				// Aplicar offset a PartsM
-				foreach (var part in microbe.PartsM)
+				if (HasMale)
+					foreach (var part in PartsM)
+					{
+						part.transform.Pos -= offset;
+					}
+				if (Limbs != null)
 				{
-					part.transform.Pos -= offset;
+					foreach (var limb in Limbs)
+					{
+						limb.TransFromMicrobe(new(offset,Vector3.zero, Vector3.one)); //solo aplico la traslacion por que eso solo centra posiciones No rotaciones ni escalados
+					}
 				}
 
 				//aplicar offset a Segments
-				foreach (var Seg in microbe.Segments)
+				foreach (var Seg in Segments)
 				{
 					Seg.transform.Pos -= offset;
 				}

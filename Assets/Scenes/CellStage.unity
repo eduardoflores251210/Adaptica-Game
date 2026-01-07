@@ -833,7 +833,7 @@ MonoBehaviour:
   Parts: {fileID: 11400000, guid: 983c8c5cc3bfdd84fb478d91b60df101, type: 2}
   BaseMat: {fileID: 2100000, guid: b2f9ca2be7f262141aacb55657a7812f, type: 2}
   Cam: {fileID: 961739753}
-  BG: {fileID: 0}
+  BG: {fileID: 2031897102}
   CursorSpeed: 10
   YCamOffset: 20
   inputActions: {fileID: -944628639613478452, guid: c4765c325f0af464799a1a764737ea39, type: 3}
@@ -841,7 +841,7 @@ MonoBehaviour:
   SpeedMultiplier: 0
   isOnCreatureStage: 0
   Health: 0
-  MaxHealth: 0
+  MaxHealth: 20
   CurrentEvoPoints: 0
   MaxEvoPointsGotStat: 0
   StageProgress: 0

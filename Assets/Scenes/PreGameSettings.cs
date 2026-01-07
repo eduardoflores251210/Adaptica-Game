@@ -4,7 +4,22 @@ using UnityEngine.UI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
-
+/// <summary>
+/// cosa para debug que quitare despues
+/// activa y desactiva bloom en todos los volumes de la escena
+/// pero en el futuro tambien incluiria el menu debug completo
+/// y una consola para comandos que esa si iria al build final
+/// pd si añadire Motherlode y otras referencias a Maxis
+/// Motherlode
+/// Motherlode
+/// Motherlode
+/// Motherlode
+/// Motherlode
+/// Motherlode
+/// Motherlode
+/// Motherlode
+/// OK ya paro de poner el Motherlode (que en sims da 50000 simoleones)
+/// </summary>
 public class PreGameSettings : MonoBehaviour
 {
 	public Canvas Menu;

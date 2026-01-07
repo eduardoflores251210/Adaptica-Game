@@ -1,4 +1,7 @@
-﻿using FixedMath;
+﻿using ActualUtils;
+using FixedMath;
+using SerializableTypes;
+using ActualUtils;
 using SerializableTypes.Biology;
 using SerializableTypes.Space;
 using StandartUtilities;
@@ -9,6 +12,7 @@ using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Mesh = StandartUtilities.StdUtils.Serializable.Mesh; //ignorar este remanenre 
@@ -125,8 +129,8 @@ namespace SerializableTypes
 	/// Microbio (cof cof Celúla de spore)
 	/// criatura (tiene el mismo nombre que en spore)
 	/// tribal (no ha empezado desarollo pero tiene el mismo nombre que en spore)
-	/// city  (no ha empezado el desarollo pero tiene el mismo nombre que su equivalente descartado en spore)
-	/// Civilization (no ha empezado desarollo pero tiene el mismo nombre que en spore)
+	/// city  (no ha empesado el desarollo pero tiene el mismo nombre que su equivalente descartado en spore)
+	/// Civilization (no ha empesado desarollo pero tiene el mismo nombre que en spore)
 	/// Space (estructuras de datos en cosntrucción aunque ya puedes visitar sistemas pero no planetas) tiene el mismo nombre que en spore
 	/// </summary>
 	public enum Stages
@@ -138,6 +142,16 @@ namespace SerializableTypes
 		Civilization, //No ha empesado desarollo		ademas se le llama actualmente NACION
 		Space //estructuras de datos en cosntrucción  aunque ya puedes visitar sistemas pero no planetas
 	}
+	public enum CreatureTypes
+	{
+		Microbe,
+		Animal,
+		TribeMember,
+		FeudalCitizen,
+		Citizen,
+		SpaceCitizen,
+	}
+
 	[Serializable]
 	public class SavedGame
 	{
@@ -159,6 +173,7 @@ namespace SerializableTypes
 			CreatureDiet = creatureDiet;
 			this.ingameTime = ingameTime;
 		}
+		public SavedGame() { }
 		public SavedGame(string planetID, bool isCPUEmpire, Stages curentStage, string creatureName, List<HistoryActions> actions, Diets creatureDiet, double ingameTime = 0)
 		{
 			PlanetID = BodyID.FromString(planetID).GetID();
@@ -172,6 +187,9 @@ namespace SerializableTypes
 	}
 
 	[Serializable]
+	/// <summary>
+	/// Accion hecha por el jugador
+	/// z</summary>
 	public class HistoryActions
 	{
 		public HistoryPaths Path;
@@ -186,6 +204,11 @@ namespace SerializableTypes
 		Agressive
 	}
 
+	/// <summary>
+	/// Tipo de acción realizada por el jugador
+	/// no he decidido bien cuales van a estar en el juego
+	/// asi que por ahora es una lista random de acciones posibles
+	/// </summary>
 	public enum ActionType
 	{
 		// Microbio y criatura clásica
@@ -203,14 +226,14 @@ namespace SerializableTypes
 		InteractWithSpecies,  // alianzas o exterminios interestelares, todo en uno
 		UseSuperThing,      //usar una super habilidad como Frenesi de compras
 		DETERMINATION,      // Undertale mode ON
-		FindChara,
+		FindChara,          // Si estaba EN una hiperfijación de UNDERTALE cuando hice el Enum
 		Hope,
 		Dream,
 		HopeAndDream,       // combo Asriel que te da DETERMINACIÓN
 		AdvanceStage,
 		BuildBuilding,
 		Gift,
-		FindBean,           // bean spotted!
+		FindBean,           // [bean es la criatura mas adorable del spore de Maxis]
 		DestroyBuilding,
 		DestroySettlement,
 		SignPeaceTreaty,
@@ -222,7 +245,8 @@ namespace SerializableTypes
 		DiscoverThing,
 		ResearchTechnology,
 		FindEasterEgg,
-		DELTARUNE,
+		DELTARUNE,						//si también estaba en una hiperfijación de DELTARUNE cuando hice el Enum
+		 FightBoss,           //dudo que haya bosses en el juego pero bueno
 		DestroyAllColonies,
 		BuySystem,
 		ConquerSystem,
@@ -232,9 +256,9 @@ namespace SerializableTypes
 		TerraformPlanet,
 		CreateColony,
 		PlayMusic,			//una de las fromas de imcrementar lreación en tribu
-		MakeAthemn,
-		SPORE,
-		CrashGAME,
+		MakeAthemn,			
+		SPORE,                                              //esto deveria ser un logro no una acción
+		CrashGAME,                      //COMO LO LOGRASTE???      [sarcasmo]
 		Respuesta,
 		Suerte,
 		DessignClothesForCreature		//diseñar una nueva ropa
@@ -803,21 +827,31 @@ namespace SerializableTypes
 				Debug.LogError("No se pudo obtener CrossScenePackageSender");
 				return;
 			}
+			string filePath;
+			if (string.IsNullOrEmpty(Saver.CurrentSaveName))
 
-			string filePath = Path.Combine(Paths.Cells, $"{creatureName}.json");
+				filePath = Path.Combine(Paths.Cells, $"{creatureName}.json");
+			else
+				filePath = null;
 
-			if (!File.Exists(filePath))
+			if (!File.Exists(filePath) && string.IsNullOrEmpty(Saver.CurrentSaveName))
 			{
-				Debug.LogWarning($"Archivo no encontrado: {filePath}, cargando microbio vacío");
+				Debug.LogWarning($"Archivo no encontrado: {filePath} y no se esta cargando desde Saver, cargando microbio vacío");
 				LoadEmptyMicrobe(mailMan);
 				return;
 			}
-
+			MicrobeData microbe;
 			try
 			{
-				string json = File.ReadAllText(filePath);
-				MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(json);
+				if (filePath != null)
+				{
+					string json = File.ReadAllText(filePath);
 
+					microbe = JsonUtility.FromJson<MicrobeData>(json);
+					Debug.Log("cargado el microbio " + filePath);
+				}
+				else
+					Saver.TryToLoadLastMicrobeRevision(Saver.CurrentSaveName, out microbe);
 				if (microbe == null )
 				{
 					Debug.LogWarning("SavedGame no tiene criatura válida, cargando microbio vacío");
@@ -834,6 +868,38 @@ namespace SerializableTypes
 			{
 				Debug.LogError($"Error al cargar microbio: {ex.Message}, cargando microbio vacío");
 				LoadEmptyMicrobe(mailMan);
+			}
+		}
+		/// <summary>
+		/// cargara elestado correspondiente a la partida cargada en saver
+		/// </summary>
+		
+		public static void LoadCurrentStage()
+		{
+			if (Saver.CurrentSaveName == null|| Saver.CurrentGame == null)
+			{
+				Debug.LogError("No hay partida cargada en Saver");
+				return;
+			}
+			switch(Saver.CurrentGame.CurentStage)
+			{
+				case Stages.Microbe:
+					LoadMicrobeStage(CrossScenePackageSender.Instance, Saver.CurrentGame.CreatureName);
+					break;
+				case Stages.Creature:
+					Debug.Log("por favor espera un momento aun no esta lo sufuciente desarrollado");
+					break;
+				case Stages.tribal:
+				case Stages.City:
+				case Stages.Civilization:
+					Debug.Log("no implementado aun");
+					break;
+				case Stages.Space:
+					Debug.Log("Cargando Space Stage...");
+					SceneManager.LoadScene(6);
+					break;
+				default:
+					throw new NotImplementedException($"Carga de estado {Saver.CurrentGame.CurentStage} no implementada");
 			}
 		}
 	}
@@ -1333,3 +1399,353 @@ namespace SerializableTypes
 
 }
 
+namespace ActualUtils
+{
+	using pt = Paths;
+	/// <summary>
+	/// Creara y Cargara partidas en el nuevo sistema de guardado 
+	/// </summary>
+	public static class Saver
+	{
+		/// <summary>
+		/// Crea una nueva partida guardada con la siguiente estructura
+		/// pt.Savefiles
+		///		[partida nombre en SHA 512]
+		///			CreationPrivate
+		///				Creatures
+		///				Microbe
+		///				TribalClothes
+		///				FeudalCLothes 
+		///				NationClothes
+		///			Save.json
+		/// </summary>
+		/// <param name="CreatureName">Nombre de la ciratura</param>
+		/// <param name="PlanetID">ID del planeta </param>
+		/// <returns></returns>
+		public static SavedGame CreateSavefile(string CreatureName, ulong PlanetID, out string NAME)
+		{
+			if (!Directory.Exists(pt.SaveFiles))
+			{
+				Directory.CreateDirectory(pt.SaveFiles);
+			}
+			string SHA = "";
+			using SHA512 sHA = SHA512.Create();
+			{
+				string inp = DateTime.Now.ToString("o") + Random.ColorHSV().ToHexString();
+				byte[] AA = Encoding.UTF8.GetBytes(inp);
+				byte[] BB = sHA.ComputeHash(AA);
+				// Convertir a hexadecimal
+				StringBuilder sb = new StringBuilder();
+				foreach (byte b in BB)
+					sb.Append(b.ToString("x2"));
+				SHA = sb.ToString();
+			}
+			NAME = SHA;
+			string fil = J(pt.SaveFiles, SHA);
+			Directory.CreateDirectory(fil);
+			string CC = J(fil, "CreationPrivate");
+			Directory.CreateDirectory(CC);
+			Directory.CreateDirectory(J(CC, "Microbe"));
+			Directory.CreateDirectory(J(CC, "Creatures"));
+			Directory.CreateDirectory(J(CC, "TribalClothes"));
+			Directory.CreateDirectory(J(CC, "FeudalClothes"));
+			Directory.CreateDirectory(J(CC, "NationClothes"));
+			SavedGame game = new()
+			{
+				CurentStage = Stages.Microbe,
+				CreatureName = CreatureName,
+				Actions = new(),
+				CreatureDiet = Diets.none,
+				ingameTime = 0,
+				isCPUEmpire = false,
+				PlanetID = PlanetID
+			};
+			string SAV = J(fil, "Save.Json");
+			string JAV = JsonUtility.ToJson(game, true);
+			File.WriteAllText(SAV, JAV);
+
+			return game;
+		}
+		public static string J(string a, string b) => Path.Combine(a, b); //si me da peresa escribir Path.Join
+
+		/// <summary>
+		/// List all save folders (names)
+		/// </summary>
+		public static List<string> ListSavefiles()
+		{
+			if (!Directory.Exists(pt.SaveFiles)) return new List<string>();
+			return Directory.GetDirectories(pt.SaveFiles).Select(d => Path.GetFileName(d)).ToList(); //ay no no entiendo Linq
+		}
+
+
+		/// <summary>
+		/// Try to load Save.Json for a savefolder
+		/// </summary>
+		public static bool TryLoadSave(string savefile, out SavedGame game)
+		{
+			game = null;
+			string dir = J(pt.SaveFiles, savefile);
+			string sav = J(dir, "Save.Json");
+			if (!File.Exists(sav)) return false;
+			try
+			{
+				string json = File.ReadAllText(sav);
+				game = JsonUtility.FromJson<SavedGame>(json);
+				return game != null;
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Delete a savefile folder
+		/// </summary>
+		public static bool DeleteSavefile(string savefile)
+		{
+			string dir = J(pt.SaveFiles, savefile);
+			if (!Directory.Exists(dir)) return false;
+			try
+			{
+				Directory.Delete(dir, true);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Save a microbe revision into the save's Microbe folder (timestamped)
+		/// </summary>
+		public static bool SaveMicrobeRevision(string savefile, MicrobeData microbe)
+		{
+			if (microbe == null) return false;
+			string dir1 = J(pt.SaveFiles, savefile);
+			string dir2 = J(dir1, "CreationPrivate");
+			string dir3 = J(dir2, "Microbe");
+			try
+			{
+				if (!Directory.Exists(dir3)) Directory.CreateDirectory(dir3);
+				string nameSafe;
+				if (string.IsNullOrEmpty(microbe.Name)) nameSafe = "microbe";
+				else
+				{
+					var invalid = Path.GetInvalidFileNameChars();
+					nameSafe = new string(microbe.Name.Select(c => invalid.Contains(c) ? '_' : c).ToArray());
+				}
+				string filename = $"{DateTime.Now.ToString("yyyyMMddHHmmss")}_{nameSafe}.json";
+				string full = Path.Combine(dir3, filename);
+				File.WriteAllText(full, JsonUtility.ToJson(microbe, true));
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Get list of microbe revision file names ordered by modification time (ascending)
+		/// </summary>
+		public static List<string> GetMicrobeRevisionFiles(string savefile)
+		{
+			string dir1 = J(pt.SaveFiles, savefile);
+			string dir2 = J(dir1, "CreationPrivate");
+			string dir3 = J(dir2, "Microbe");
+			if (!Directory.Exists(dir3)) return new List<string>();
+			var files = Directory.GetFiles(dir3).OrderBy(f => File.GetLastWriteTime(f)).Select(Path.GetFileName).ToList();
+			return files;
+		}
+
+		/// <summary>
+		/// intentra cargar la ultima revision del microbio de la partida 
+		/// </summary>
+		public static bool TryToLoadLastMicrobeRevision(string savefile, out MicrobeData data)
+		{
+			data = MicrobeData.GetDefaultMicrobe();
+			string dir1 = J(pt.SaveFiles, savefile);
+			string dir2 = J(dir1, "CreationPrivate");
+			string dir3 = J(dir2, "Microbe");
+
+			if (!Directory.Exists(dir3)) return false;
+
+			var files = Directory.GetFiles(dir3);
+			var sortedFiles = files.OrderBy(f => File.GetLastWriteTime(f)).ToList();
+
+			if (sortedFiles.Count == 0) return false;
+			for (int i = 0; i < sortedFiles.Count; i++)
+			{
+				try
+				{
+					string json = File.ReadAllText(sortedFiles[i]);
+					MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(json);
+					if (microbe != null)
+						data = microbe;
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError(ex);
+					continue;
+				}
+			}
+			// return last revision
+			data = JsonUtility.FromJson<MicrobeData>(File.ReadAllText(sortedFiles.Last()));
+			return data != null;
+		}
+
+		/// <summary>
+		/// intenta cargar el microbio de la partida con X revision  
+		/// </summary>
+		public static bool TryLoadMicrobeRevission(string savefile, int revission, out MicrobeData data)
+		{
+			data = MicrobeData.GetDefaultMicrobe();
+			string dir1 = J(pt.SaveFiles, savefile);
+			string dir2 = J(dir1, "CreationPrivate");
+			string dir3 = J(dir2, "Microbe");
+
+			if (!Directory.Exists(dir2)) return false;
+
+			var files = Directory.GetFiles(dir2);
+			var sortedFiles = files.OrderBy(f => File.GetLastWriteTime(f)).ToList();
+			if (sortedFiles.Count == 0) return false;
+			if (revission < 0 || revission >= sortedFiles.Count) return false;
+			try
+			{
+				string json = File.ReadAllText(sortedFiles[revission]);
+				MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(json);
+				if (microbe != null)
+				{
+					data = microbe;
+					return true;
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+			}
+			return false;
+		}
+		public static SavedGame CurrentGame;
+		public static string CurrentSaveName;
+		public static void LoadGameComplete(string name)
+		{
+			SavedGame a;
+			if (!TryLoadSave(name, out a))
+			{
+				Debug.LogError("No se pudo cargar la partida " + name);
+				return;
+			}
+			CurrentGame = a;
+			CurrentSaveName = name;
+			string aa = J(Paths.SaveFiles, name);
+			string bb = J(aa, "Save.json");
+			StageLoader.LoadStageFromSavePath(bb);
+
+		}
+		public static void UnloadCurrentGame(bool Save = false, SavedGame NewData = null)
+		{
+			CurrentGame = null;
+			CurrentSaveName = null;
+			if (Save)
+			{
+				CurrentGame = NewData;
+				SaveCurrentGame();
+			}
+			SceneManager.LoadScene(0);// Main Menu
+		}
+		public static void SaveCurrentGame()
+		{
+			if (CurrentGame == null || string.IsNullOrEmpty(CurrentSaveName))
+			{
+				Debug.LogError("No hay partida cargada para guardar");
+				return;
+			}
+			string dir = J(Paths.SaveFiles, CurrentSaveName);
+			string sav = J(dir, "Save.Json");
+			try
+			{
+				string json = JsonUtility.ToJson(CurrentGame, true);
+				File.WriteAllText(sav, json);
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+			}
+		}
+		public static void SaveGame(SavedGame game, string saveName)
+		{
+			if (game == null || string.IsNullOrEmpty(saveName))
+			{
+				Debug.LogError("No hay partida válida para guardar");
+				return;
+			}
+			string dir = J(Paths.SaveFiles, saveName);
+			string sav = J(dir, "Save.Json");
+			try
+			{
+				string json = JsonUtility.ToJson(game, true);
+				File.WriteAllText(sav, json);
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+			}
+		}
+		public static void SaveCreature( string json, CreatureTypes creatureType)
+		{
+			if (CurrentGame == null || string.IsNullOrEmpty(CurrentSaveName))
+			{
+				Debug.LogError("No hay partida cargada para guardar criatura");
+				return;
+			}
+			string dir = J(Paths.SaveFiles, CurrentSaveName);
+			string creDir = J(dir, "CreationPrivate");
+			string creatureFolder = creatureType switch
+			{
+				CreatureTypes.Microbe => "Microbe", // [insertar chiste de microbios aqui]
+				CreatureTypes.Animal => "Creatures", // [insertar chiste de animales aqui]
+				CreatureTypes.TribeMember => "TribalClothes", //si aunque dice Clothes se refiere a las criaturas vestidas no a la ropa en si  ¿ENTENDIDO?
+				CreatureTypes.FeudalCitizen => "FeudalClothes", // [insetar chiste sobre Feudalismo aqui]
+				CreatureTypes.Citizen => "NationClothes",//si es raro pero es asi
+				_ => null
+			};
+			if (creatureFolder == null)
+			{
+				Debug.LogError("Tipo de criatura no válido para guardar");
+				return;
+			}
+			string fullDir = J(creDir, creatureFolder);
+			try
+			{
+				if (!Directory.Exists(fullDir)) Directory.CreateDirectory(fullDir);
+				string nameSafe;
+
+				using SHA512 sHA = SHA512.Create();
+				{
+					string inp = DateTime.Now.ToString("o") + Random.ColorHSV().ToHexString();
+					byte[] AA = Encoding.UTF8.GetBytes(inp);
+					byte[] BB = sHA.ComputeHash(AA);
+					// Convertir a hexadecimal
+					StringBuilder sb = new StringBuilder();
+					foreach (byte b in BB)
+						sb.Append(b.ToString("x2"));
+					nameSafe = sb.ToString();
+				}
+				string filename = $"{nameSafe}.json"; //nombre basado en hash de tiempo y random para evitar colisiones
+				string full = Path.Combine(fullDir, filename);
+				File.WriteAllText(full, json);
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+			}
+		}
+	}
+}
+//1742 lineas estoy seguro que este archivo es el mas largo del proyecto y que paso algo en ese año 1742  ah si Anders Celsius inventa la escala de temperatura que lleva su nombre.      (fuente wikipedia) XD 

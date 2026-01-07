@@ -10,7 +10,8 @@ using UnityEngine;
 
 /// <summary>
 /// creo que carga la criatura en el visualizador de criaturas
-/// aunque deveria usar el termino Microbio en vez de criatura
+/// aunque deveria usar el termino Microbio en vez de criatura ahora que el estadio creatura
+/// esta en desarrollo
 /// </summary>
 public class CreatureLoader : MonoBehaviour
 {
