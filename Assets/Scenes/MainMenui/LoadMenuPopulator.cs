@@ -179,7 +179,7 @@ public class LoadMenuPopulator : MonoBehaviour
 
                     // Instanciar el botón desde la plantilla
                     var button = buttonTemplate.CloneTree().Q<Button>();
-                    button.text = fil;
+                    button.text = Saver.GetSaveNameForFolder(fil); //por que nadie quiere un SHA512 en su cara jeje XD
 
 					// Ejemplo de acción al presionar el botón
 					button.clicked += () =>

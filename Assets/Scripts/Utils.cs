@@ -1697,7 +1697,7 @@ namespace ActualUtils
 				Debug.LogError(ex);
 			}
 		}
-		public static void SaveCreature( string json, CreatureTypes creatureType)
+		public static void SaveCreature(string json, CreatureTypes creatureType)
 		{
 			if (CurrentGame == null || string.IsNullOrEmpty(CurrentSaveName))
 			{
@@ -1739,13 +1739,35 @@ namespace ActualUtils
 				}
 				string filename = $"{nameSafe}.json"; //nombre basado en hash de tiempo y random para evitar colisiones
 				string full = Path.Combine(fullDir, filename);
-				File.WriteAllText(full, json);
+				File.WriteAllText(full, json);  //1742 lineas estoy seguro que este archivo es el mas largo del proyecto y que paso algo en ese año 1742  ah si Anders Celsius inventa la escala de temperatura que lleva su nombre.      (fuente wikipedia) XD 
 			}
 			catch (Exception ex)
 			{
 				Debug.LogError(ex);
 			}
 		}
+
+		public static string GetSaveNameForFolder(string SaveFolder)
+		{
+			string dir = J(Paths.SaveFiles, SaveFolder);
+			string sav = J(dir, "Save.Json");
+			if (!File.Exists(sav)) return null;
+			try
+			{
+				string json = File.ReadAllText(sav);
+				SavedGame game = JsonUtility.FromJson<SavedGame>(json);
+				if (game != null)
+					return game.CreatureName;
+				else
+					return null;
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+				return null;
+			}
+			return "????????";
+		}
 	}
 }
-//1742 lineas estoy seguro que este archivo es el mas largo del proyecto y que paso algo en ese año 1742  ah si Anders Celsius inventa la escala de temperatura que lleva su nombre.      (fuente wikipedia) XD 
+//ahora son 1773 lineas  segun wikipedia en 1773 17 de enero: el capitán James Cook se convierte en el primer explorador europeo en cruzar el círculo polar ártico.  (fuente: wikipedia) no no hablare del museo estadounidense que se inauguro ese año  XD
