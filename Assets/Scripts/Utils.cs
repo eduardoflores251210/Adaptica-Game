@@ -187,6 +187,9 @@ namespace SerializableTypes
 	}
 
 	[Serializable]
+	/// <summary>
+	/// Accion hecha por el jugador
+	/// z</summary>
 	public class HistoryActions
 	{
 		public HistoryPaths Path;
@@ -201,6 +204,11 @@ namespace SerializableTypes
 		Agressive
 	}
 
+	/// <summary>
+	/// Tipo de acción realizada por el jugador
+	/// no he decidido bien cuales van a estar en el juego
+	/// asi que por ahora es una lista random de acciones posibles
+	/// </summary>
 	public enum ActionType
 	{
 		// Microbio y criatura clásica
@@ -218,14 +226,14 @@ namespace SerializableTypes
 		InteractWithSpecies,  // alianzas o exterminios interestelares, todo en uno
 		UseSuperThing,      //usar una super habilidad como Frenesi de compras
 		DETERMINATION,      // Undertale mode ON
-		FindChara,
+		FindChara,          // Si estaba EN una hiperfijación de UNDERTALE cuando hice el Enum
 		Hope,
 		Dream,
 		HopeAndDream,       // combo Asriel que te da DETERMINACIÓN
 		AdvanceStage,
 		BuildBuilding,
 		Gift,
-		FindBean,           // bean spotted!
+		FindBean,           // [bean es la criatura mas adorable del spore de Maxis]
 		DestroyBuilding,
 		DestroySettlement,
 		SignPeaceTreaty,
@@ -237,7 +245,8 @@ namespace SerializableTypes
 		DiscoverThing,
 		ResearchTechnology,
 		FindEasterEgg,
-		DELTARUNE,
+		DELTARUNE,						//si también estaba en una hiperfijación de DELTARUNE cuando hice el Enum
+		 FightBoss,           //dudo que haya bosses en el juego pero bueno
 		DestroyAllColonies,
 		BuySystem,
 		ConquerSystem,
@@ -247,9 +256,9 @@ namespace SerializableTypes
 		TerraformPlanet,
 		CreateColony,
 		PlayMusic,			//una de las fromas de imcrementar lreación en tribu
-		MakeAthemn,
-		SPORE,
-		CrashGAME,
+		MakeAthemn,			
+		SPORE,                                              //esto deveria ser un logro no una acción
+		CrashGAME,                      //COMO LO LOGRASTE???      [sarcasmo]
 		Respuesta,
 		Suerte,
 		DessignClothesForCreature		//diseñar una nueva ropa
@@ -1699,11 +1708,11 @@ namespace ActualUtils
 			string creDir = J(dir, "CreationPrivate");
 			string creatureFolder = creatureType switch
 			{
-				CreatureTypes.Microbe => "Microbe",
-				CreatureTypes.Animal => "Creatures",
-				CreatureTypes.TribeMember => "TribalClothes", //si aunque dice Clothes se refiere a las criaturas vestidas no a la ropa en si
-				CreatureTypes.FeudalCitizen => "FeudalClothes",
-				CreatureTypes.Citizen => "NationClothes",
+				CreatureTypes.Microbe => "Microbe", // [insertar chiste de microbios aqui]
+				CreatureTypes.Animal => "Creatures", // [insertar chiste de animales aqui]
+				CreatureTypes.TribeMember => "TribalClothes", //si aunque dice Clothes se refiere a las criaturas vestidas no a la ropa en si  ¿ENTENDIDO?
+				CreatureTypes.FeudalCitizen => "FeudalClothes", // [insetar chiste sobre Feudalismo aqui]
+				CreatureTypes.Citizen => "NationClothes",//si es raro pero es asi
 				_ => null
 			};
 			if (creatureFolder == null)
@@ -1739,3 +1748,4 @@ namespace ActualUtils
 		}
 	}
 }
+//1742 lineas estoy seguro que este archivo es el mas largo del proyecto y que paso algo en ese año 1742  ah si Anders Celsius inventa la escala de temperatura que lleva su nombre.      (fuente wikipedia) XD 
