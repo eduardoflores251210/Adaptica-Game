@@ -1517,10 +1517,11 @@ namespace ActualUtils
 		{
 			if (microbe == null) return false;
 			string dir1 = J(pt.SaveFiles, savefile);
-			string dir2 = J(dir1, "Microbe");
+			string dir2 = J(dir1, "CreationPrivate");
+			string dir3 = J(dir2, "Microbe");
 			try
 			{
-				if (!Directory.Exists(dir2)) Directory.CreateDirectory(dir2);
+				if (!Directory.Exists(dir3)) Directory.CreateDirectory(dir3);
 				string nameSafe;
 				if (string.IsNullOrEmpty(microbe.Name)) nameSafe = "microbe";
 				else
@@ -1529,7 +1530,7 @@ namespace ActualUtils
 					nameSafe = new string(microbe.Name.Select(c => invalid.Contains(c) ? '_' : c).ToArray());
 				}
 				string filename = $"{DateTime.Now.ToString("yyyyMMddHHmmss")}_{nameSafe}.json";
-				string full = Path.Combine(dir2, filename);
+				string full = Path.Combine(dir3, filename);
 				File.WriteAllText(full, JsonUtility.ToJson(microbe, true));
 				return true;
 			}
@@ -1546,9 +1547,10 @@ namespace ActualUtils
 		public static List<string> GetMicrobeRevisionFiles(string savefile)
 		{
 			string dir1 = J(pt.SaveFiles, savefile);
-			string dir2 = J(dir1, "Microbe");
-			if (!Directory.Exists(dir2)) return new List<string>();
-			var files = Directory.GetFiles(dir2).OrderBy(f => File.GetLastWriteTime(f)).Select(Path.GetFileName).ToList();
+			string dir2 = J(dir1, "CreationPrivate");
+			string dir3 = J(dir2, "Microbe");
+			if (!Directory.Exists(dir3)) return new List<string>();
+			var files = Directory.GetFiles(dir3).OrderBy(f => File.GetLastWriteTime(f)).Select(Path.GetFileName).ToList();
 			return files;
 		}
 
@@ -1559,11 +1561,12 @@ namespace ActualUtils
 		{
 			data = MicrobeData.GetDefaultMicrobe();
 			string dir1 = J(pt.SaveFiles, savefile);
-			string dir2 = J(dir1, "Microbe");
+			string dir2 = J(dir1, "CreationPrivate");
+			string dir3 = J(dir2, "Microbe");
 
-			if (!Directory.Exists(dir2)) return false;
+			if (!Directory.Exists(dir3)) return false;
 
-			var files = Directory.GetFiles(dir2);
+			var files = Directory.GetFiles(dir3);
 			var sortedFiles = files.OrderBy(f => File.GetLastWriteTime(f)).ToList();
 
 			if (sortedFiles.Count == 0) return false;
@@ -1594,7 +1597,8 @@ namespace ActualUtils
 		{
 			data = MicrobeData.GetDefaultMicrobe();
 			string dir1 = J(pt.SaveFiles, savefile);
-			string dir2 = J(dir1, "Microbe");
+			string dir2 = J(dir1, "CreationPrivate");
+			string dir3 = J(dir2, "Microbe");
 
 			if (!Directory.Exists(dir2)) return false;
 

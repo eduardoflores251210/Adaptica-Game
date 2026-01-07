@@ -52,6 +52,8 @@ public class CellSaver : MonoBehaviour
 			}
 		}
 		MicrobeData microbe = SerializeMicrobe(segmentmanager.Segments, Fp, Mp, namedescManager.Name, namedescManager.Description, partmanager.MaleColor, partmanager.FemaleColor, partmanager.IsDimorphic(), phasemanager.Mesh, partmanager.savedRepType, partmanager.savedRepMethod);
+		microbe.CenterMicrobe();// centramos la celula antes de guardarla
+								//err Microbio no celula SIEMPRE me confundo de termino
 		string json = JsonUtility.ToJson(microbe, prettyPrint: true);
 		string fullPath = System.IO.Path.Combine(SavePath, $"{microbe.Name}.json");
 		System.IO.File.WriteAllText(fullPath, json);
@@ -94,6 +96,7 @@ public class CellSaver : MonoBehaviour
                 SavedGame game = new SavedGame(planetfat.id, false, Stages.Microbe, microbe.Name, new(), GetDiet(microbe), 0d);
                 Saver.CreateSavefile(microbe.Name, BodyID.FromString(planetfat.id).GetID(), out string NAME);
 				Saver.SaveGame(game, NAME);
+				Saver.SaveMicrobeRevision(NAME, microbe);
 				Saver.LoadGameComplete(NAME);
 			}
 			else
