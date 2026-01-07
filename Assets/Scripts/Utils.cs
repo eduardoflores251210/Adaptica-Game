@@ -1,6 +1,7 @@
 ﻿using ActualUtils;
 using FixedMath;
 using SerializableTypes;
+using ActualUtils;
 using SerializableTypes.Biology;
 using SerializableTypes.Space;
 using StandartUtilities;
@@ -856,6 +857,38 @@ namespace SerializableTypes
 				LoadEmptyMicrobe(mailMan);
 			}
 		}
+		/// <summary>
+		/// cargara elestado correspondiente a la partida cargada en saver
+		/// </summary>
+		
+		public static void LoadCurrentStage()
+		{
+			if (Saver.CurrentSaveName == null|| Saver.CurrentGame == null)
+			{
+				Debug.LogError("No hay partida cargada en Saver");
+				return;
+			}
+			switch(Saver.CurrentGame.CurentStage)
+			{
+				case Stages.Microbe:
+					LoadMicrobeStage(CrossScenePackageSender.Instance, Saver.CurrentGame.CreatureName);
+					break;
+				case Stages.Creature:
+					Debug.Log("por favor espera un momento aun no esta lo sufuciente desarrollado");
+					break;
+				case Stages.tribal:
+				case Stages.City:
+				case Stages.Civilization:
+					Debug.Log("no implementado aun");
+					break;
+				case Stages.Space:
+					Debug.Log("Cargando Space Stage...");
+					SceneManager.LoadScene(6);
+					break;
+				default:
+					throw new NotImplementedException($"Carga de estado {Saver.CurrentGame.CurentStage} no implementada");
+			}
+		}
 	}
 	public static class EditorLoader
 	{
@@ -1376,7 +1409,7 @@ namespace ActualUtils
 		/// <param name="CreatureName">Nombre de la ciratura</param>
 		/// <param name="PlanetID">ID del planeta </param>
 		/// <returns></returns>
-		public static SavedGame CreateSavefile(string CreatureName, ulong PlanetID)
+		public static SavedGame CreateSavefile(string CreatureName, ulong PlanetID, out string NAME)
 		{
 			if (!Directory.Exists(pt.SaveFiles))
 			{
@@ -1394,6 +1427,7 @@ namespace ActualUtils
 					sb.Append(b.ToString("x2"));
 				SHA = sb.ToString();
 			}
+			NAME = SHA;
 			string fil = J(pt.SaveFiles, SHA);
 			Directory.CreateDirectory(fil);
 			string CC = J(fil, "CreationPrivate");

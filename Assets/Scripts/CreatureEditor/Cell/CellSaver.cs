@@ -1,3 +1,4 @@
+using ActualUtils;
 using SerializableTypes;
 using SerializableTypes.Biology;
 using SerializableTypes.Space;
@@ -89,15 +90,15 @@ public class CellSaver : MonoBehaviour
             Mailman.SendTypedPackage(gameObject.name, "Player", microbe, new string[1] { nameof(MicrobeData) });
             if (LdStgSndr != "EnterEdit")
             {
-                
+                //bien llegamos a MicrobeSaver ahora vamos a elimianr ese codigo obsoelto para guardar usando Saver
                 SavedGame game = new SavedGame(planetfat.id, false, Stages.Microbe, microbe.Name, new(), GetDiet(microbe), 0d);
-                string jsgm = JsonUtility.ToJson(obj: game, prettyPrint: true);
-                if (!Directory.Exists(Paths.SaveFiles))
-                    Directory.CreateDirectory(Paths.SaveFiles);
-                File.WriteAllText(Path.Combine(Paths.SaveFiles, $"Game{planetfat.id}.json"), jsgm);
-            }
-            SceneManager.LoadScene(4); // estado Microbio
-        }
+                Saver.CreateSavefile(microbe.Name, BodyID.FromString(planetfat.id).GetID(), out string NAME);
+				Saver.SaveGame(game, NAME);
+				Saver.LoadGameComplete(NAME);
+			}
+			else
+				StageLoader.LoadCurrentStage();
+		}
         else SceneManager.LoadScene(0); // menu principal
     }
 	
