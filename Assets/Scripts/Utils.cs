@@ -825,20 +825,24 @@ namespace SerializableTypes
 			else
 				filePath = null;
 
-			if (!File.Exists(filePath))
+			if (!File.Exists(filePath) && string.IsNullOrEmpty(Saver.CurrentSaveName))
 			{
-				Debug.LogWarning($"Archivo no encontrado: {filePath}, cargando microbio vacío");
+				Debug.LogWarning($"Archivo no encontrado: {filePath} y no se esta cargando desde Saver, cargando microbio vacío");
 				LoadEmptyMicrobe(mailMan);
 				return;
 			}
 			MicrobeData microbe;
 			try
 			{
-				string json = File.ReadAllText(filePath);
 				if (filePath != null)
+				{
+					string json = File.ReadAllText(filePath);
+
 					microbe = JsonUtility.FromJson<MicrobeData>(json);
+					Debug.Log("cargado el microbio " + filePath);
+				}
 				else
-					Saver.TryToLoadLastMicrobeRevision(Saver.CurrentSaveName,out microbe);
+					Saver.TryToLoadLastMicrobeRevision(Saver.CurrentSaveName, out microbe);
 				if (microbe == null )
 				{
 					Debug.LogWarning("SavedGame no tiene criatura válida, cargando microbio vacío");
@@ -1461,8 +1465,9 @@ namespace ActualUtils
 		public static List<string> ListSavefiles()
 		{
 			if (!Directory.Exists(pt.SaveFiles)) return new List<string>();
-			return Directory.GetDirectories(pt.SaveFiles).Select(d => Path.GetFileName(d)).ToList();
+			return Directory.GetDirectories(pt.SaveFiles).Select(d => Path.GetFileName(d)).ToList(); //ay no no entiendo Linq
 		}
+
 
 		/// <summary>
 		/// Try to load Save.Json for a savefolder
@@ -1625,7 +1630,9 @@ namespace ActualUtils
 			}
 			CurrentGame = a;
 			CurrentSaveName = name;
-			StageLoader.LoadStageFromSavePath(J(J(Paths.SaveFiles, name), "Save.json"));
+			string aa = J(Paths.SaveFiles, name);
+			string bb = J(aa, "Save.json");
+			StageLoader.LoadStageFromSavePath(bb);
 
 		}
 		public static void UnloadCurrentGame(bool Save = false, SavedGame NewData = null)

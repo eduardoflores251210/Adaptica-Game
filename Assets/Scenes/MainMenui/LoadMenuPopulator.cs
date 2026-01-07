@@ -11,7 +11,7 @@ using UnityEngine.UIElements;
 
 public class LoadMenuPopulator : MonoBehaviour
 {
-    
+
     private string SavesFolderPath = "";
     public string ContainerName;
     public VisualTreeAsset buttonTemplate; // Plantilla de botón en UI Toolkit
@@ -29,11 +29,11 @@ public class LoadMenuPopulator : MonoBehaviour
     {
         SavesFolderPath = Paths.SaveFiles; //eso esta mal ahora es subcarpetas por archivo de guardado
 
-		// Obtener referencia al root VisualElement del UI Document
-		var root = document.rootVisualElement;
+        // Obtener referencia al root VisualElement del UI Document
+        var root = document.rootVisualElement;
         ButtonContaniner = root.Q(ContainerName);
         Welement = root.Q<VisualElement>(ElementoDeVentana);
-       
+
         CloseButton = root.Q<Button>(CloseName);
         OpenButton = root.Q<Button>(OpenName);
         CloseButton.clicked += () => toggleWindow();
@@ -67,19 +67,21 @@ public class LoadMenuPopulator : MonoBehaviour
             game = savefile;
             if (savefile.CreatureName == null)
             {
-                return false ;
-            } if (savefile.isCPUEmpire)
+                return false;
+            }
+            if (savefile.isCPUEmpire)
             {
                 return false;
             }
-            return true; 
-        }else
+            return true;
+        }
+        else
             return false;
     }
     bool IsValidNameForRepair(string FileName)
     {
 
-        if  (!string.IsNullOrEmpty(FileName))
+        if (!string.IsNullOrEmpty(FileName))
         {
             string NoExtFilNam = FileName.Replace(".json", "");
             string NoPrefFilNam = NoExtFilNam.Replace("Game", "");
@@ -88,7 +90,8 @@ public class LoadMenuPopulator : MonoBehaviour
                 return true;
             }
             else return false;
-        }    else return false;
+        }
+        else return false;
     }
     bool TryRepair(string contents, string FilePath)
     {
@@ -156,41 +159,47 @@ public class LoadMenuPopulator : MonoBehaviour
     {
         if (!Directory.Exists(SavesFolderPath))
         {
-            Debug.LogWarning($"La carpeta {SavesFolderPath} no existe.");
-            return;
+            Debug.LogWarning($"La carpeta {SavesFolderPath} no existe, se creará una nueva.");
+            Directory.CreateDirectory(SavesFolderPath);
+			return;
         }
 
-        string[] jsonFiles = Directory.GetFiles(SavesFolderPath, "*.json"); //logica inutil por que no es compatible con el nuevo sistema de guardado por carpetas
-		int buttonCount = 0;
+        int buttonCount = 0;
         var ACTUALSAVES = Saver.ListSavefiles();
 
-		foreach (var fil in ACTUALSAVES)
+        foreach (var fil in ACTUALSAVES)
         {
             string fil2 = Path.Combine(SavesFolderPath, fil);
-			string file = Path.Combine(fil2, "Save.json"); //ahora cada guardado es una carpeta con varios archivos dentro
-			Debug.Log(file);
-            string content = File.ReadAllText(file).Trim();
-            if (TryRepair(content,file))
+            string file = Path.Combine(fil2, "Save.json"); //ahora cada guardado es una carpeta con varios archivos dentro
+            Debug.Log(file); try
             {
-                
-                // Instanciar el botón desde la plantilla
-                var button = buttonTemplate.CloneTree().Q<Button>();
-                button.text = Path.GetFileNameWithoutExtension(file);
+                string content = File.ReadAllText(file).Trim();
+                if (TryRepair(content, file))
+                {
 
-                // Ejemplo de acción al presionar el botón
-                button.clicked += () =>
-				{
-					Saver.LoadGameComplete(fil);
-				};
+                    // Instanciar el botón desde la plantilla
+                    var button = buttonTemplate.CloneTree().Q<Button>();
+                    button.text = fil;
 
-                // Añadir al contenedor
-                ButtonContaniner.Add(button);
+					// Ejemplo de acción al presionar el botón
+					button.clicked += () =>
+                    {
+                        Saver.LoadGameComplete(fil);
+                    };
 
-                buttonCount++;
+                    // Añadir al contenedor
+                    ButtonContaniner.Add(button);
+
+                    buttonCount++;
+                }
             }
-        }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Error al leer el archivo {file}: {e.Message}");
+            }
 
-        Debug.Log($"{buttonCount} botones creados desde JSONs no vacíos.");
+            Debug.Log($"{buttonCount} botones creados desde JSONs no vacíos.");
+        }
     }
 }
 //creo que todo ya esta corregido para el nuevo sistema de guardado por carpetas
