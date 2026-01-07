@@ -1442,6 +1442,13 @@ namespace ActualUtils
 			}
 			NAME = SHA;
 			string fil = J(pt.SaveFiles, SHA);
+			string dir4;
+			if (Application.platform == RuntimePlatform.WindowsPlayer ||
+	Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsServer)
+				dir4 = @"\\?\" + fil; // para rutas largas en windows
+			else
+				dir4 = fil;
+			fil = dir4;
 			Directory.CreateDirectory(fil);
 			string CC = J(fil, "CreationPrivate");
 			Directory.CreateDirectory(CC);
@@ -1461,6 +1468,7 @@ namespace ActualUtils
 				PlanetID = PlanetID
 			};
 			string SAV = J(fil, "Save.Json");
+
 			string JAV = JsonUtility.ToJson(game, true);
 			File.WriteAllText(SAV, JAV);
 
@@ -1474,7 +1482,15 @@ namespace ActualUtils
 		public static List<string> ListSavefiles()
 		{
 			if (!Directory.Exists(pt.SaveFiles)) return new List<string>();
-			return Directory.GetDirectories(pt.SaveFiles).Select(d => Path.GetFileName(d)).ToList(); //ay no no entiendo Linq
+			string dir = Paths.SaveFiles;
+			string dir4;
+			if (Application.platform == RuntimePlatform.WindowsPlayer ||
+	Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsServer)
+				dir4 = @"\\?\" + dir; // para rutas largas en windows
+			else
+				dir4 = dir;
+			dir = dir4;
+			return Directory.GetDirectories(dir).Select(d => Path.GetFileName(d)).ToList(); //ay no no entiendo Linq
 		}
 
 
@@ -1485,6 +1501,13 @@ namespace ActualUtils
 		{
 			game = null;
 			string dir = J(pt.SaveFiles, savefile);
+			string dir4;
+			if (Application.platform == RuntimePlatform.WindowsPlayer ||
+	Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsServer)
+				dir4 = @"\\?\" + dir; // para rutas largas en windows
+			else
+				dir4 = dir;
+			dir = dir4;
 			string sav = J(dir, "Save.Json");
 			if (!File.Exists(sav)) return false;
 			try
@@ -1506,6 +1529,13 @@ namespace ActualUtils
 		public static bool DeleteSavefile(string savefile)
 		{
 			string dir = J(pt.SaveFiles, savefile);
+			string dir4;
+			if (Application.platform == RuntimePlatform.WindowsPlayer ||
+	Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsServer)
+				dir4 = @"\\?\" + dir; // para rutas largas en windows
+			else
+				dir4 = dir;
+			dir = dir4;
 			if (!Directory.Exists(dir)) return false;
 			try
 			{
@@ -1528,6 +1558,13 @@ namespace ActualUtils
 			string dir1 = J(pt.SaveFiles, savefile);
 			string dir2 = J(dir1, "CreationPrivate");
 			string dir3 = J(dir2, "Microbe");
+			string dir4;
+			if (Application.platform == RuntimePlatform.WindowsPlayer ||
+				Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsServer)
+				dir4 = @"\\?\" + dir3; // para rutas largas en windows
+			else
+				dir4 = dir3;
+			dir3 = dir4; 
 			try
 			{
 				if (!Directory.Exists(dir3)) Directory.CreateDirectory(dir3);
@@ -1579,6 +1616,7 @@ namespace ActualUtils
 				dir4 = @"\\?\" + dir3; // para rutas largas en windows
 			else
 			dir4 = dir3;
+			//ahora a copiarlo A OTROS METODOS 
 
 			if (!Directory.Exists(dir4)) return false;
 
