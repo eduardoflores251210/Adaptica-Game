@@ -6,14 +6,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
-using Random = UnityEngine.Random;
+using Random = System.Random;
 
 public class GalaxyGenerator : MonoBehaviour
 {
 	[Header("Dependencias Opcionales")]
 	public StarVisualizer visualizer;
-
+	private Random Random;
 	[Header("Parámetros de la galaxia")]
 	public float galaxyRadius = 15f; // radio de la galaxia
 	public Vector2Double sectorSize = new Vector2Double(1, 1); // tamaño de cada sector
@@ -49,6 +50,14 @@ public class GalaxyGenerator : MonoBehaviour
 
 	void Start()
 	{
+		int Seed()
+		{
+			Span<byte> b = stackalloc byte[4];
+			System.Security.Cryptography.RandomNumberGenerator.Fill(b);
+			return BitConverter.ToInt32(b);
+		}
+
+		Random = new Random(Seed());
 		DoesTheGalaxyExist = GalaxyExists();
 		CalculateTotalSectors();
 		Debug.Log($"GalaxyGenerator init: totalSectoresX={totalSectoresX}, totalSectoresY={totalSectoresY}");
@@ -165,7 +174,7 @@ public class GalaxyGenerator : MonoBehaviour
 					result.Add(item.pos);
 			}
 		}
-
+		
 		return result;
 	}
 
@@ -413,7 +422,7 @@ public class GalaxyGenerator : MonoBehaviour
 
 		for (long i = 0; i < starCount; i++)
 		{
-			bool generateRogue = AllowRogues && Random.value < Probability;
+			bool generateRogue = AllowRogues && Random.Value() < Probability;
 
 			// Muestreo local con "redondeo/elipse" aplicado:
 			Vector3 acceptedWorldPos = Vector3.zero;
@@ -442,7 +451,7 @@ public class GalaxyGenerator : MonoBehaviour
 				{
 					// fuera: aceptar con probabilidad decreciente
 					float p = Mathf.Exp(-ellipseEdgeFalloff * (rNorm - 1f));
-					if (Random.value < p)
+					if (Random.Value() < p)
 					{
 						acceptedWorldPos = worldSample;
 						accepted = true;
@@ -472,7 +481,7 @@ public class GalaxyGenerator : MonoBehaviour
 			{
 				var roguePlanet = GenRoguePlanet(sectorId, globalPlanetId++);
 				roguePlanet.ParentID = $"S{sectorIndex}";
-				roguePlanet.transform = new StdUtils.Serializable.Transform(acceptedWorldPos, Random.rotation.eulerAngles, Vector3.one);
+				roguePlanet.transform = new StdUtils.Serializable.Transform(acceptedWorldPos, Random.rotation().eulerAngles, Vector3.one);
 				planetDataList.Add(roguePlanet);
 
 				StarData fakeStar = new StarData
@@ -502,7 +511,7 @@ public class GalaxyGenerator : MonoBehaviour
 					id = "E" + (globalStarId),
 					Name = SpaceUtils.Naming.GenerateStarName_NASAStyle(),
 					type = StdUtils.Randomness.GetRandomEnumValue<StarTypes>(),
-					transform = new StdUtils.Serializable.Transform(acceptedWorldPos, Random.rotation.eulerAngles, Vector3.one),
+					transform = new StdUtils.Serializable.Transform(acceptedWorldPos, Random.rotation().eulerAngles, Vector3.one),
 					ParentID = $"S{sectorIndex}"
 				};
 
@@ -510,7 +519,7 @@ public class GalaxyGenerator : MonoBehaviour
 				{
 					float haloChance = 0.05f;
 					var pos = star.transform.Pos;
-					if (Random.value >= haloChance)
+					if (Random.Value() >= haloChance)
 						pos.y = Mathf.Clamp(pos.y, 0f, 0.1f);
 					star.transform.Pos = pos;
 				}
@@ -567,7 +576,7 @@ public class GalaxyGenerator : MonoBehaviour
 		}
 
 		var planetName = SpaceUtils.Naming.GeneratePlanetName_NASAStyle(parentStar.Name, planetIndex + 1);
-		float radius = Mathf.Clamp(Random.value, 0.01f, 0.99f);
+		float radius = Mathf.Clamp(Random.Value(), 0.01f, 0.99f);
 
 		return new PlanetData
 		{
@@ -600,7 +609,7 @@ public class GalaxyGenerator : MonoBehaviour
 		}
 
 		var planetName = SpaceUtils.Naming.GenerateStarName_NASAStyle();
-		float radius = Mathf.Clamp(Random.value, 0.01f, 0.99f);
+		float radius = Mathf.Clamp(Random.Value(), 0.01f, 0.99f);
 
 		return new PlanetData
 		{
@@ -641,7 +650,7 @@ public class GalaxyGenerator : MonoBehaviour
 		if (total == 2) return index == 0 ? calientes[Random.Range(0, calientes.Length)] : frios[Random.Range(0, frios.Length)];
 
 		float t = (float)index / (total - 1);
-		if (Random.value < 0.15f) return neutros[Random.Range(0, neutros.Length)];
+		if (Random.Value() < 0.15f) return neutros[Random.Range(0, neutros.Length)];
 		if (t < 0.33f) return calientes[Random.Range(0, calientes.Length)];
 		else if (t < 0.66f) return templados[Random.Range(0, templados.Length)];
 		else return frios[Random.Range(0, frios.Length)];
@@ -795,4 +804,51 @@ public struct Vector2Double
 	{
 		return new((double)aaaa.x, (double)aaaa.y);
 	}
+}
+
+public static class gdfdgfdfg
+{
+	public static float Value(this Random r)
+	{
+		return (float)r.NextDouble();
+	}
+	public static Color ColorHSV(this Random r)
+	{
+		float H = r.Value();
+		float S = r.Value();
+		float V = r.Value();
+		return Color.HSVToRGB(H, S, V);
+	}
+	public static Color ColorHSV(this Random r, float hueMin, float hueMax, float saturationMin, float saturationMax)
+	{
+		// Genera un hue dentro del rango dado
+		float H = r.Range(hueMin, hueMax);
+
+		// Genera una saturación dentro del rango dado
+		float S = r.Range(saturationMin,saturationMax);
+
+		// Valor (V) aleatorio completo de 0 a 1
+		float V = r.Value();
+
+		return Color.HSVToRGB(H, S, V);
+	}
+	// Para float, similar a Unity
+	public static float Range(this Random r, float min, float max)
+	{
+		return min + (max - min) * (float)r.NextDouble();
+	}
+
+
+	public static int Range(this Random r, int min, int max)
+	{
+		return r.Next(min, max); // r.Next(min, max) ya es [min, max)
+	}
+	public static Quaternion rotation(this Random r)
+	{
+		float x = r.Range(0f, 360f);
+		float y = r.Range(0f, 360f);
+		float z = r.Range(0f, 360f);
+		return Quaternion.Euler(x, y, z);
+	}
+
 }

@@ -285,8 +285,8 @@ namespace SerializableTypes.Space
 		public Color NucleusColor;
 		public GalaxyTypes Type;
 		public string Format = "EffiGalaxy";
-
 		public List<Vector2Int> SectorPositions; // Solo posiciones
+		public Int32 Seed; //Semilla 
 
 		// --- Cachés en memoria (uno por tipo de sector) ---
 		private static Dictionary<Vector2Int, GalaxySector> sectorCache = new Dictionary<Vector2Int, GalaxySector>();

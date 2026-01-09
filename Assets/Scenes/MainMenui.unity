@@ -20340,7 +20340,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: EDITOR TIPO SPORE
+  m_text: ADAPTICA
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c927886eebb247a47906aac653ad0b85, type: 2}
   m_sharedMaterial: {fileID: -4311610417880198931, guid: c927886eebb247a47906aac653ad0b85, type: 2}
