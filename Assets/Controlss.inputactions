@@ -47,6 +47,50 @@
                 },
                 {
                     "name": "",
+                    "id": "36e95f34-62eb-474a-a792-f406b3e8a047",
+                    "path": "<XInputController>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "de0bca82-cfa1-4a8c-bae0-fbafd9f1a949",
+                    "path": "<SwitchProControllerHID>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8f432e98-f7de-4ada-b904-3bf4dc7f9899",
+                    "path": "<DualShockGamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "519bad71-f1c4-4f7d-a8d9-9fad0dfb14fb",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "85be1ebc-e011-4377-8523-7df60ce9c939",
                     "path": "<Mouse>/position",
                     "interactions": "",

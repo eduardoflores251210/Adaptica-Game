@@ -20,8 +20,11 @@ public class ArilloGizmo : MonoBehaviour
     public InputActionAsset inputActionsAsset;
     private InputAction dragAction;
     private InputAction pointerPositionAction;
+	private InputDevice dispositivoActivo;
+	private Vector2 ultimoDelta;
 
-    private void Awake()
+
+	private void Awake()
     {
         manager = GetComponentInParent<GizmoManager>();
         if (manager == null)
@@ -33,15 +36,24 @@ public class ArilloGizmo : MonoBehaviour
         var map = inputActionsAsset.FindActionMap("GC", true);
         dragAction = map.FindAction("Drag", true);
         pointerPositionAction = map.FindAction("PPos", true);
+		dragAction.performed += ctx =>
+		{
+			if (ctx.control.device is Gamepad)
+				ultimoDelta = ctx.ReadValue<Vector2>();
+		};
 
-        dragAction.started += ctx => ComenzarArrastre();
+		dragAction.started += ctx => ComenzarArrastre(ctx.control.device);
         dragAction.canceled += ctx => TerminarArrastre();
     }
-    private void ComenzarArrastre()
+    private void ComenzarArrastre(InputDevice Dev)
     {
 
         Vector2 PointerPos = pointerPositionAction.ReadValue<Vector2>();
-        Ray ray = Camera.main.ScreenPointToRay(PointerPos);
+        if (Dev is Gamepad)
+            PointerPos = manager.Cursor.position;
+		dispositivoActivo = Dev;
+
+		Ray ray = Camera.main.ScreenPointToRay(PointerPos);
 
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
@@ -82,9 +94,20 @@ public class ArilloGizmo : MonoBehaviour
     {
         if (!arrastrando) return;
 
-        Vector3 posActual = pointerPositionAction.ReadValue<Vector2>();
-        Vector2 deltaPantalla = (Vector2)(posActual - ultimaPosicionPointer);
-        ultimaPosicionPointer = posActual;
+		Vector2 deltaPantalla;
+
+		if (dispositivoActivo is Gamepad)
+		{
+			deltaPantalla = ultimoDelta * Time.deltaTime * 100f;
+		}
+		else
+		{
+			Vector2 posActual = pointerPositionAction.ReadValue<Vector2>();
+			deltaPantalla = posActual - (Vector2)ultimaPosicionPointer;
+			ultimaPosicionPointer = posActual;
+		}
+
+
 
         manager.RotarPorEje(eje, deltaPantalla, 30);
     }

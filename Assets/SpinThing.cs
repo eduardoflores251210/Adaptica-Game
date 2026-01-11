@@ -72,3 +72,12 @@ public class SpinThing : MonoBehaviour
 		}
 	}
 }
+
+public enum BreathingMethod
+{
+	Gills,
+	BaloonLikeLungs,
+	BookLungs,
+	SpiraclesOnlyTrachea,
+	SackLungs
+}

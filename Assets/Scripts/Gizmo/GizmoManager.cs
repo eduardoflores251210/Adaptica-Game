@@ -7,6 +7,7 @@ public class GizmoManager : MonoBehaviour
     [Header("Objeto a mover directamente")]
     public Transform objetoActivo;
     public GameObject InfoUI;
+    public Transform Cursor; //cursor en caso de Gamepad
     private Camera camara;
     private List<GameObject> Children = new();
 

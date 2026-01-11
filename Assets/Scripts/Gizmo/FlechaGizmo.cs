@@ -12,6 +12,7 @@ public class FlechaGizmo : MonoBehaviour
     public InputActionAsset inputActionsAsset; 
     private InputAction dragAction;
     private InputAction pointerPositionAction;
+    
 
     private void Awake()
     {
@@ -26,13 +27,17 @@ public class FlechaGizmo : MonoBehaviour
         dragAction = map.FindAction("Drag", true);
         pointerPositionAction = map.FindAction("PPos", true);
 
-        dragAction.started += ctx => ComenzarArrastre();
+        dragAction.started += ctx => { ComenzarArrastre(ctx.control.device); };
         dragAction.canceled += ctx => TerminarArrastre();
     }
-    private void ComenzarArrastre()
+    InputDevice Devi;
+    private void ComenzarArrastre(InputDevice Dev)
     {
 
         Vector2 PointerPos = pointerPositionAction.ReadValue<Vector2>();
+        Devi = Dev;
+        if (Dev is Gamepad)
+            PointerPos = manager.Cursor.position;
         Ray ray = Camera.main.ScreenPointToRay(PointerPos);
 
         if (Physics.Raycast(ray, out RaycastHit hit))
@@ -75,11 +80,16 @@ public class FlechaGizmo : MonoBehaviour
         if (!arrastrando) return;
 
         Vector3 posActual = pointerPositionAction.ReadValue<Vector2>();
+        if (Devi is Gamepad)
+            posActual = manager.Cursor.position;
         Vector2 deltaPantalla = (Vector2)(posActual - ultimaPosicionPointer);
         ultimaPosicionPointer = posActual;
 
         manager.MoverPorEje(eje, deltaPantalla,5);
     }
+    /// <summary>
+    /// metodo legacy sin usar
+    /// </summary>
     private void OnPointerDown()
     {
        

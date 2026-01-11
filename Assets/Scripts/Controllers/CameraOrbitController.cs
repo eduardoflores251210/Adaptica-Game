@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Utilities;
 using UnityEngine.UI;
 
 public class CameraOrbitController : MonoBehaviour
@@ -22,8 +23,10 @@ public class CameraOrbitController : MonoBehaviour
 
     [Header("Cursor")]
     public float CursorSpeed = 10f;      // Sensibilidad del cursor UI
+	public bool usandoMouse = false;
+	public bool DisableCursor = false;
 
-    [Header("Input")]
+	[Header("Input")]
     public InputActionAsset inputActions;
 
     private InputAction rotateAction;
@@ -61,7 +64,8 @@ public class CameraOrbitController : MonoBehaviour
 
         rotateAction.performed += ctx =>
         {
-            if (ctx.control.device is not Pointer)
+			usandoMouse = ctx.control.device is Pointer;
+			if (ctx.control.device is not Pointer)
                 isRotating = true;
             else isRotating = enableRotateAction.IsPressed();
             if (isRotating)
@@ -149,7 +153,7 @@ public class CameraOrbitController : MonoBehaviour
 
 
 
-		if (Pointer.current != null && Cursor != null)
+		if ((Pointer.current != null && usandoMouse) && Cursor != null)
         {
             Vector2 PointerScreenPos = Pointer.current.position.ReadValue();
             Vector2 localPoint;
@@ -178,24 +182,30 @@ public class CameraOrbitController : MonoBehaviour
                 Eñe.enabled = false;
             }
         }
-        if (Pointer.current == null)
-        {
-            if (Cursor.TryGetComponent<Image>(out var Eñe))
-            {
-                Eñe.enabled = true;
-            }
-        }
-        // Cámara orbitando
-        Quaternion rotationQuat = Quaternion.Euler(rotation.y, rotation.x, 0);
+		if (Cursor.TryGetComponent<Image>(out var img))
+		{
+			img.enabled = !usandoMouse;
+		}
+
+		// Cámara orbitando
+		Quaternion rotationQuat = Quaternion.Euler(rotation.y, rotation.x, 0);
         Vector3 direction = rotationQuat * Vector3.back * currentZoom;
         Camera.transform.position = Target.position + direction;
         Camera.transform.LookAt(Target);
-
+        if (DisableCursor)
+        {
+            cursorPosition = Vector3.zero;
+            if ( img != null)
+            {
+                img.enabled = false;
+            }
+        }
         // Mover el cursor UI
         if (Cursor != null)
         {
             Cursor.anchoredPosition = cursorPosition;
         }
+
     }
 
     private void RotateCamera(Vector2 input)
@@ -228,37 +238,33 @@ public class CameraOrbitController : MonoBehaviour
 
 	private void MoveCursor(Vector2 input, InputDevice device)
 	{
-		Debug.Log(
-			$"💎 DISPOSITIVO DETECTADO 💎\n" +
-			$"TIPO: {device.GetType().Name}\n" +
-			$"DECISIÓN: {(device is Pointer ? "CURSOR ABSOLUTO" : "CURSOR RELATIVO")}\n" +
-			$"— Queen 👑"
-		);
-        
-
-		if (device is Pointer || R_Is_Cursor )
+        if (device is Gamepad)
+            usandoMouse = false;
+        if (DisableCursor)
+            return;
+        Debug.Log("Moving Cusor" + input);
+		if (usandoMouse)
 		{
-			Debug.Log(
-				"🖱️ CONTROL DIRECTO ACTIVADO\n" +
-				"EL CURSOR OBEDECE A TU MANO.\n" +
-				"— Queen 💅"
-			);
+			Debug.Log("Setting Cusor");
+
 			SetCursor();
 		}
 		else
 		{
-			Debug.Log(
-				"🎮 CONTROL RELATIVO ACTIVADO\n" +
-				"EL CURSOR SE MUEVE POR VOLUNTAD PROPIA.\n" +
-				"— Queen"
-			);
+			Debug.Log("A Moving Cusor" + input);
 
 			cursorPosition += input * CursorSpeed;
+
 		}
 	}
 
+
 	void SetCursor()
     {
+        if (DisableCursor)
+            return;
         cursorPosition = Pointer.current.position.value;
-    }
+       
+
+	}
 }
