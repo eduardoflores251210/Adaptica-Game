@@ -1,14 +1,17 @@
-using SerializableTypes.Biology;
+﻿using SerializableTypes.Biology;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.Rendering.DebugManager;
 
 public class SegmentManager : MonoBehaviour
 {
+    [Header("Referencias")]
     public PhaseManager PhaseManager;
-    public UIDocument iDoc;
+    public UIDocument iDoc; //suena a Apple
+    //iDocument
     public GameObject MetaballPrefab;
     public Metaball Selected;
     public List<Metaball> Segments;
@@ -17,6 +20,8 @@ public class SegmentManager : MonoBehaviour
     private Button Add;
     private Button Remove;
     private Slider Rad;
+    [Header("estado")]
+    public bool IsInUI;
     bool HasTOloadCreture(out MicrobeData DataToload)
     {
         DataToload = null;
@@ -45,6 +50,10 @@ public class SegmentManager : MonoBehaviour
         Rad = root.Q<Slider>("rad");
         Add.clicked += AddSegment;
         Remove.clicked += RemoveSegment;
+        if (cameraStuff != null)
+        {
+            cameraStuff.OnPressUIToggle += toggleUI;
+        }
         if (HasTOloadCreture(out var GGG))
         {
             MetaballManager.Instance.DestroyAllMetaballs();
@@ -65,7 +74,21 @@ public class SegmentManager : MonoBehaviour
         Segments.Remove(Selected);
         Destroy(Selected.gameObject);
     }
+    bool A;
+    void toggleUI()
+    {
 
+		A = !A;
+
+		cameraStuff.DisableCursor = !A;
+		GizmoManager.enabled = !A;
+
+		Debug.Log(
+			A
+			? "🧩 UI MODE: tocando botones como persona civilizada"
+			: "🔧 GIZMO MODE: moviendo carne alienígena"
+		);
+	}
     private void AddSegment()
     {
         var f= Instantiate(MetaballPrefab);
@@ -101,5 +124,6 @@ public class SegmentManager : MonoBehaviour
             }
         }
         OldSelected = Selected;
+        IsInUI = A;
     }
 }

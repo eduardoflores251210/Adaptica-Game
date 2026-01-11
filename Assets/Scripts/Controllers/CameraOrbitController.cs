@@ -12,6 +12,7 @@ public class CameraOrbitController : MonoBehaviour
     public Transform Target;              // Objeto a observar
     public Camera Camera;                // Cámara principal
     public RectTransform Cursor;         // Cursor UI (en pantalla)
+    public System.Action OnPressUIToggle;
 
     [Header("Parámetros de órbita")]
     public float ZoomSpeed = 5f;
@@ -48,7 +49,7 @@ public class CameraOrbitController : MonoBehaviour
         zoomAction = map.FindAction("Zoom", true);
         enableRotateAction = map.FindAction("EnableR", true);
         moveCursorAction = map.FindAction("L", true);
-
+        InputAction TAB = map.FindAction("FocusUI", true);
         enableRotateAction.started += ctx =>
         {
             if (ctx.control.device is Pointer)
@@ -75,6 +76,10 @@ public class CameraOrbitController : MonoBehaviour
 
         zoomAction.performed += ctx => ZoomCamera(ctx.ReadValue<float>());
         moveCursorAction.performed += ctx => MoveCursor(ctx.ReadValue<Vector2>(),ctx.control.device);
+        TAB.performed += ctx =>
+        {
+            OnPressUIToggle?.Invoke();
+        };
     }
     bool R_Is_Cursor = false;
 
