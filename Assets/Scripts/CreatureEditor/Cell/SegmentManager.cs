@@ -13,6 +13,7 @@ public class SegmentManager : MonoBehaviour
     public Metaball Selected;
     public List<Metaball> Segments;
     public GizmoManager GizmoManager;
+    public CameraOrbitController cameraStuff;
     private Button Add;
     private Button Remove;
     private Slider Rad;
