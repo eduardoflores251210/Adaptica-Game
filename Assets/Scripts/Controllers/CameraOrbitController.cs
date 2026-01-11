@@ -247,16 +247,16 @@ public class CameraOrbitController : MonoBehaviour
             usandoMouse = false;
         if (DisableCursor)
             return;
-        Debug.Log("Moving Cusor" + input);
+        //Debug.Log("Moving Cusor" + input);
 		if (usandoMouse)
 		{
-			Debug.Log("Setting Cusor");
+			//Debug.Log("Setting Cusor");
 
 			SetCursor();
 		}
 		else
 		{
-			Debug.Log("A Moving Cusor" + input);
+			//Debug.Log("A Moving Cusor" + input);
 
 			cursorPosition += input * CursorSpeed;
 

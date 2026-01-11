@@ -74,17 +74,17 @@ public class SegmentManager : MonoBehaviour
         Segments.Remove(Selected);
         Destroy(Selected.gameObject);
     }
-    bool A;
+
     void toggleUI()
     {
 
-		A = !A;
+		IsInUI = !IsInUI;
 
-		cameraStuff.DisableCursor = !A;
-		GizmoManager.enabled = !A;
+		cameraStuff.DisableCursor = IsInUI; // SI estamos en Ui el cursor no se axtiva para que podamos seecionar elementos de UI 
+		GizmoManager.enabled = !IsInUI;
 
 		Debug.Log(
-			A
+			IsInUI
 			? "🧩 UI MODE: tocando botones como persona civilizada"
 			: "🔧 GIZMO MODE: moviendo carne alienígena"
 		);
@@ -124,6 +124,6 @@ public class SegmentManager : MonoBehaviour
             }
         }
         OldSelected = Selected;
-        IsInUI = A;
+       
     }
 }

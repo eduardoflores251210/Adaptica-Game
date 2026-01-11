@@ -3137,6 +3137,8 @@ MonoBehaviour:
   - {fileID: 57020658}
   - {fileID: 1733863497}
   GizmoManager: {fileID: 1207680218}
+  cameraStuff: {fileID: 963194230}
+  IsInUI: 0
 --- !u!114 &1771608711
 MonoBehaviour:
   m_ObjectHideFlags: 0

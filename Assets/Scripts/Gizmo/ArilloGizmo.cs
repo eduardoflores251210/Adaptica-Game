@@ -38,8 +38,7 @@ public class ArilloGizmo : MonoBehaviour
         pointerPositionAction = map.FindAction("PPos", true);
 		dragAction.performed += ctx =>
 		{
-			if (ctx.control.device is Gamepad)
-				ultimoDelta = ctx.ReadValue<Vector2>();
+			//vacio como la empatia de los politicos 
 		};
 
 		dragAction.started += ctx => ComenzarArrastre(ctx.control.device);
