@@ -21,8 +21,8 @@ public class SC_RigidbodyWalker : MonoBehaviour
 	private InputAction zoomAction;
 	private InputActionMap map;
 
-	private bool isRotating = false;
-	private bool camIsRotating = false;
+
+
 
 	[Header("Cámara Orbital")]
 	public Camera orbitCamera;
@@ -33,7 +33,9 @@ public class SC_RigidbodyWalker : MonoBehaviour
 	public Vector2 verticalClamp = new Vector2(-80f, 80f);
 	public float cameraCollisionRadius = 0.15f;
 
-	private Vector2 camRotation;
+	private float camYaw;
+	private float camPitch;
+	private Vector2 lookInput; // valor leído cada frame
 
 	[Header("Gravedad")]
 	public Transform gravityCenter;
@@ -98,9 +100,11 @@ public class SC_RigidbodyWalker : MonoBehaviour
 		);
 	}
 
+	// --- OnEnable (reemplaza la sección actual) ---
 	private void OnEnable()
 	{
 		map = inputActions.FindActionMap("OrbCam", true);
+
 		map.Enable();
 
 		moveAction = map.FindAction("L", true);
@@ -108,70 +112,185 @@ public class SC_RigidbodyWalker : MonoBehaviour
 		enableRotateAction = map.FindAction("EnableR", true);
 		zoomAction = map.FindAction("Zoom", false);
 
-		enableRotateAction.started += _ => { isRotating = camIsRotating = true; };
-		enableRotateAction.canceled += _ => { isRotating = camIsRotating = false; };
 
+
+		// Guardamos el valor del input (performed) pero NO aplicamos la rotación aquí.
 		rotateAction.performed += ctx =>
 		{
-			Vector2 value = ctx.ReadValue<Vector2>();
-
-			Debug.Log(
-				"🐐 Toriel — INPUT RECIBIDO\n" +
-				$"Dispositivo: {ctx.control.device.displayName}\n" +
-				$"Valor: {value}\n" +
-				$"isRotating: {isRotating}\n" +
-				$"camIsRotating: {camIsRotating}"
-			);
-
-			if (isRotating)
-			{
-				Debug.Log("🐐 Toriel — ROTANDO JUGADOR");
-				RotatePlayer(value);
-			}
-
-			if (camIsRotating)
-			{
-				Debug.Log("🐐 Toriel — ROTANDO CÁMARA");
-				RotateCamera(value);
-			}
+			lookInput = ctx.ReadValue<Vector2>();
+			Mouse_Finger_Pen = (ctx.control.device is Pointer)
+			;
 		};
-
+		rotateAction.canceled += ctx =>
+		{
+			lookInput = Vector2.zero;
+		};
 
 		if (zoomAction != null)
 			zoomAction.performed += ctx => ZoomCamera(ctx.ReadValue<float>());
 	}
-
+	bool Mouse_Finger_Pen;
+	// --- OnDisable (limpiar handlers bien) ---
 	private void OnDisable()
 	{
-		map.Disable();
+
+
+		if (rotateAction != null)
+		{
+			rotateAction.performed -= ctx => { lookInput = ctx.ReadValue<Vector2>(); };
+			rotateAction.canceled -= ctx => { lookInput = Vector2.zero; };
+		}
+
+		map?.Disable();
 	}
 
+	// --- FixedUpdate (solo el trozo de rotación del jugador) ---
 	private void FixedUpdate()
 	{
-		map.Enable();
+		if (!map.enabled)
+			map.Enable();//ACTIVAR EL MAPA POR SI A DON SELECTOR SE HACE SU TRABAJO TARDE Y CAUSA QUIE SE DESACTIVE E MAPA
 
 		Vector2 input = moveAction.ReadValue<Vector2>();
-		Vector3 move =
-			(transform.forward * input.y + transform.right * input.x) * speed;
+		Vector3 move = (transform.forward * input.y + transform.right * input.x) * speed;
+
+		// Girar jugador según input.x SI isRotating (tu decisión)
+		if (true)
+		{
+			float yawInput = input.x; // raw input.x
+			RotatePlayer(yawInput);
+			Debug.Log("🐐 Toriel — ROTANDO JUGADOR");
+		}
 
 		Vector3 vel = rb.velocity;
 		Vector3 targetVel = new Vector3(move.x, vel.y, move.z);
 		rb.velocity = Vector3.Lerp(vel, targetVel, Time.fixedDeltaTime * 10f);
+		// --- Gravedad personalizada hacia el planeta ---
+		if (gravityCenter != null)
+		{
+			Vector3 gravityDir =
+				(gravityCenter.position - transform.position).normalized;
+
+			float gravityStrength = 25f; // ajusta a gusto
+			rb.AddForce(gravityDir * gravityStrength, ForceMode.Acceleration);
+
+			// Alinear el "up" del jugador con la gravedad
+			Quaternion targetRotation =
+				Quaternion.FromToRotation(transform.up, -gravityDir) * transform.rotation;
+
+			transform.rotation = Quaternion.Slerp(
+				transform.rotation,
+				targetRotation,
+				Time.fixedDeltaTime * gravityAlignSpeed
+			);
+		}
+
 	}
 
-	private void RotatePlayer(Vector2 look)
+	// --- LateUpdate (reemplaza completamente tu LateUpdate con esto) ---
+	// --- LateUpdate: cámara orbital correcta para planeta (yaw alrededor de gravityUp)
+	// --- LateUpdate: cámara orbital limpia, solo InputActions ---
+	private void LateUpdate()
 	{
-		rotation.x += look.x * lookSpeed;
-		rotation.y -= look.y * lookSpeed;
-		rotation.y = Mathf.Clamp(rotation.y, lookXLimit.x, lookXLimit.y);
-		transform.rotation = Quaternion.Euler(0, rotation.x, 0);
+		if (!orbitCamera || !gravityCenter)
+			return;
+
+		// 1) Arriba real del planeta
+		Vector3 gravityUp = (transform.position - gravityCenter.position).normalized;
+
+		// 2) Leer input SOLO desde InputAction
+		Vector2 look = Vector2.zero;
+		if (rotateAction != null)
+			look = rotateAction.ReadValue<Vector2>();
+
+		// Deadzone mínima (evita drift)
+		const float deadzone = 0.001f;
+		if (look.sqrMagnitude < deadzone * deadzone)
+			look = Vector2.zero;
+
+		// 3) Decidir si se permite rotar
+		//    EnableR SOLO filtra mouse si así lo configuraste en el InputActionAsset
+		bool shouldRotate = true;
+		if (enableRotateAction != null && !enableRotateAction.IsPressed())
+			shouldRotate = false;
+		Quaternion finalRot = ApplyCameraRotationFromInput(look, gravityUp, shouldRotate);
+		// 6) Posición orbital
+		Vector3 desiredPos = transform.position
+						   - finalRot * Vector3.forward * currentZoom;
+
+		// 7) Colisión de cámara
+		Vector3 dir = (desiredPos - transform.position).normalized;
+		if (Physics.SphereCast(
+			transform.position,
+			cameraCollisionRadius,
+			dir,
+			out RaycastHit hit,
+			currentZoom,
+			cameraCollisionMask,
+			QueryTriggerInteraction.Ignore))
+		{
+			desiredPos = hit.point - dir * 0.05f;
+		}
+
+		// 8) Aplicar
+		orbitCamera.transform.position = desiredPos;
+		orbitCamera.transform.rotation = finalRot;
 	}
+
+
+
+	/// <summary>
+	/// Aplica un Vector2 de input (look) a la rotación de la cámara respetando gravityUp.
+	/// - No lee dispositivos: recibe el vector de input (ej: rotateAction.ReadValue<Vector2()).
+	/// - Si allowRotate == false no cambia camYaw/camPitch pero devuelve la rotación actual.
+	/// - Devuelve la rotación final (sin roll) que debes aplicar a la cámara.
+	/// </summary>
+	public Quaternion ApplyCameraRotationFromInput(Vector2 lookInput, Vector3 gravityUp, bool allowRotate = true)
+	{
+		// tiny deadzone to avoid tiny drift (action bindings may generate small noise)
+		const float deadzone = 0.001f;
+		if (allowRotate && lookInput.sqrMagnitude > deadzone * deadzone)
+		{
+			// scale por frame para que sensitivity sea más intuitiva (opcional)
+			float scale = Time.deltaTime * 60f;
+			camYaw += lookInput.x * sensitivity.x * scale;
+			camPitch -= lookInput.y * sensitivity.y * scale;
+
+			// clamp pitch to avoid flipping over
+			camPitch = Mathf.Clamp(camPitch, verticalClamp.x, verticalClamp.y);
+		}
+
+		// Yaw: rotación alrededor del "up" real del planeta
+		Quaternion yawRot = Quaternion.AngleAxis(camYaw, gravityUp);
+
+		// Right axis POST-yaw — garantiza que pitch ocurra perpendicular al up planetario
+		Vector3 rightAxis = (yawRot * Vector3.right).normalized;
+
+		// Pitch: rotación alrededor del eje right real
+		Quaternion pitchRot = Quaternion.AngleAxis(camPitch, rightAxis);
+
+		// Orden: yaw * pitch. No hay roll en esta construcción.
+		Quaternion finalRot = yawRot * pitchRot;
+
+		return finalRot;
+	}
+
+
+
+
+	// Simplifica la API: RotatePlayer acepta YA el input (no un Vector2 confuso)
+	private void RotatePlayer(float yawInput)
+	{
+		float yaw = yawInput * lookSpeed;
+		transform.Rotate(transform.up, yaw, Space.World);
+	}
+
 
 	private void RotateCamera(Vector2 input)
 	{
-		camRotation.x += input.x * sensitivity.x;
-		camRotation.y -= input.y * sensitivity.y;
-		camRotation.y = Mathf.Clamp(camRotation.y, verticalClamp.x, verticalClamp.y);
+		// (No lo usamos directamente si leemos lookInput en LateUpdate; lo dejamos si quieres usarlo)
+		camYaw += input.x * sensitivity.x;
+		camPitch -= input.y * sensitivity.y;
+		camPitch = Mathf.Clamp(camPitch, verticalClamp.x, verticalClamp.y);
 	}
 
 	private void ZoomCamera(float input)
@@ -189,55 +308,4 @@ public class SC_RigidbodyWalker : MonoBehaviour
 		}
 	}
 
-	private void LateUpdate()
-	{
-		if (orbitCamera == null || gravityCenter == null)
-			return;
-
-		Vector3 gravityUp =
-			(transform.position - gravityCenter.position).normalized;
-
-		Quaternion orbitRot =
-			Quaternion.Euler(camRotation.y, camRotation.x, 0);
-
-		Vector3 desiredPos =
-			transform.position + orbitRot * Vector3.back * currentZoom;
-
-		Vector3 dir = (desiredPos - transform.position).normalized;
-		float dist = Vector3.Distance(transform.position, desiredPos);
-
-		if (Physics.SphereCast(
-			transform.position,
-			cameraCollisionRadius,
-			dir,
-			out RaycastHit hit,
-			dist,
-			cameraCollisionMask,
-			QueryTriggerInteraction.Ignore))
-		{
-			desiredPos = hit.point - dir * 0.05f;
-
-			Debug.Log(
-				"🐐 Toriel:\n" +
-				"Hay una montaña delante.\n" +
-				"He movido la cámara para protegerte."
-			);
-		}
-
-		orbitCamera.transform.position = desiredPos;
-
-		Vector3 lookDir =
-			(transform.position - orbitCamera.transform.position).normalized;
-
-		Quaternion targetRot =
-			Quaternion.LookRotation(lookDir, gravityUp);
-
-		orbitCamera.transform.rotation =
-			Quaternion.Slerp(
-				orbitCamera.transform.rotation,
-				targetRot,
-				Time.deltaTime * gravityAlignSpeed
-			);
-
-	}
 }

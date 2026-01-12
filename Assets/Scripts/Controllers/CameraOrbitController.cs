@@ -187,11 +187,13 @@ public class CameraOrbitController : MonoBehaviour
                 Eñe.enabled = false;
             }
         }
-		if (Cursor.TryGetComponent<Image>(out var img))
-		{
-			img.enabled = !usandoMouse;
-		}
-
+        Image img = null;
+        if (Cursor != null) {
+            if (Cursor.TryGetComponent<Image>(out img))
+            {
+                img.enabled = !usandoMouse;
+            }
+        }
 		// Cámara orbitando
 		Quaternion rotationQuat = Quaternion.Euler(rotation.y, rotation.x, 0);
         Vector3 direction = rotationQuat * Vector3.back * currentZoom;
