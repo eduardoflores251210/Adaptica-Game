@@ -8,6 +8,7 @@ public class GeoCentrism : MonoBehaviour
 	[Header("Config")]
 	public bool OverrideSun;
 	public Transform CustomSun;
+	public float Scale = 1.0f;
 	[Header("Lista de planetas")]
 	public StarData Sool;
 	public List<PlanetData> Planets;
@@ -25,7 +26,7 @@ public class GeoCentrism : MonoBehaviour
 	public float velocidadOrbitaMax = 30f;
 	Dictionary<Transform, float> radiosOrbitales = new();
 	Dictionary<Transform, float> angulos = new();
-	private Transform tierra; // El planeta central
+	public Transform tierra; // El planeta central
 
 	void Start()
 	{
@@ -88,10 +89,15 @@ public class GeoCentrism : MonoBehaviour
 			{
 				var PGO = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 				PGO.name = Planet.Name;
+				PGO.transform.localScale = Vector3.one*(Planet.radius * Scale);
 				planetas.Add(PGO.transform);
 			}
 		}
 		sol = OverrideSun? CustomSun : sol;
+		if (Sool != null)
+		{
+			sol.localScale = Vector3.one * (Scale *10);
+		}
 		// Validar lista de planetas
 		if (planetas == null || planetas.Count == 0)
 		{
@@ -115,8 +121,8 @@ public class GeoCentrism : MonoBehaviour
 		}
 
 
-		float distanciaBase = 50f;
-		float separacion = 30f;
+		float distanciaBase = 50f*Scale;
+		float separacion = 30f*Scale;
 
 		for (int i = 0; i < planetas.Count; i++)
 		{
@@ -138,7 +144,7 @@ public class GeoCentrism : MonoBehaviour
 		// El Sol tiene una órbita APARENTE alrededor de la Tierra
 		float sunAngle = Time.time * velocidadOrbitaMin;
 		Vector3 solPosRelativa =
-			new Vector3(Mathf.Cos(sunAngle), 0, Mathf.Sin(sunAngle)) * 100f;
+			new Vector3(Mathf.Cos(sunAngle), 0, Mathf.Sin(sunAngle)) *( 100f*Scale);
 
 		sol.position = solPosRelativa;
 
