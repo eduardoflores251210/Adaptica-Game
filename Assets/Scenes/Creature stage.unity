@@ -577,11 +577,13 @@ MonoBehaviour:
   sensitivity: {x: 1, y: 1}
   verticalClamp: {x: -80, y: 80}
   cameraCollisionRadius: 0.15
-  gravityCenter: {fileID: 893086459}
-  gravityAlignSpeed: 8
   cameraCollisionMask:
     serializedVersion: 2
     m_Bits: 0
+  gravityCenter: {fileID: 893086459}
+  gravityStrength: 25
+  gravityAlignSpeed: 8
+  ZoomOutput: 0
 --- !u!135 &151645672
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2196,6 +2198,7 @@ GameObject:
   - component: {fileID: 1810078731}
   - component: {fileID: 1810078730}
   - component: {fileID: 1810078729}
+  - component: {fileID: 1810078733}
   m_Layer: 0
   m_Name: SUN
   m_TagString: Untagged
@@ -2291,6 +2294,70 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1810078733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1810078728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bd1a12e6ae0f444abc8934d05ce81e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OverrideSun: 1
+  CustomSun: {fileID: 1810078732}
+  Sool:
+    Name: Ser Cauda 1
+    Description: SSSS
+    transform:
+      Pos: {x: 0, y: 0, z: 0}
+      Rot: {x: 0, y: 0, z: 0}
+      Scale: {x: 0, y: 0, z: 0}
+    Children:
+    - P0001
+    id: E0001
+    ParentID: 
+    type: 4
+  Planets:
+  - Name: SSSSS
+    Description: SSSSS
+    transform:
+      Pos: {x: 0, y: 0, z: 0}
+      Rot: {x: 0, y: 0, z: 0}
+      Scale: {x: 0, y: 0, z: 0}
+    Children: []
+    id: P0010
+    ParentID: E0001
+    HMapID: 
+    IsSaveFile: 0
+    type: 0
+    radius: 0
+    GasColors: []
+    Seed: 0
+  - Name: SerCauda 2
+    Description: 
+    transform:
+      Pos: {x: 0, y: 0, z: 0}
+      Rot: {x: 0, y: 0, z: 0}
+      Scale: {x: 0, y: 0, z: 0}
+    Children: []
+    id: P0001
+    ParentID: E0001
+    HMapID: 
+    IsSaveFile: 0
+    type: 0
+    radius: 0.5
+    GasColors: []
+    Seed: 134
+  PlanetID: P0001
+  planetas: []
+  sol: {fileID: 0}
+  indiceTierra: 0
+  velocidadRotacionPlaneta: 10
+  velocidadOrbitaMin: 10
+  velocidadOrbitaMax: 30
 --- !u!1 &1862263338
 GameObject:
   m_ObjectHideFlags: 0
