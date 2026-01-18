@@ -315,7 +315,7 @@ GameObject:
   - component: {fileID: 288371645}
   - component: {fileID: 288371644}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: MailMan
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25786,8 +25786,8 @@ MonoBehaviour:
   BBBBBBBBB: 
   globalStarId: 0
   globalPlanetId: 0
-  AllowRogues: 0
-  Probability: 0.99
+  AllowRogues: 1
+  Probability: 0.95
   planetDataList: []
   ellipseRatio: 1
   ellipseEdgeFalloff: 6
@@ -25839,6 +25839,7 @@ MonoBehaviour:
     Type: 0
     Format: EffiGalaxy
     SectorPositions: []
+    Seed: 0
 --- !u!114 &1498985395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25861,6 +25862,8 @@ MonoBehaviour:
   EnableZoom: 1
   ZoomOutput: 0
   CursorSpeed: 10
+  usandoMouse: 0
+  DisableCursor: 0
   inputActions: {fileID: -944628639613478452, guid: c4765c325f0af464799a1a764737ea39, type: 3}
   currentZoom: 10
 --- !u!1 &1510794195

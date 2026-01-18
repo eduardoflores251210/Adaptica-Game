@@ -44,28 +44,7 @@ public class GeoCentrism : MonoBehaviour
 			if (Cartero.IsThereAnyTypedMailForHim<string>("Parent", out var MainPlanetID))
 			{
 				PlanetID = MainPlanetID[0].Contents;
-				if (Planets!= null)
-				{
-					PlanetData Earth = null;
-					int i = 0;
-					int id = 0;
-					foreach (PlanetData Planet in Planets)
-					{
-						if (Planet.id == PlanetID)
-						{
-							Earth = Planet;
-							id = i;
-						}
-						i++;
-					}
-					if (Earth != null)
-					{
-						indiceTierra = id;
-					}else
-					{
-						indiceTierra = int.MinValue;
-					}
-				}
+
 			}
 
 
@@ -91,6 +70,28 @@ public class GeoCentrism : MonoBehaviour
 				PGO.name = Planet.Name;
 				PGO.transform.localScale = Vector3.one*(Planet.radius * Scale);
 				planetas.Add(PGO.transform);
+			}
+			if (!string.IsNullOrEmpty(PlanetID) ) {
+				PlanetData Earth = null;
+				int i = 0;
+				int id = 0;
+				foreach (PlanetData Planet in Planets)
+				{
+					if (Planet.id == PlanetID)
+					{
+						Earth = Planet;
+						id = i;
+					}
+					i++;
+				}
+				if (Earth != null)
+				{
+					indiceTierra = id;
+				}
+				else
+				{
+					indiceTierra = int.MinValue;
+				}
 			}
 		}
 		sol = OverrideSun? CustomSun : sol;

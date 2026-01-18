@@ -35,8 +35,9 @@ public class GalaxyGenerator : MonoBehaviour
 	private bool aaa = true;
 
 	[Header("StarGenStuff")]
-	public bool AllowRogues = false;
-	public float Probability = 0.99f;
+	public bool AllowRogues = true;
+	[Tooltip ("de aucerdo con las observaciones reales 95% es la probabilidad que un objeto sea un planeta")]
+	public float Probability = 0.95f;
 	public List<PlanetData> planetDataList;
 
 	// --- Parámetros para redondeo elíptico (ajustables) ---

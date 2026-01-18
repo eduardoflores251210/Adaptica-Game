@@ -40,7 +40,7 @@ public class SC_RigidbodyWalker : MonoBehaviour
 	public Transform gravityCenter;
 	public float gravityStrength = 25f;
 	public float gravityAlignSpeed = 8f;
-
+	public GeoCentrism Geocentrismo;
 	[Header("Estado & utilidades")]
 	public float ZoomOutput = 0f;
 	bool usingPointer = false;
@@ -92,6 +92,11 @@ public class SC_RigidbodyWalker : MonoBehaviour
 
 		if (zoomAction != null)
 			zoomAction.performed += OnZoomPerformed;
+		if (Geocentrismo != null)
+		{
+			gravityCenter = Geocentrismo.tierra;
+			transform.parent = gravityCenter;
+		}
 	}
 
 	private void OnDisable()

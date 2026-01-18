@@ -32,16 +32,58 @@ public static class SpaceUtils
 	{
 		public static string GenerateGalaxyName()
 		{
-			string[] Catalogues = { "GCA", "EGC", "SGC", "GCGC", "VGE" };
+			string[] Catalogues = {
+				"GCA",
+				"EGC",
+				"SGC",
+				"GCGC",
+				"VGE",
+				"G"
+			};
+			// significados de Los catalogos:
+			//Galactic Catalogue A,      //NGC
+			//Extra Galactic Catalogue, //inspíracion LEDA y ESO a la vez
+			//SGC Super Galactic Catalogue, //isnpiracion PGC
+			//Global Clusters and Galaxies Catalogue,    //inspiracion CGCG
+			//VGE = Virgo Galactic Extention //inspiracion  VCC fusionado con NGC 
+			//Guadalupe             //insperacion Messier
+			string Catalogo = Catalogues[Random.Range(0, Catalogues.Length)];
 			int number1 = Random.Range(100, 9999);
 			int number2 = Random.Range(10, 999);
-			return $"{Catalogues[Random.Range(0, Catalogues.Length)]} {number1}-{number2}";
+			int number3 = Random.Range(1, 125);
+			int number4 = Random.Range(1, 9999);
+			switch (Catalogo)
+			{
+				case "VGE":
+
+					return $"{Catalogo} {number3}-{number4}";
+				case "G":
+					return $"{Catalogo} {number3}";
+				case "GCGC":
+					return $"{Catalogo} {number3}:{number1}";
+				case "SGC":
+					return $"{Catalogo} {number4}";
+				default:
+					return $"{Catalogo} {number1}-{number2}";
+					
+			}
+
+
 		}
 
 		public static string GenerateStarName_NASAStyle()
 		{
 			int catalogNumber = Random.Range(10000, 999999);
-			string catalogPrefix = Random.value > 0.5f ? "SC" : "SL";
+			List<string> Catalogues = new List<string>()
+			{
+				"SC",//Clasico 1
+				"SL",//Clasico 2
+				"Krumpler",
+				"HUP",
+				"FHD", //jaja FHD en vez de HD
+				"DESS" //ups referencia implicita accidental a deltarune (dess la hermana mayor de Noelle la que esta desaparecida) auque originamente esto era referencia a TESS
+			};
+			string catalogPrefix = Catalogues[Random.Range(0,Catalogues.Count)];
 			return $"{catalogPrefix} {catalogNumber}";
 		}
 
@@ -51,7 +93,17 @@ public static class SpaceUtils
 			char suffix = (char)('b' + idx); // b, c, d, etc.
 			return $"{systemName}{suffix}";
 		}
+		
+		public static string GenerateMoonName_NASAStyle(string PlanetName, int idx)
+		{
+			//Debug.Log(idx.ToString());
+
+			return $"{PlanetName} {idx.ToRoman()}";
+		}
+
 	}
+
+
 	public static class UnitConversion
 	{
 		public static float LightYearToParsec(float value) 
@@ -110,6 +162,39 @@ public static class SpaceUtils
 	{
 		if (f) 
 		a(Random.Range(0,2)==0);
+	}
+	public static string ToRoman(this int number)
+	{
+		if (number < 1 || number > 3999) return ""; // límites clásicos del sistema romano
+
+		var romanNumerals = new[]
+		{
+		new { Value = 1000, Symbol = "M" },
+		new { Value = 900, Symbol = "CM" },
+		new { Value = 500, Symbol = "D" },
+		new { Value = 400, Symbol = "CD" },
+		new { Value = 100, Symbol = "C" },
+		new { Value = 90, Symbol = "XC" },
+		new { Value = 50, Symbol = "L" },
+		new { Value = 40, Symbol = "XL" },
+		new { Value = 10, Symbol = "X" },
+		new { Value = 9, Symbol = "IX" },
+		new { Value = 5, Symbol = "V" },
+		new { Value = 4, Symbol = "IV" },
+		new { Value = 1, Symbol = "I" }
+	};
+
+		string result = "";
+		foreach (var item in romanNumerals)
+		{
+			while (number >= item.Value)
+			{
+				result += item.Symbol;
+				number -= item.Value;
+			}
+		}
+
+		return result;
 	}
 }
 public enum MultiEje 
@@ -1687,7 +1772,7 @@ namespace ActualUtils
 				return;
 			}
 			CurrentGame = a;
-			CurrentSaveName = name;
+			CurrentSaveName = name; //1742 lineas estoy seguro que este archivo es el mas largo del proyecto y que paso algo en ese año 1742  ah si Anders Celsius inventa la escala de temperatura que lleva su nombre.      (fuente wikipedia) XD 
 			string aa = J(Paths.SaveFiles, name);
 			string bb = J(aa, "Save.json");
 			StageLoader.LoadStageFromSavePath(bb);
@@ -1718,6 +1803,7 @@ namespace ActualUtils
 				string json = JsonUtility.ToJson(CurrentGame, true);
 				File.WriteAllText(sav, json);
 			}
+				// 1773 lineas  segun wikipedia en 1773 17 de enero: el capitán James Cook se convierte en el primer explorador europeo en cruzar el círculo polar ártico.  (fuente: wikipedia) no no hablare del museo estadounidense que se inauguro ese año  XD
 			catch (Exception ex)
 			{
 				Debug.LogError(ex);
@@ -1765,12 +1851,12 @@ namespace ActualUtils
 				Debug.LogError("Tipo de criatura no válido para guardar");
 				return;
 			}
+					// 1821 Mexico se inependizo
 			string fullDir = J(creDir, creatureFolder);
 			try
 			{
 				if (!Directory.Exists(fullDir)) Directory.CreateDirectory(fullDir);
 				string nameSafe;
-
 				using SHA512 sHA = SHA512.Create();
 				{
 					string inp = DateTime.Now.ToString("o") + Random.ColorHSV().ToHexString();
@@ -1784,7 +1870,7 @@ namespace ActualUtils
 				}
 				string filename = $"{nameSafe}.json"; //nombre basado en hash de tiempo y random para evitar colisiones
 				string full = Path.Combine(fullDir, filename);
-				File.WriteAllText(full, json);  //1742 lineas estoy seguro que este archivo es el mas largo del proyecto y que paso algo en ese año 1742  ah si Anders Celsius inventa la escala de temperatura que lleva su nombre.      (fuente wikipedia) XD 
+				File.WriteAllText(full, json); 
 			}
 			catch (Exception ex)
 			{
@@ -1815,4 +1901,6 @@ namespace ActualUtils
 		}
 	}
 }
-//ahora son 1773 lineas  segun wikipedia en 1773 17 de enero: el capitán James Cook se convierte en el primer explorador europeo en cruzar el círculo polar ártico.  (fuente: wikipedia) no no hablare del museo estadounidense que se inauguro ese año  XD
+
+
+

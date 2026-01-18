@@ -583,6 +583,7 @@ MonoBehaviour:
   gravityCenter: {fileID: 893086459}
   gravityStrength: 25
   gravityAlignSpeed: 8
+  Geocentrismo: {fileID: 1810078733}
   ZoomOutput: 0
 --- !u!135 &151645672
 SphereCollider:
@@ -2308,6 +2309,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   OverrideSun: 1
   CustomSun: {fileID: 1810078732}
+  Scale: 7089.892
   Sool:
     Name: Ser Cauda 1
     Description: SSSS
@@ -2333,7 +2335,7 @@ MonoBehaviour:
     HMapID: 
     IsSaveFile: 0
     type: 0
-    radius: 0
+    radius: 0.44
     GasColors: []
     Seed: 0
   - Name: SerCauda 2
@@ -2358,6 +2360,7 @@ MonoBehaviour:
   velocidadRotacionPlaneta: 10
   velocidadOrbitaMin: 10
   velocidadOrbitaMax: 30
+  tierra: {fileID: 0}
 --- !u!1 &1862263338
 GameObject:
   m_ObjectHideFlags: 0
