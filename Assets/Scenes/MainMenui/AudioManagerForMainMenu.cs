@@ -42,13 +42,14 @@ public class AudioManagerForMainMenu : MonoBehaviour
                     {
                         if (StartVideo != null)
                         {
-                            if (StartVideo.enabled ==  false)
+                            if (StartVideo.gameObject.activeInHierarchy ==  false)
                             {
-                                StartVideo.enabled = true;
+                                StartVideo.gameObject.SetActive( true);
                             }else
                             {
-                                if (!StartVideo.Done)
+                                if (StartVideo.Done)
                                 {
+                                    StartVideo.gameObject.SetActive( false);
 									fade.StartFadeIn();
 									FaeDeed = true;
 									MusicPlayer.enabled = true;
