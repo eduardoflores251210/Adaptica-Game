@@ -14,10 +14,11 @@ public class AudioManagerForMainMenu : MonoBehaviour
     public FadeToBlck fade;
     [Header("Opcional")]
     public VideoPlayer StartVideo; //preparandome para cinematica de carga :D
-
-    bool Fadeed;// F*** correct english spellig      
-    //COPILOT POR QUE SUGERISTE ESE COMENTARIO con el que estoy de acuerdo pero NO DE FORMA TAN GROSERA
-    // Start is called before the first frame update
+    /// <summary>
+    /// aka Fadeed aka
+    /// Faded controla SI has hecho fundido o no 
+    /// </summary>
+    public bool FaeDeed { get; private set; }
     void Start()
     {
         if (CheckStuff())
@@ -28,7 +29,7 @@ public class AudioManagerForMainMenu : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!Fadeed)
+        if (!FaeDeed)
         {
             if (CheckStuff())
                 return;
@@ -50,7 +51,7 @@ public class AudioManagerForMainMenu : MonoBehaviour
                                 if (!StartVideo.isPlaying)
                                 {
 									fade.StartFadeIn();
-									Fadeed = true;
+									FaeDeed = true;
 									MusicPlayer.enabled = true;
 								}
                             }
@@ -58,7 +59,7 @@ public class AudioManagerForMainMenu : MonoBehaviour
                         else
                         {
                             fade.StartFadeIn();
-                            Fadeed = true;
+                            FaeDeed = true;
                             MusicPlayer.enabled = true;
                         }
                     }
@@ -66,7 +67,7 @@ public class AudioManagerForMainMenu : MonoBehaviour
                 else
                 {
                     fade.StartFadeIn();
-                    Fadeed = true;
+                    FaeDeed = true;
 					MusicPlayer.enabled = true;
 				}
 			}
