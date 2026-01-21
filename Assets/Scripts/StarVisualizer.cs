@@ -33,6 +33,8 @@ public class StarVisualizer : MonoBehaviour
 	public int BatchSize = 50;
 	public bool IsInMainMenu = false;
 	public bool HideRouguePlanets = true;
+	[Tooltip("Usado en el menu principal para cargar las estrellas antes de hacer el fundido de negro a vista normal")]
+	public bool Use1FramesPerSecondMode = false;
 	[Header("Opcional")]
 	public SectorTurnOnOffEr ChunckManager;
 
@@ -97,7 +99,12 @@ public class StarVisualizer : MonoBehaviour
 		foreach (var st in data.SectorPositions)
 		{
 			GalaxyData.LoadSector(st, out var Sec);
-			if (Sec != null) list.Add(Sec);
+			if (Sec != null)
+			{
+				list.Add(Sec);
+				//Debug.Log("LD SEC " + Sec.Position.ToString());
+			}
+
 			yield return null;
 		}
 
@@ -107,6 +114,7 @@ public class StarVisualizer : MonoBehaviour
 
 	public IEnumerator VisualizeStars(List<GalaxySector> sectors, GalaxyData data = null)
 	{
+		Debug.Log("STart");
 		if (starParent == null) starParent = this.transform;
 		galaxy= data;
 		foreach (var sector in sectors)
@@ -127,6 +135,8 @@ public class StarVisualizer : MonoBehaviour
 			}
 
 			int Batch = 0;
+			System.Diagnostics.Stopwatch sw = null;
+			if (Use1FramesPerSecondMode) sw = System.Diagnostics.Stopwatch.StartNew();
 			foreach (var star in sector.Stars)
 			{
 				if(star == null) continue;
@@ -156,19 +166,33 @@ public class StarVisualizer : MonoBehaviour
 				{
 
 				}
-
+				bool T = false;
+				if (Use1FramesPerSecondMode)
+				{
+					if (sw != null)
+					{
+						if (sw.Elapsed > new TimeSpan(0, 0, 1))
+						{
+							T = true;
+							sw.Restart();
+						}
+					}
+				}
 				Batch++;
-				if (Batch >= BatchSize)
+				if (((Batch >= BatchSize ) && !Use1FramesPerSecondMode ) || T)
 				{
 					Batch = 0;
 					yield return null;
 				}
 			}
-			GalObjCollection collection = data.GetRougueStuffInThisSector(sector.Position);
-				; //esto tarda demasiado tiempo en salir 
+				
 			yield return null;
 			if (!HideRouguePlanets)
 			{
+				// no queremos llenar la ram con basura en el modo solo estrella 
+				GalObjCollection collection = data.GetRougueStuffInThisSector(sector.Position); ; //esto tarda demasiado tiempo en salir 
+
+				if (Use1FramesPerSecondMode && sw == null) sw = System.Diagnostics.Stopwatch.StartNew(); //por si alguien cambia la configuracion a mitad de corutina 
 				if (collection != null)
 				{
 					if (collection.planets != null)
@@ -198,8 +222,20 @@ public class StarVisualizer : MonoBehaviour
 									emit.position = planet.transform.Pos * GalaxyScale;
 									ps.Emit(emit, 1);
 								}
+								bool T = false;
+								if (Use1FramesPerSecondMode)
+								{
+									if (sw != null)
+									{
+										if (sw.Elapsed > new TimeSpan(0, 0, 1))
+										{
+											T = true;
+											sw.Restart();
+										}
+									}
+								}
 								Batch++;
-								if (Batch >= BatchSize)
+								if (((Batch >= BatchSize) && !Use1FramesPerSecondMode) || T)
 								{
 									Batch = 0;
 									yield return null;

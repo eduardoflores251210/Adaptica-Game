@@ -25,11 +25,13 @@ using Vector4 = UnityEngine.Vector4;
 
 public static class SpaceUtils
 {
+
 	/// <summary>
 	/// 🪐 NOMBRADORES GALÁCTICOS
 	/// </summary>
 	public static class Naming
 	{
+		public static System.Random Random = new();
 		public static string GenerateGalaxyName()
 		{
 			string[] Catalogues = {
@@ -1902,5 +1904,200 @@ namespace ActualUtils
 	}
 }
 
+[Serializable]
+public struct EpiGeneticInstance
+{
+	public string Key;
+	public bool Value;
+
+	public EpiGeneticInstance(string key, bool value)
+	{
+		Key = key;
+		Value = value;
+	}
+
+	public override bool Equals(object obj)
+	{
+		return obj is EpiGeneticInstance instance &&
+			   Key == instance.Key &&
+			   Value == instance.Value;
+	}
+
+	public override int GetHashCode()
+	{
+		return HashCode.Combine(Key, Value);
+	}
+	public static bool operator ==(EpiGeneticInstance a, EpiGeneticInstance b)
+	{
+		return a.Equals(b);
+	}
+	public static bool operator != (EpiGeneticInstance a, EpiGeneticInstance b)
+	{ return !a.Equals(b); }
+}
+[Serializable]
+public class Gene
+{
+	public string Name;
+	public string Description;
+	public long value; //simplificacion por que para guardar muchas cosas dde genetica de sim cabe en long como color de cabello boca y demas
+	public bool Dominance; //False recesisvo true Dominante si hay 2 genes  dominates: CODOMINANCIA pasaria pero actuamente e codigo explota  pero adenas esto representa un solo alelo cariotipo es el que maneja los genes de los 2 padres 
+	public List<EpiGeneticInstance> EpigeneitcFactors;
+
+	public Gene()
+	{
+		Name = "";
+		Description = "";
+		value = 0;
+		Dominance = false;
+		EpigeneitcFactors = new();
+	}
+
+	public Gene(string name, string description, long value, bool dominance, Dictionary<string, bool> epigeneitcFactors)
+	{
+		Name = name;
+		Description = description;
+		this.value = value;
+		Dominance = dominance;
+		List<EpiGeneticInstance> NEW_FACTORS = new();
+		foreach (var i in epigeneitcFactors)
+		{
+			NEW_FACTORS.Add(new(i.Key, i.Value));
+		}
+
+		EpigeneitcFactors = NEW_FACTORS;
+	}
+
+	public override bool Equals(object obj)
+	{
+		if (obj is Gene gene)
+			return gene == this;
+		return false;
+	}
+
+	public override int GetHashCode()
+	{
+		return HashCode.Combine(Name, Description, value, Dominance);
+	}
+	public int GetHashCodeWithEpi()
+	{
+		return HashCode.Combine(Name, Description, value, Dominance, EpigeneitcFactors);
+	}
+
+	public static Boolean operator == (Gene a, Gene b)
+	{
+		if (a is null && b is null) return true;
+		if (b is not null && a is null) return false;
+		if (a is not null && b is null) return false;
 
 
+		bool NAM = (a.Name == b.Name);
+		bool DES = (a.Description == b.Description);
+		bool VAL = (a.value == b.value);
+		bool DOM = (a.Dominance == b.Dominance);
+		return (NAM  && DES && VAL && DOM)
+		;
+	}
+	public static Boolean operator != (Gene a, Gene b)
+	{
+		return !(a == b);
+	}
+	public static bool FactorsMatch(Gene a, Gene b)
+	{
+		if (a is null && b is null) return true;
+		if (b is not null && a is null) return false;
+		if (a is not null && b is null) return false;
+		if (a.EpigeneitcFactors is null && b.EpigeneitcFactors is null) return true;
+		if (b.EpigeneitcFactors is not null && a.EpigeneitcFactors is null) return false;
+		if (a.EpigeneitcFactors is not null && b.EpigeneitcFactors is null) return false;
+		bool MATCHLEngt = a.EpigeneitcFactors.Count == b.EpigeneitcFactors.Count;
+
+
+		if (MATCHLEngt)
+		{
+			return (StdUtils.Comparisons.ListsAreEqual(a.EpigeneitcFactors, b.EpigeneitcFactors))
+			   ;
+			//si al parecer ya tenia definido ese metodo y apenas me acuerod que existe 
+		}
+		return false;
+	}
+
+}
+[Serializable]
+
+public class Chromatid
+{
+	public string Name; public string Description;
+	public List<Gene> Genes;
+
+	public Chromatid()
+	{
+		Genes = new();
+		Name = "";
+		Description = "";
+	}
+
+	public Chromatid(string name, string description, List<Gene> genes)
+	{
+		Name = name;
+		Description = description;
+		Genes = genes;
+	}
+
+	public static bool operator ==(Chromatid a, Chromatid b)
+	{
+		if (a is null && b is null) return true;
+		if (b is not null && a is null) return false;
+		if (a is not null && b is null) return false;
+		//solo nos fijamos en genes y que sea el mismo orden por que  otro orden == otra especie
+		int i = 0;
+		foreach (Gene e in a.Genes)
+		{
+			if (e != b.Genes[i])
+				return false;
+			i++;
+		}
+		return true;
+	}
+	public static Boolean operator != (Chromatid a, Chromatid b)
+	{
+		return !(a == b);
+	}
+	public override bool Equals(object obj)
+	{
+		if (obj is Chromatid a) 
+		{
+			return a == this;
+		}
+		return false;
+	}
+
+	public override int GetHashCode()
+	{
+		return HashCode.Combine(Name, Genes.Count); 
+	}
+}
+[Serializable]
+
+public class Chromosome
+{
+	public Chromatid ChromatidA;
+	public Chromatid ChromatidB;
+
+	public Chromosome()
+	{
+	}
+
+	public Chromosome(Chromatid chromatidA, Chromatid chromatidB)
+	{
+		ChromatidA = chromatidA;
+		ChromatidB = chromatidB;
+	}
+}
+[Serializable]
+
+public class Kariotype
+{
+	public string Name;
+	public string Description;
+	public List<Chromosome> Chromosomes; 
+}

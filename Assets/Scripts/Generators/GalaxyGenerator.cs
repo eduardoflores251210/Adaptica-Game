@@ -61,7 +61,7 @@ public class GalaxyGenerator : MonoBehaviour
 		Random = new Random(Seed());
 		DoesTheGalaxyExist = GalaxyExists();
 		CalculateTotalSectors();
-		Debug.Log($"GalaxyGenerator init: totalSectoresX={totalSectoresX}, totalSectoresY={totalSectoresY}");
+		//Debug.Log($"GalaxyGenerator init: totalSectoresX={totalSectoresX}, totalSectoresY={totalSectoresY}");
 	}
 
 	void Update()
@@ -91,7 +91,7 @@ public class GalaxyGenerator : MonoBehaviour
 		if (totalSectoresX % 2 == 0) totalSectoresX += 1;
 		if (totalSectoresY % 2 == 0) totalSectoresY += 1;
 
-		Debug.Log($"Total sectores calculados: X={totalSectoresX}, Y={totalSectoresY}");
+		//Debug.Log($"Total sectores calculados: X={totalSectoresX}, Y={totalSectoresY}");
 	}
 
 	private bool GalaxyExists()
@@ -183,7 +183,7 @@ public class GalaxyGenerator : MonoBehaviour
 	public IEnumerator GenerateGalaxy()
 	{
 		EnsureDirectoriesAreReal();
-
+		SpaceUtils.Naming.Random = Random;
 		GalaxyData galaxy = new GalaxyData
 		{
 			Name = SpaceUtils.Naming.GenerateGalaxyName(),
@@ -753,7 +753,7 @@ public static class GalaxyDiagnostics
 		var duplicates = map.Where(kv => kv.Value.Count > 1).ToList();
 		if (duplicates.Count == 0)
 		{
-			Debug.Log("No se encontraron IDs duplicadas entre sectores.");
+			//Debug.Log("No se encontraron IDs duplicadas entre sectores.");
 			return;
 		}
 
