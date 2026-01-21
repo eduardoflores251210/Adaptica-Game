@@ -13,9 +13,10 @@ public class AudioManagerForMainMenu : MonoBehaviour
     public GalaxyGenerator GalaxyGenerator;
     public FadeToBlck fade;
     [Header("Opcional")]
-    public VideoPlayer StarVideo; //preparandome para cinematica de carga :D
+    public VideoPlayer StartVideo; //preparandome para cinematica de carga :D
 
-    bool Fadeed;
+    bool Fadeed;// F*** correct english spellig      
+    //COPILOT POR QUE SUGERISTE ESE COMENTARIO con el que estoy de acuerdo pero NO DE FORMA TAN GROSERA
     // Start is called before the first frame update
     void Start()
     {
@@ -38,15 +39,15 @@ public class AudioManagerForMainMenu : MonoBehaviour
                 {
                     if (GalaxyGenerator.visualizer.Done)
                     {
-                        if (StarVideo != null)
+                        if (StartVideo != null)
                         {
-                            if (StarVideo.enabled ==  false)
+                            if (StartVideo.enabled ==  false)
                             {
-                                StarVideo.enabled = true;
-                                StarVideo.Play();
+                                StartVideo.enabled = true;
+                                StartVideo.Play();
                             }else
                             {
-                                if ((ulong)StarVideo.frame == StarVideo.frameCount)
+                                if (!StartVideo.isPlaying)
                                 {
 									fade.StartFadeIn();
 									Fadeed = true;
