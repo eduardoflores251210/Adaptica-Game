@@ -13,7 +13,7 @@ public class AudioManagerForMainMenu : MonoBehaviour
     public GalaxyGenerator GalaxyGenerator;
     public FadeToBlck fade;
     [Header("Opcional")]
-    public VideoPlayer StartVideo; //preparandome para cinematica de carga :D
+    public StartVideoPlayer StartVideo; //preparandome para cinematica de carga :D
     /// <summary>
     /// aka Fadeed aka
     /// Faded controla SI has hecho fundido o no 
@@ -45,10 +45,9 @@ public class AudioManagerForMainMenu : MonoBehaviour
                             if (StartVideo.enabled ==  false)
                             {
                                 StartVideo.enabled = true;
-                                StartVideo.Play();
                             }else
                             {
-                                if (!StartVideo.isPlaying)
+                                if (!StartVideo.Done)
                                 {
 									fade.StartFadeIn();
 									FaeDeed = true;
@@ -78,4 +77,5 @@ public class AudioManagerForMainMenu : MonoBehaviour
 		return MusicPlayer == null || GalaxyGenerator == null || fade == null;
 
 	}
+    
 }
