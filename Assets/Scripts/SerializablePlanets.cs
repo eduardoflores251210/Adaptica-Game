@@ -1,3 +1,4 @@
+using aaa;
 using FixedMath; //ignorar eso era una prueba de un FixedPoint de 128 para un proyecto distinto con depuracion fa tal asi que tuve que usar unity por tener mejor depuracion 
 using StandartUtilities; //Ni me acuerdo que metodos uso de mi libreria estandar de proyectos de Unity pero bueno...
 using System;
@@ -6,8 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography; //remanente de cuando SerializableTypes, SerializablePlanets y SerializableBiology estaban en el mismo archivo y MicrobeData usaba su metodo para generar IDS de entidad
-using aaa;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using Mesh = StandartUtilities.StdUtils.Serializable.Mesh; //remanente de cuando Los Planetas tenian Mallas 3D pero ahora usan Heightmaps
 using Random = UnityEngine.Random;
@@ -1972,6 +1974,118 @@ namespace SerializableTypes.Space
 		#endregion
 
 		// --- FIN DE LO QUE AÑADES ---
+
+
+		#region Async deserialization (solo lectura)
+
+		// Deserializar un CelestialBody desde un Stream (async wrapper)
+		public static async Task<CelestialBody> DeserializeFromStreamAsync(Stream stream, CancellationToken cancellationToken = default)
+		{
+			return await Task.Run(() =>
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+				var magicBytes = reader.ReadBytes(MAGIC.Length);
+				var magicRead = Encoding.UTF8.GetString(magicBytes);
+				if (magicRead != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
+				int version = reader.ReadInt32();
+				if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión de formato no soportada: {version}");
+
+				return ReadCelestialBody(reader);
+			}, cancellationToken).ConfigureAwait(false);
+		}
+
+		// Deserializar lista de CelestialBody (async wrapper)
+		public static async Task<List<CelestialBody>> DeserializeListAsync(Stream stream, CancellationToken cancellationToken = default)
+		{
+			return await Task.Run(() =>
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+				var magic = Encoding.UTF8.GetString(reader.ReadBytes(MAGIC.Length));
+				if (magic != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
+				int version = reader.ReadInt32();
+				if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
+
+				int count = reader.ReadInt32();
+				var res = new List<CelestialBody>(count);
+				for (int i = 0; i < count; i++)
+				{
+					cancellationToken.ThrowIfCancellationRequested();
+					res.Add(ReadCelestialBody(reader));
+				}
+				return res;
+			}, cancellationToken).ConfigureAwait(false);
+		}
+
+		// PlanetSector async
+		public static async Task<PlanetSector> DeserializePlanetSectorAsync(Stream stream, CancellationToken cancellationToken = default)
+		{
+			return await Task.Run(() =>
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+				var magic = Encoding.UTF8.GetString(reader.ReadBytes(MAGIC.Length));
+				if (magic != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
+				int version = reader.ReadInt32();
+				if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
+				return ReadPlanetSector(reader);
+			}, cancellationToken).ConfigureAwait(false);
+		}
+
+		// BaricenterSector async
+		public static async Task<BaricenterSector> DeserializeBaricenterSectorAsync(Stream stream, CancellationToken cancellationToken = default)
+		{
+			return await Task.Run(() =>
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+				var magic = Encoding.UTF8.GetString(reader.ReadBytes(MAGIC.Length));
+				if (magic != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
+				int version = reader.ReadInt32();
+				if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
+				return ReadBaricenterSector(reader);
+			}, cancellationToken).ConfigureAwait(false);
+		}
+
+		// MiscSector async
+		public static async Task<MiscSector> DeserializeMiscSectorAsync(Stream stream, CancellationToken cancellationToken = default)
+		{
+			return await Task.Run(() =>
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+				var magic = Encoding.UTF8.GetString(reader.ReadBytes(MAGIC.Length));
+				if (magic != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
+				int version = reader.ReadInt32();
+				if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
+				return ReadMiscSector(reader);
+			}, cancellationToken).ConfigureAwait(false);
+		}
+
+		// GalaxySector async
+		public static async Task<GalaxySector> DeserializeGalaxySectorAsync(Stream stream, CancellationToken cancellationToken = default)
+		{
+			return await Task.Run(() =>
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+				var magic = Encoding.UTF8.GetString(reader.ReadBytes(MAGIC.Length));
+				if (magic != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
+				int version = reader.ReadInt32();
+				if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
+				return ReadGalaxySector(reader);
+			}, cancellationToken).ConfigureAwait(false);
+		}
+
+		// Convenience: deserializar múltiples GalaxySectors en paralelo desde una colección de Streams
+		public static async Task<GalaxySector[]> DeserializeGalaxySectorsParallelAsync(IEnumerable<Stream> sectorStreams, CancellationToken cancellationToken = default)
+		{
+			var tasks = sectorStreams.Select(s => DeserializeGalaxySectorAsync(s, cancellationToken));
+			return await Task.WhenAll(tasks).ConfigureAwait(false);
+		}
+
+		#endregion
 
 	}
 }

@@ -111,7 +111,7 @@ public class PartManager : MonoBehaviour
 				var EyePart = Database.GetPartByID("-1");
 				Addeye.tooltip = EyePart.description;
 				Debug.Log(Addeye.tooltip);
-				Addeye.iconImage = Background.FromSprite(EyePart.icon);
+				Addeye.style.backgroundImage  = Background.FromSprite(EyePart.icon);
 				radio = root.Q<RadioButtonGroup>("SlctT");
 				
 				// Restaurar valores guardados
@@ -273,7 +273,7 @@ public class PartManager : MonoBehaviour
 		{
 			sprite = MaleSprite;
 		}
-		GenToggleButton.iconImage = Background.FromSprite(sprite);
+		GenToggleButton.style.backgroundImage = Background.FromSprite(sprite);
 	}
 
 	void UpdateGenderButtonState()

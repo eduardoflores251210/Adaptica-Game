@@ -1,10 +1,10 @@
-<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UIS/sfdddfsdfsdsfsddfs.uss?fileID=7433441132597879392&amp;guid=c4436d509f060744e8655647c860f26f&amp;type=3#sfdddfsdfsdsfsddfs" />
-    <engine:ScrollView name="ScrollView" class="aaaaa" style="min-width: 36%; max-width: 26%; max-height: 100%; min-height: 42%; width: 27%; height: auto;">
-        <engine:Label text="Segmento seleccionado" class="text-auto-size text-auto-size-max-999" style="width: 105%; height: 135%; max-width: 93%; max-height: 25%; min-width: 24%; min-height: 24%; -unity-font-definition: url(&quot;project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=2230732570650464555&amp;guid=140438f9a67ce6846a4ce314c6199795&amp;type=3#NotInter-Regular&quot;);" />
-        <engine:Slider label="Radio" value="42" high-value="5" name="rad" style="font-size: 34px;" />
-        <engine:Button text="Borrar" name="Brr" tabindex="1" class="PBu text-auto-size text-auto-size-min-4-10 text-auto-size-max-9999" style="width: 33%; height: 33%; left: 25%; bottom: auto; flex-direction: column; white-space: normal;" />
-        <engine:Button text="crear nuevo segmento" name="Crr" tabindex="2" class="PBu text-auto-size text-auto-size-min-4-10 text-auto-size-max-9999" style="width: 78%; height: 33%; left: 12%; bottom: auto; flex-direction: column;" />
-    </engine:ScrollView>
-    <engine:Button text="Sig" name="Sig" tabindex="3" class="text-auto-size text-auto-size-min-12-50 text-auto-size-max-999 PBu" style="width: 12%; height: 11%; position: absolute; right: 13%; bottom: 4%;" />
-</engine:UXML>
+    <ui:ScrollView name="ScrollView" class="aaaaa" style="min-width: 36%; max-width: 26%; max-height: 100%; min-height: 42%; width: 27%; height: auto;">
+        <ui:Label text="Segmento seleccionado" class="text-auto-size text-auto-size-max-999" style="width: 105%; height: 135%; max-width: 93%; max-height: 25%; min-width: 24%; min-height: 24%; -unity-font-definition: url(&apos;project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=2230732570650464555&amp;guid=140438f9a67ce6846a4ce314c6199795&amp;type=3#NotInter-Regular&apos;);" />
+        <ui:Slider label="Radio" value="42" high-value="5" name="rad" style="font-size: 34px;" />
+        <ui:Button text="Borrar" name="Brr" tabindex="1" display-tooltip-when-elided="false" class="PBu text-auto-size text-auto-size-min-4-10 text-auto-size-max-9999" style="width: 33%; height: 33%; left: 25%; bottom: auto; flex-direction: column; white-space: normal;" />
+        <ui:Button text="crear nuevo segmento" name="Crr" tabindex="2" class="PBu text-auto-size text-auto-size-min-4-10 text-auto-size-max-9999" style="width: 78%; height: 33%; left: 12%; bottom: auto; flex-direction: column;" />
+    </ui:ScrollView>
+    <ui:Button text="Sig" name="Sig" tabindex="3" class="text-auto-size text-auto-size-min-12-50 text-auto-size-max-999 PBu" style="width: 12%; height: 11%; position: absolute; right: 13%; bottom: 4%;" />
+</ui:UXML>

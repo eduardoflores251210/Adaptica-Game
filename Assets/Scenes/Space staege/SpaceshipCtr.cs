@@ -69,8 +69,11 @@ public class SpaceshipCtr : MonoBehaviour
 		timeSinceLastClick += Time.deltaTime;
 
 		if (!clickAction.WasPressedThisFrame())
+		{
+			if (ENTER_ANYWAY)
+				EnterStarSystem(lastStarClicked);
 			return;
-
+		}
 		var star = RaycastStarUnderCursor();
 		if (star == null)
 			return;
@@ -102,7 +105,8 @@ public class SpaceshipCtr : MonoBehaviour
 
 	private void FocusCameraOnStar(SpaceStageStar star)
 	{
-		var orbit = FindAnyObjectByType<CameraOrbitController>();
+		if (orbit ==  null)
+		orbit = FindAnyObjectByType<CameraOrbitController>();
 		var vis = FindAnyObjectByType<StarVisualizer>();
 
 		if (orbit == null || orbit.Camera != cam)
@@ -115,7 +119,8 @@ public class SpaceshipCtr : MonoBehaviour
 
 	private void EnterStarSystem(SpaceStageStar star)
 	{
-		var orbit = FindAnyObjectByType<CameraOrbitController>();
+		if (orbit == null)
+			orbit = FindAnyObjectByType<CameraOrbitController>();
 		var vis = FindAnyObjectByType<StarVisualizer>();
 
 		CreateBigStar(star, vis);
@@ -215,7 +220,7 @@ public class SpaceshipCtr : MonoBehaviour
 					out data))
 					return true;
 
-		return vis.galaxy.TryToLookForPlanet(planetID, out data, out _);
+		return false;
 	}
 
 	private void RemoveInvalidPlanet(string child, SpaceStageStar star, StarVisualizer vis)
@@ -229,10 +234,11 @@ public class SpaceshipCtr : MonoBehaviour
 	#endregion
 
 	#region Exit System
-
+	public CameraOrbitController orbit = null;
 	private void HandleSystemExit()
 	{
-		var orbit = FindAnyObjectByType<CameraOrbitController>();
+		if (orbit == null)
+		 orbit = FindAnyObjectByType<CameraOrbitController>();
 		if (orbit == null)
 			return;
 
