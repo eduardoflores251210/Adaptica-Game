@@ -25,6 +25,7 @@ public class GalaxyGenerator : MonoBehaviour
 
 	[Header("Bool util")]
 	public bool DoesTheGalaxyExist;
+	public bool IsGenerating;
 
 	[Header("Depuración")]
 	public string AAAAAAAAA;
@@ -182,6 +183,7 @@ public class GalaxyGenerator : MonoBehaviour
 
 	public IEnumerator GenerateGalaxy()
 	{
+		IsGenerating = true;
 		EnsureDirectoriesAreReal();
 		SpaceUtils.Naming.Random = Random;
 		GalaxyData galaxy = new GalaxyData
@@ -296,14 +298,14 @@ public class GalaxyGenerator : MonoBehaviour
 					}
 				}
 			}
-			Debug.Log($"Diagnóstico: originX range [{minOriginX}, {maxOriginX}], starX range [{minStarX}, {maxStarX}]");
+			//Debug.Log($"Diagnóstico: originX range [{minOriginX}, {maxOriginX}], starX range [{minStarX}, {maxStarX}]");
 		}
 		catch (Exception ex) { Debug.LogWarning("Diagnóstico falló: " + ex.Message); }
 
 		// Guardar galaxia final
 		string galaxyJson = JsonUtility.ToJson(galaxy, true);
 		File.WriteAllText(Path.Combine(Paths.Galaxy, "Galaxy.Json"), galaxyJson);
-
+		IsGenerating = false;
 		Debug.Log($"Galaxia generada: {galaxy.Name}");
 		if (visualizer != null)
 		{

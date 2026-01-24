@@ -12,7 +12,7 @@ public class NewGameMaker : MonoBehaviour
 {
 	public GalaxyGenerator GalaxyGenerator;
 	public bool AllowStars = true;
-	public bool AllowRouguePlanets = false;
+	public bool AllowRouguePlanetsMoons = false;
 
 	// esto es publico por razones UGUI
 	public void NewCell() //MICROBIO PERO POR MALA MEMORIA SE LLAMA CELL COMO CELULA
@@ -22,6 +22,11 @@ public class NewGameMaker : MonoBehaviour
 	//razones UGUI
 	public void NewGame()
 	{
+		if (!(AllowStars && AllowRouguePlanetsMoons))
+		{
+			Debug.Log("¿??????????????????????????????????????????"); 
+			AllowStars = AllowRouguePlanetsMoons = true;//si no permites nada permites todo
+		}
 		var ins = CrossScenePackageSender.Instance;
 
 		if (GalaxyData.TryToLoadGalaxy(out var es))
@@ -39,7 +44,7 @@ public class NewGameMaker : MonoBehaviour
 				if (!AllowStars && p.ParentID.StartsWith("E"))
 					continue; // ignorar planetas con estrella
 
-				if (!AllowRouguePlanets && p.ParentID.StartsWith("P"))
+				if (!AllowRouguePlanetsMoons && p.ParentID.StartsWith("P"))
 					continue; // ignorar planetas solitarios
 
 				chosenPlanet = p;
@@ -105,7 +110,7 @@ public class NewGameMaker : MonoBehaviour
 		IMG.rectTransform.anchorMax = Vector2.one;
 		IMG.rectTransform.offsetMin = Vector2.zero;
 		IMG.rectTransform.offsetMax = Vector2.zero;
-
+		
 		GameObject TextGO = new("ERROR_TXT");
 		var TEXT = TextGO.AddComponent<TMPro.TextMeshProUGUI>();
 		TEXT.text = "ERROR";

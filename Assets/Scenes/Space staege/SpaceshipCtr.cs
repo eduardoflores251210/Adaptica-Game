@@ -1,272 +1,308 @@
 ﻿using SerializableTypes.Space;
 using StandartUtilities;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0044:Convertir el miembro en 'readonly'", Justification = "<pendiente>")]
 
 public class SpaceshipCtr : MonoBehaviour
 {
-	public LayerMask raycastMask;
+	[Header("Input")]
 	public InputActionAsset inputActions;
+	private InputAction cursorAction;
+	private InputAction clickAction;
+	private InputActionMap map;
+
+	[Header("Scene")]
 	public Camera cam;
 	public GameObject Galaxy;
-	private InputAction CursAction;
-	private InputAction Clcik;
-	float TimeSinceLastClick;
-	SpaceStageStar LastStarClicked;
+	public LayerMask raycastMask;
+
+	[Header("Black Hole")]
+	public Material BholMat;
+	public Material BholDiskMat;
+
+	[Header("STar")]
+	private SpaceStageStar lastStarClicked;
 	public GameObject CurrentStar;
-	InputActionMap map;
-	GameObject BigStar;
-	public Material BholMat; //este material distorsion la luz :)
-	Vector2 MapCamZOOM;
-	float MapCamZoomSpeed;
-	bool IsInSystem = false;
-	GameObject AcrecionDisk;
+	public bool ENTER_ANYWAY = false;
+
+	private float timeSinceLastClick;
+	private bool isInSystem;
+
+	private GameObject bigStar;
+	private GameObject acretionDisk;
+	private readonly List<GameObject> planets = new();
+
+	private Vector2 savedZoomLimits;
+	private float savedZoomSpeed;
+
+	private bool zoomExitStarted;
+	private int zoomExitCount;
+
 	public List<string> SelectedStarChildren;
+
+	#region Unity
+
 	private void OnEnable()
 	{
 		map = inputActions.FindActionMap("GC", true);
 		map.Enable();
 
-		CursAction = map.FindAction("PPos", true);
-		Clcik = map.FindAction("Click", true);
-
+		cursorAction = map.FindAction("PPos", true);
+		clickAction = map.FindAction("Click", true);
 	}
-	bool startedTemp = false;
-	int Neg1Count;
-	// Update is called once per frame
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0018:Declaración de variables alineada", Justification = "<pendiente>")]
-	void Update()
+
+	private void Update()
 	{
-		if (!IsInSystem)
-		{
-			if (Clcik.WasPressedThisFrame())
-			{
-
-				// Un solo raycast por frame
-				Vector2 cursorPos = CursAction.ReadValue<Vector2>();
-				Ray ray = cam.ScreenPointToRay(cursorPos);
-				RaycastHit hit;
-				bool hitSomething = Physics.Raycast(ray, out hit, Mathf.Infinity, raycastMask);
-				GameObject hitGO = hitSomething ? hit.collider.gameObject : null;
-
-				if (hitSomething)
-				{
-					if (hitGO.TryGetComponent<SpaceStageStar>(out var star))
-					{
-						var GGG = FindAnyObjectByType<CameraOrbitController>();
-						if (GGG != null)
-						{
-							if (GGG.Camera == cam)
-							{
-								var StarVIs = FindAnyObjectByType<StarVisualizer>();
-
-								GGG.Target = hitGO.transform;
-								SelectedStarChildren = StarVIs.galaxy.LookForStar(BodyID.FromString(star.ID).GetID()).Children;
-							}
-						}
-						if (LastStarClicked == star)
-						{
-							if (TimeSinceLastClick < 2 && TimeSinceLastClick > 0.1)
-							{
-								var StarVIs = FindAnyObjectByType<StarVisualizer>();
-								if (BigStar == null)
-									BigStar = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-								BigStar.SetActive(true);
-								BigStar.transform.localScale = Vector3.one * 5;
-								var F = BigStar.GetComponent<MeshRenderer>();
-								F.material = StarVIs.Mats[star.Type];
-								if (star.Type == StarTypes.X)
-								{
-									AcrecionDisk = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-									AcrecionDisk.GetComponent<MeshRenderer>().material = new(F.material);
-									F.material = BholMat;
-
-									AcrecionDisk.transform.localScale = new Vector3(10, 0.025f, 10);
-
-								}
-								MapCamZOOM = (GGG.ZoomLimits);
-								MapCamZoomSpeed = GGG.ZoomSpeed;
-								GGG.ZoomLimits = new(5.1f, 100);
-								GGG.ZoomSpeed = 2.5f;
-								GGG.Target = BigStar.transform;
-								GGG.currentZoom = 99;
-								Galaxy.transform.localScale = Vector3.zero;
-
-								foreach (var PS in StarVIs.Particles.Values)
-								{
-									PS.transform.localScale = Vector3.zero;
-								}
-								int count = SelectedStarChildren.Count;
-								int index = 0;
-								List<string> ChildCopy = new List<string>();
-								if (count > 0)
-								{
-									foreach (var Child in SelectedStarChildren)
-									{
-										ChildCopy.Add(Child);
-									}
-									foreach (var Child in ChildCopy)
-									{
-										float t = count == 1 ? 0.5f : (float)index / (count - 1);
-										float xPos = Mathf.Lerp(10f, 80f, t);
-
-										if (!Child.StartsWith('P'))
-										{
-											Debug.Log($"{Child} no es un planeta.");
-											index++;
-											continue;
-										}
-
-										ulong planetID = BodyID.FromString(Child).GetID();
-										PlanetData Data = null;
-
-										// --- 1) Intentar cargar en el sector actual ---
-										if (!StarVIs.galaxy.TryToLookForPlanet(planetID, star.SectorPos, out Data))
-										{
-											// --- 2) Buscar en los 8 sectores vecinos ---
-											bool found = false;
-
-											for (int dx = -1; dx <= 1 && !found; dx++)
-											{
-												for (int dy = -1; dy <= 1 && !found; dy++)
-												{
-													Vector2Int neighbor = new Vector2Int(star.SectorPos.x + dx, star.SectorPos.y + dy);
-
-													if (StarVIs.galaxy.TryToLookForPlanet(planetID, neighbor, out Data))
-													{
-														found = true;
-														Debug.LogWarning($"{Child} no se cargó en este sector pero si en uno cercano");
-
-													}
-												}
-											}
-											// --- 3) Buscar en toda la galaxia
-											if (!found)
-											{
-
-
-
-
-												if (StarVIs.galaxy.TryToLookForPlanet(planetID, out Data, out var  foundPos))
-												{
-													found = true;
-												}
-												Debug.LogWarning($"{Child} no se cargó en ningún sector cercano pero si uno lejano {foundPos}");
-
-											}
-											// --- 4) Si ni así se encontró → limpiamos el Child inválido ---
-											if (!found)
-											{
-												Debug.LogWarning($"{Child} no se cargó en ningún sector. Eliminando del star.Children...");
-
-												StarVIs.galaxy.UpdateStar(BodyID.FromString(star.name).GetID(), sd =>
-												{
-													sd.Children.Remove(Child);
-												});
-
-												index++;
-												continue; // NO generar esfera
-											}
-										}
-
-										if (Data.ParentID != star.ID)
-										{
-											Debug.Log("????????");
-										}
-
-										// --- Si llegamos aquí, ¡sí existe el planeta! ---
-										GameObject game = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-										game.name = Data.Name;
-										game.transform.position = new Vector3(xPos, 0, 0);
-
-										Planets.Add(game);
-										index++;
-									}
-
-								}
-								IsInSystem = true;
-							}
-						}
-						LastStarClicked = star;
-					}
-				}
-				TimeSinceLastClick = 0;
-			}
-			if (LastStarClicked != null)
-				CurrentStar = LastStarClicked.gameObject;
-			TimeSinceLastClick += Time.deltaTime;
-		}
+		if (!isInSystem)
+			HandleGalaxyInput();
 		else
-		{
-			var GGG = FindAnyObjectByType<CameraOrbitController>();
-			if (GGG != null)
-			{
-
-				if (!startedTemp && Neg1Count == 0)
-				{
-					if (GGG.ZoomOutput == -1)
-					{
-						Neg1Count = 1;
-						startedTemp = true;
-						TimeSinceLastClick = 0;
-					}
-				}
-				else
-				if (startedTemp)
-				{
-					if (GGG.ZoomOutput == -1)
-					{
-						Neg1Count++;
-
-
-					}
-					if (TimeSinceLastClick > 2)
-					{
-						if (Neg1Count > 3)
-						{
-							startedTemp = false;
-							Neg1Count = 0;
-							UnLoad(GGG);
-						}
-						else
-						{
-							startedTemp = false;
-							Neg1Count = 0;
-						}
-					}
-					TimeSinceLastClick += Time.deltaTime;
-				}
-
-			}
-		}
-
+			HandleSystemExit();
 	}
-	List<GameObject> Planets = new List<GameObject>();
-	void UnLoad(CameraOrbitController GGG)
+
+	#endregion
+
+	#region Galaxy Logic
+
+	private void HandleGalaxyInput()
 	{
-		BigStar.SetActive(false);
-		GGG.ZoomSpeed = MapCamZoomSpeed;
-		GGG.ZoomLimits = MapCamZOOM;
-		GGG.Target = LastStarClicked.transform;
-		GGG.currentZoom = 2.2f;
-		Galaxy.transform.localScale = Vector3.one;
-		IsInSystem = false;
-		TimeSinceLastClick = 0f; // reiniciamos temporizador
-		Neg1Count = 0;
-		var StarVIs = FindAnyObjectByType<StarVisualizer>();
-		foreach (var PS in StarVIs.Particles.Values)
-		{
-			PS.transform.localScale = Vector3.one;
-		}
-		foreach (var P in Planets)
-		{
-			Destroy(P);
-		}
-		if (AcrecionDisk != null)
-			Destroy(AcrecionDisk);
+		timeSinceLastClick += Time.deltaTime;
+
+		if (!clickAction.WasPressedThisFrame())
+			return;
+
+		var star = RaycastStarUnderCursor();
+		if (star == null)
+			return;
+
+		FocusCameraOnStar(star);
+
+		if ((star == lastStarClicked && IsDoubleClick())|| ENTER_ANYWAY)
+			EnterStarSystem(star);
+
+		lastStarClicked = star;
+		CurrentStar = star.gameObject;
+		timeSinceLastClick = 0f;
 	}
+
+	private SpaceStageStar RaycastStarUnderCursor()
+	{
+		Ray ray = cam.ScreenPointToRay(cursorAction.ReadValue<Vector2>());
+		return Physics.Raycast(ray, out var hit, Mathf.Infinity, raycastMask)
+			? hit.collider.GetComponent<SpaceStageStar>()
+			: null;
+	}
+
+	private bool IsDoubleClick()
+		=> timeSinceLastClick is > 0.1f and < 2f;
+
+	#endregion
+
+	#region Camera / Star
+
+	private void FocusCameraOnStar(SpaceStageStar star)
+	{
+		var orbit = FindAnyObjectByType<CameraOrbitController>();
+		var vis = FindAnyObjectByType<StarVisualizer>();
+
+		if (orbit == null || orbit.Camera != cam)
+			return;
+
+		orbit.Target = star.transform;
+		SelectedStarChildren =
+			vis.galaxy.LookForStar(BodyID.FromString(star.ID).GetID()).Children;
+	}
+
+	private void EnterStarSystem(SpaceStageStar star)
+	{
+		var orbit = FindAnyObjectByType<CameraOrbitController>();
+		var vis = FindAnyObjectByType<StarVisualizer>();
+
+		CreateBigStar(star, vis);
+		SpawnPlanets(star, vis);
+
+		SaveCameraSettings(orbit);
+		SetupSystemCamera(orbit);
+
+		Galaxy.transform.localScale = Vector3.zero;
+		HideGalaxyParticles(vis);
+		ENTER_ANYWAY = false;
+		isInSystem = true;
+	}
+
+	#endregion
+
+	#region System Creation
+
+	private void CreateBigStar(SpaceStageStar star, StarVisualizer vis)
+	{
+		if (bigStar == null)
+			bigStar = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+
+		bigStar.SetActive(true);
+		bigStar.transform.localScale = Vector3.one * 5;
+
+		var renderer = bigStar.GetComponent<MeshRenderer>();
+		renderer.material = vis.Mats[star.Type];
+
+		if (star.Type == StarTypes.X)
+			CreateBlackHoleDisk(renderer);
+	}
+
+	private void CreateBlackHoleDisk(MeshRenderer starRenderer)
+	{
+		acretionDisk = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+		acretionDisk.transform.localScale = new Vector3(10, 0.025f, 10);
+		acretionDisk.GetComponent<MeshRenderer>().material = (BholDiskMat);
+		starRenderer.material = BholMat;
+	}
+
+	private void SpawnPlanets(SpaceStageStar star, StarVisualizer vis)
+	{
+		if (SelectedStarChildren.Count == 0)
+			return;
+
+		int index = 0;
+		int count = SelectedStarChildren.Count;
+
+		foreach (var child in new List<string>(SelectedStarChildren))
+		{
+			if (!child.StartsWith('P'))
+			{
+				index++;
+				continue;
+			}
+
+			if (!TryGetPlanetData(child, star, vis, out var data))
+			{
+				RemoveInvalidPlanet(child, star, vis);
+				index++;
+				continue;
+			}
+
+			float t = count == 1 ? 0.5f : (float)index / (count - 1);
+			float xPos = Mathf.Lerp(10f, 80f, t);
+
+			var planet = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+			planet.name = data.Name;
+			planet.transform.position = new Vector3(xPos, 0, 0);
+
+			planets.Add(planet);
+			index++;
+		}
+	}
+
+	#endregion
+
+	#region Planet Lookup
+
+	private bool TryGetPlanetData(
+		string child,
+		SpaceStageStar star,
+		StarVisualizer vis,
+		out PlanetData data)
+	{
+		ulong planetID = BodyID.FromString(child).GetID();
+
+		if (vis.galaxy.TryToLookForPlanet(planetID, star.SectorPos, out data))
+			return true;
+
+		for (int dx = -1; dx <= 1; dx++)
+			for (int dy = -1; dy <= 1; dy++)
+				if (vis.galaxy.TryToLookForPlanet(
+					planetID,
+					star.SectorPos + new Vector2Int(dx, dy),
+					out data))
+					return true;
+
+		return vis.galaxy.TryToLookForPlanet(planetID, out data, out _);
+	}
+
+	private void RemoveInvalidPlanet(string child, SpaceStageStar star, StarVisualizer vis)
+	{
+		vis.galaxy.UpdateStar(
+			BodyID.FromString(star.name).GetID(),
+			sd => sd.Children.Remove(child)
+		);
+	}
+
+	#endregion
+
+	#region Exit System
+
+	private void HandleSystemExit()
+	{
+		var orbit = FindAnyObjectByType<CameraOrbitController>();
+		if (orbit == null)
+			return;
+
+		if (!zoomExitStarted && orbit.ZoomOutput == -1)
+		{
+			zoomExitStarted = true;
+			zoomExitCount = 1;
+			timeSinceLastClick = 0;
+			return;
+		}
+
+		if (!zoomExitStarted)
+			return;
+
+		if (orbit.ZoomOutput == -1)
+			zoomExitCount++;
+
+		timeSinceLastClick += Time.deltaTime;
+
+		if (timeSinceLastClick > 2f && zoomExitCount > 3)
+			UnloadSystem(orbit);
+	}
+
+	private void UnloadSystem(CameraOrbitController orbit)
+	{
+		bigStar.SetActive(false);
+
+		orbit.ZoomSpeed = savedZoomSpeed;
+		orbit.ZoomLimits = savedZoomLimits;
+		orbit.Target = lastStarClicked.transform;
+		orbit.currentZoom = 2.2f;
+
+		Galaxy.transform.localScale = Vector3.one;
+		isInSystem = false;
+
+		foreach (var p in planets)
+			Destroy(p);
+
+		planets.Clear();
+
+		if (acretionDisk != null)
+			Destroy(acretionDisk);
+
+		zoomExitStarted = false;
+		zoomExitCount = 0;
+	}
+
+	#endregion
+
+	#region Camera Helpers
+
+	private void SaveCameraSettings(CameraOrbitController orbit)
+	{
+		savedZoomLimits = orbit.ZoomLimits;
+		savedZoomSpeed = orbit.ZoomSpeed;
+	}
+
+	private void SetupSystemCamera(CameraOrbitController orbit)
+	{
+		orbit.ZoomLimits = new Vector2(5.1f, 100);
+		orbit.ZoomSpeed = 2.5f;
+		orbit.Target = bigStar.transform;
+		orbit.currentZoom = 99;
+	}
+
+	private void HideGalaxyParticles(StarVisualizer vis)
+	{
+		foreach (var ps in vis.Particles.Values)
+			ps.transform.localScale = Vector3.zero;
+	}
+
+	#endregion
 }

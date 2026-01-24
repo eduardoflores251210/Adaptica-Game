@@ -21,6 +21,7 @@ using Transform = StandartUtilities.StdUtils.Serializable.Transform; //basicamen
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 using Vector4 = UnityEngine.Vector4;
+using UnityEngine.AddressableAssets;
 
 
 public static class SpaceUtils
@@ -40,7 +41,8 @@ public static class SpaceUtils
 				"SGC",
 				"GCGC",
 				"VGE",
-				"G"
+				"G",
+				"S5GC"
 			};
 			// significados de Los catalogos:
 			//Galactic Catalogue A,      //NGC
@@ -49,11 +51,32 @@ public static class SpaceUtils
 			//Global Clusters and Galaxies Catalogue,    //inspiracion CGCG
 			//VGE = Virgo Galactic Extention //inspiracion  VCC fusionado con NGC 
 			//Guadalupe             //insperacion Messier
+			//SHA512 Galactic Catalogue	//inspiracion NINGUNO  
 			string Catalogo = Catalogues[Random.Range(0, Catalogues.Length)];
 			int number1 = Random.Range(100, 9999);
 			int number2 = Random.Range(10, 999);
 			int number3 = Random.Range(1, 125);
 			int number4 = Random.Range(1, 9999);
+
+			string ShaIn = "" + Random.Range(int.MinValue, int.MaxValue);
+			string SHAOUT = "";
+
+			using SHA512 SHA512 = SHA512.Create();
+			{
+				byte[] hashBytes = SHA512.ComputeHash(Encoding.UTF8.GetBytes(ShaIn));
+
+				// Convertir a hexadecimal solo Los primeros  128
+				StringBuilder sb = new StringBuilder();
+				int i = 1;
+				foreach (byte b in hashBytes)
+				{
+					sb.Append(b.ToString("x2"));
+					i++;
+					if (i >= 128)
+						break;
+				}
+				SHAOUT = sb.ToString();
+			}
 			switch (Catalogo)
 			{
 				case "VGE":
@@ -65,6 +88,8 @@ public static class SpaceUtils
 					return $"{Catalogo} {number3}:{number1}";
 				case "SGC":
 					return $"{Catalogo} {number4}";
+				case "S5GC":
+					return "S5GC " + SHAOUT ;
 				default:
 					return $"{Catalogo} {number1}-{number2}";
 					
@@ -829,7 +854,7 @@ namespace SerializableTypes
 	{
 		public static void LoadStageFromSavePath(string PAth)
 		{
-			var Filepath = /*Path.Join(*/PAth/*)*/;
+			var Filepath = /*Path.Join(*/PAth/*)*/; //si  no
 			SavedGame game = JsonUtility.FromJson<SavedGame>(File.ReadAllText(Filepath));
 			Stages stage = game.CurentStage;
 			string creatureName = game.CreatureName;
@@ -904,7 +929,7 @@ namespace SerializableTypes
 			MicrobeData emptyMicrobe = MicrobeData.GetDefaultMicrobe();
 
 			mailMan.SendTypedPackage("StageLoader", "Player", emptyMicrobe, new string[] { nameof(MicrobeData) });
-			SceneManager.LoadScene(4); // Microbe stage
+			LoadWithLoadingScreen.LoadScene(4, Stages.Microbe); // Microbe stage
 		}
 
 		public static void LoadMicrobeStage(CrossScenePackageSender mailMan, string creatureName)
@@ -949,7 +974,7 @@ namespace SerializableTypes
 				microbe.RotateMicrobeEuler(new(0, 90, 0)); 
 
 				mailMan.SendTypedPackage("StageLoader", "Player", microbe, new string[] { nameof(MicrobeData) });
-				SceneManager.LoadScene(4); // Microbe stage
+				LoadWithLoadingScreen.LoadScene(4,Stages.Microbe); // Microbe stage
 			}
 			catch (System.Exception ex)
 			{
@@ -983,7 +1008,7 @@ namespace SerializableTypes
 					break;
 				case Stages.Space:
 					Debug.Log("Cargando Space Stage...");
-					SceneManager.LoadScene(6);
+					LoadWithLoadingScreen.LoadScene(6, Stages.Space);
 					break;
 				default:
 					throw new NotImplementedException($"Carga de estado {Saver.CurrentGame.CurentStage} no implementada");
@@ -1209,7 +1234,66 @@ namespace SerializableTypes
 		}
 	}
 
+	public static class LoadWithLoadingScreen
+	{
+		public static async void LoadScene(int id, Stages Stage)
+		{
+			Debug.Log("Loading " + id + " related to " + Stage);
+			await CreateLoadingScreen(Stage);
+			await SceneManager.LoadSceneAsync(id);
+		}
 
+		public static async void LoadScene(string id, Stages Stage)
+		{
+			await CreateLoadingScreen(Stage);
+			await SceneManager.LoadSceneAsync(id);
+		}
+
+		private static async System.Threading.Tasks.Task CreateLoadingScreen(Stages Stage)
+		{
+			// 🔹 Cargar ConfigLoadScreen desde Addressables
+			var handle = Addressables.LoadAssetAsync<ConfigLoadScreen>("Assets/GLSS"); // "GLSS" es el Address que le pusiste
+			await handle.Task;
+			ConfigLoadScreen loadScreenConfig = handle.Result;
+
+			if (loadScreenConfig == null)
+			{
+				Debug.LogError("No se pudo cargar ConfigLoadScreen desde Addressables.");
+				return;
+			}
+
+			// 🔹 Crear Canvas
+			GameObject LoadSc = new("Loading Screen");
+			Canvas C = LoadSc.AddComponent<Canvas>();
+			C.renderMode = RenderMode.ScreenSpaceOverlay;
+			C.sortingOrder = 99;
+
+			// 🔹 Crear Image
+			GameObject ImageGO = new("IMG");
+			UnityEngine.UI.Image IMG = ImageGO.AddComponent<UnityEngine.UI.Image>();
+
+			IMG.sprite = Stage switch
+			{
+				Stages.Microbe => loadScreenConfig.CellLoadImg,
+				Stages.Creature => loadScreenConfig.CreatureLoadImg,
+				Stages.tribal => loadScreenConfig.TribeLoadImg,
+				Stages.City => loadScreenConfig.FeudalLoadImg,
+				Stages.Civilization => loadScreenConfig.NationLoadImg,
+				Stages.Space => loadScreenConfig.SpaceLoadImg,
+				_ => loadScreenConfig.CellLoadImg,
+			};
+
+			IMG.color = Color.white;
+			IMG.rectTransform.SetParent(LoadSc.transform, false);
+			IMG.rectTransform.anchorMin = Vector2.zero;
+			IMG.rectTransform.anchorMax = Vector2.one;
+			IMG.rectTransform.offsetMin = Vector2.zero;
+			IMG.rectTransform.offsetMax = Vector2.zero;
+
+			// 🔹 Liberar handle cuando ya no lo necesitamos
+			Addressables.Release(handle); // para no saturar la ram
+		}
+	}
 
 
 

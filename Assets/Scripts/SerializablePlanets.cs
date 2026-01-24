@@ -1120,6 +1120,7 @@ namespace SerializableTypes.Space
 
 	/// <summary>
 	/// Guarda las criaturas que hay en el planeta 
+	/// se syoibe qye decia Polination pero typo
 	/// </summary>
 	[Serializable]
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0251:Convertir el miembro en 'readonly'", Justification = "<pendiente>")]
@@ -2021,5 +2022,5 @@ namespace aaa
 		}
 	}
 }
-
 //HMM esta linea es el año actual al momento de que escribo esto el 6 de diciembre de 2025
+//ahora este es el año :) 2026

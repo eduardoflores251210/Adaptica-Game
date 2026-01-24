@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 258ebe1d4ea2b7143b0c6e62626c4955
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - Spinner: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  - CellLoadImg: {instanceID: 0}
+  - CreatureLoadImg: {instanceID: 0}
+  - TribeLoadImg: {instanceID: 0}
+  - FeudalLoadImg: {instanceID: 0}
+  - NationLoadImg: {instanceID: 0}
+  - SpaceLoadImg: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

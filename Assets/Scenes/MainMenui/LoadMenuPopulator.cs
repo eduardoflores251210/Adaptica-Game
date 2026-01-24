@@ -171,7 +171,7 @@ public class LoadMenuPopulator : MonoBehaviour
         {
             string fil2 = Path.Combine(SavesFolderPath, fil);
             string file = Path.Combine(fil2, "Save.json"); //ahora cada guardado es una carpeta con varios archivos dentro
-            Debug.Log(file); try
+            /*Debug.Log(file);*/ try
             {
                 string content = File.ReadAllText(file).Trim();
                 if (TryRepair(content, file))
@@ -199,7 +199,7 @@ public class LoadMenuPopulator : MonoBehaviour
                 Debug.LogError($"Error al leer el archivo {file}: {e.Message}");
             }
 
-            Debug.Log($"{buttonCount} botones creados desde JSONs no vacíos.");
+            //Debug.Log($"{buttonCount} botones creados desde JSONs no vacíos.");
         }
     }
 }

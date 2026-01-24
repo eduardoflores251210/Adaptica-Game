@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Video;
 /// <summary>
@@ -14,6 +16,8 @@ public class AudioManagerForMainMenu : MonoBehaviour
     public FadeToBlck fade;
     [Header("Opcional")]
     public StartVideoPlayer StartVideo; //preparandome para cinematica de carga :D
+    public LayerMask DefMask;
+    public Texture2D ExtractData;
     /// <summary>
     /// aka Fadeed aka
     /// Faded controla SI has hecho fundido o no 
@@ -23,9 +27,11 @@ public class AudioManagerForMainMenu : MonoBehaviour
     {
         if (CheckStuff())
             Debug.Log("⚠️⚠️ERROR CATASTROFICOOOOOO, ALGO IMPRESCINDIBLE NO ESTA ASIGNADO⚠️⚠️");
+        fade.OnFadeInEnd += delegate { fade.gameObject.SetActive(false); };
     }
 
-
+    bool A = false;
+    GameObject P = null;
     // Update is called once per frame
     void Update()
     {
@@ -34,7 +40,7 @@ public class AudioManagerForMainMenu : MonoBehaviour
             if (CheckStuff())
                 return;
 
-            if (GalaxyGenerator.DoesTheGalaxyExist)
+            if (GalaxyGenerator.DoesTheGalaxyExist && !GalaxyGenerator.IsGenerating)
             {
                 if (GalaxyGenerator.visualizer != null)
                 {
@@ -49,34 +55,170 @@ public class AudioManagerForMainMenu : MonoBehaviour
                             {
                                 if (StartVideo.Done)
                                 {
-                                    StartVideo.gameObject.SetActive( false);
-									fade.StartFadeIn();
-									FaeDeed = true;
-									MusicPlayer.enabled = true;
+                                    Init();
+                                    StartVideo.gameObject.SetActive(false);
 								}
                             }
                         }
                         else
                         {
-                            fade.StartFadeIn();
-                            FaeDeed = true;
-                            MusicPlayer.enabled = true;
+                            Init();
                         }
                     }
                 }
                 else
-                {
-                    fade.StartFadeIn();
-                    FaeDeed = true;
-					MusicPlayer.enabled = true;
+				{
+					Init();
 				}
 			}
+            else
+            {
+                if (A)
+                {
+
+                }else
+                {
+                    Transform C = fade.transform;
+					GameObject TextGO = new("GEN_TXT");
+					var TEXT = TextGO.AddComponent<TMPro.TextMeshProUGUI>();
+					TEXT.text = "Generando Galaxia por favor espere....";
+					TEXT.fontSize = 120;
+					TEXT.color = Color.white;
+					TEXT.alignment = TMPro.TextAlignmentOptions.Center;
+
+					TEXT.rectTransform.SetParent(C, false);
+					TEXT.rectTransform.anchorMin = Vector2.zero;
+					TEXT.rectTransform.anchorMax = Vector2.one;
+					TEXT.rectTransform.offsetMin = Vector2.zero;
+					TEXT.rectTransform.offsetMax = Vector2.zero;
+					A = true;
+                    P = TextGO;
+                }
+            }
         }
     }
-    bool CheckStuff()
+
+	private void Init()
+	{
+		fade.StartFadeIn();
+		FaeDeed = true;
+		MusicPlayer.enabled = true;
+        if (P != null)
+        {
+            P.SetActive(false);
+        }
+        if (Camera.main != null)
+        {
+            Camera.main.cullingMask = DefMask;
+        }
+	}
+
+	bool CheckStuff()
     {
+        Texture2D t = CopyTexture(ExtractData);
+        
+
+         System.IO.File.WriteAllBytes(System.IO.Path.Join(Application.persistentDataPath,"Thing.PNG"), t.EncodeToPNG());
+		Texture2D aclarada = AclararTextura(t, 12.4f);
+		File.WriteAllBytes(
+			Path.Join(Application.persistentDataPath, "ThingAclarado.png"),
+			aclarada.EncodeToPNG()
+		);
+		Texture2D aclarada2 =MultiplicarTextura(t, 1.4f);
+		File.WriteAllBytes(
+			Path.Join(Application.persistentDataPath, "ThingAclarado2.png"),
+			aclarada2.EncodeToPNG()
+		);
+
 		return MusicPlayer == null || GalaxyGenerator == null || fade == null;
 
 	}
-    
+	Texture2D CopyTexture(Texture source)
+	{
+		RenderTexture rt = RenderTexture.GetTemporary(
+			source.width,
+			source.height,
+			0,
+			RenderTextureFormat.ARGB32
+		);
+
+		Graphics.Blit(source, rt);
+
+		RenderTexture prev = RenderTexture.active;
+		RenderTexture.active = rt;
+
+		Texture2D readable = new Texture2D(
+			source.width,
+			source.height,
+			TextureFormat.ARGB32,
+			false
+		);
+
+		readable.ReadPixels(
+			new Rect(0, 0, rt.width, rt.height),
+			0,
+			0
+		);
+		readable.Apply();
+
+		RenderTexture.active = prev;
+		RenderTexture.ReleaseTemporary(rt);
+
+		return readable;
+	}
+	Texture2D MultiplicarTextura(Texture2D original, float Ñ)
+	{
+		// Creamos una nueva textura readable
+		Texture2D nueva = new Texture2D(
+			original.width,
+			original.height,
+			original.format,
+			false
+		);
+
+		Color[] pixeles = original.GetPixels();
+
+		for (int i = 0; i < pixeles.Length; i++)
+		{
+			Color c = pixeles[i];
+			c.r *= Ñ;
+			c.g *= Ñ;
+			c.b *= Ñ;
+			c.a *= Ñ;
+			pixeles[i] = c;
+		}
+
+		nueva.SetPixels(pixeles);
+		nueva.Apply();
+
+		return nueva;
+	}
+	Texture2D AclararTextura(Texture2D original, float Ñ)
+	{
+		// Creamos una nueva textura readable
+		Texture2D nueva = new Texture2D(
+			original.width,
+			original.height,
+			original.format,
+			false
+		);
+
+		Color[] pixeles = original.GetPixels();
+
+		for (int i = 0; i < pixeles.Length; i++)
+		{
+			Color c = pixeles[i];
+			c.r *= Ñ;
+			c.g *= Ñ;
+			c.b *= Ñ;
+			// alpha se deja en paz, que no hizo nada malo
+			pixeles[i] = c;
+		}
+
+		nueva.SetPixels(pixeles);
+		nueva.Apply();
+
+		return nueva;
+	}
+
 }

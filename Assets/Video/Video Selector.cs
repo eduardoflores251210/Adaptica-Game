@@ -10,30 +10,45 @@ public class VideoSelector : MonoBehaviour
 	public VideoClip V4_3;
 	public VideoClip V16_9;
 	public VideoPlayer videoPlayer;
+	[Header("Opcional")]
+	[Tooltip("La textura usada por el renderizador de video a resetear ")]
+	public RenderTexture VideoTex;
 
 	// Start is called before the first frame update
 	void Start()
 	{
-		if (videoPlayer == null)
-			return;
-		if (V4_3 == null)
-			return;
-		if (V16_9  == null)
-			return;
-		Fixed128 aspec = (Fixed128)Screen.width / (Fixed128)Screen.height;
-		VideoClip Seected = null;
-		if (aspec == (Fixed128)4 / (Fixed128)3)
+		if (VideoTex != null)
 		{
-			Seected = V4_3;
-		}    
-		if (aspec >= (Fixed128)16 /(Fixed128)9)
-		{
-			Seected= V16_9;
+
+			RenderTexture active = RenderTexture.active;
+			RenderTexture.active = VideoTex;
+
+			GL.Clear(true, true, Color.black);
+
+			RenderTexture.active = active;
+
+
 		}
-		if (Seected == null)
-			Seected = V4_3;
-		videoPlayer.clip = Seected;
-		
+		Fixed128 aspect = (Fixed128)Screen.width / (Fixed128)Screen.height;
+
+		VideoClip selected;
+
+		Fixed128 aspect16_9 = (Fixed128)16 / (Fixed128)9;
+
+		if (aspect >= aspect16_9)
+		{
+			// Pantallas anchas, ultra anchas y mutantes
+			selected = V16_9;
+		}
+		else
+		{
+			// Pantallas más cuadradas o clásicas
+			selected = V4_3;
+		}
+
+		videoPlayer.clip = selected;
+
+
 	}
 
 	// Update is called once per frame

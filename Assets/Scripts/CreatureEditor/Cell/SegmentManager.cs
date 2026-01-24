@@ -86,7 +86,7 @@ public class SegmentManager : MonoBehaviour
 		Debug.Log(
 			IsInUI
 			? "🧩 UI MODE: tocando botones como persona civilizada"
-			: "🔧 GIZMO MODE: moviendo carne alienígena"
+			: "🔧 GIZMO MODE: moviendo METABOAS"
 		);
 	}
     private void AddSegment()

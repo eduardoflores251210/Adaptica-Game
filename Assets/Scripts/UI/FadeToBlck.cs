@@ -1,12 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System;
 
 public class FadeToBlck : MonoBehaviour //si se me olvido la a 
 {
     public Image blackPanel;       // La sábana negra
     public float fadeDuration = 1.5f;
-
+    public Action OnFadeInEnd;
+    public Action OnFadeOutEnd;
     public void StartFadeOut()
     {
         StartCoroutine(FadeOutCoroutine());
@@ -24,11 +26,12 @@ public class FadeToBlck : MonoBehaviour //si se me olvido la a
         {
             c.a = t / fadeDuration;
             blackPanel.color = c;
-            Debug.Log(blackPanel.color.a.ToString());
+            //Debug.Log(blackPanel.color.a.ToString());
             yield return null;
         }
         c.a = 1;
         blackPanel.color = c;
+        OnFadeOutEnd?.Invoke();
     }
 
     IEnumerator FadeInCoroutine()
@@ -38,10 +41,11 @@ public class FadeToBlck : MonoBehaviour //si se me olvido la a
         {
             c.a = 1 - (t / fadeDuration);
             blackPanel.color = c;
-            Debug.Log(blackPanel.color.a.ToString());
+            //Debug.Log(blackPanel.color.a.ToString());
             yield return null;
         }
         c.a = 0;
         blackPanel.color = c;
+        OnFadeInEnd?.Invoke();
     }
 }

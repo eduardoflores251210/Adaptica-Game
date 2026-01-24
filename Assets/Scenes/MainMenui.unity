@@ -10324,7 +10324,7 @@ VideoPlayer:
   m_TargetMaterialRenderer: {fileID: 0}
   m_TargetMaterialProperty: 
   m_RenderMode: 2
-  m_AspectRatio: 2
+  m_AspectRatio: 5
   m_DataSource: 0
   m_TimeUpdateMode: 2
   m_PlaybackSpeed: 1
@@ -10455,6 +10455,7 @@ MonoBehaviour:
   V4_3: {fileID: 32900000, guid: 0e9fc8d6fa54a3d43aa9a4e1926685e4, type: 3}
   V16_9: {fileID: 32900000, guid: 5c85e25c79a8cfe48b58aa5961bbfa1e, type: 3}
   videoPlayer: {fileID: 1034111711}
+  VideoTex: {fileID: 8600000, guid: 28fb8c018e84b874194401c2ec7001c2, type: 2}
 --- !u!1 &1073422223
 GameObject:
   m_ObjectHideFlags: 0
@@ -25816,8 +25817,6 @@ GameObject:
   - component: {fileID: 1498985386}
   - component: {fileID: 1498985389}
   - component: {fileID: 1498985392}
-  - component: {fileID: 1498985391}
-  - component: {fileID: 1498985390}
   - component: {fileID: 1498985393}
   - component: {fileID: 1498985394}
   - component: {fileID: 1498985395}
@@ -25875,7 +25874,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 32
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -25947,30 +25946,6 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!114 &1498985390
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1498985385}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 417c151531a84e4478ffc84a91b4b155, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1498985391
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1498985385}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 307bcdfecb11b594296fa47cd844f85e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1498985392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25992,6 +25967,7 @@ MonoBehaviour:
   totalSectoresX: 2
   totalSectoresY: 2
   DoesTheGalaxyExist: 0
+  IsGenerating: 0
   AAAAAAAAA: 
   BBBBBBBBB: 
   globalStarId: 0
@@ -26015,8 +25991,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GalaxyGenerator: {fileID: 1498985392}
-  AllowStars: 0
-  AllowRouguePlanets: 1
+  AllowStars: 1
+  AllowRouguePlanetsMoons: 1
 --- !u!114 &1498985394
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26031,8 +26007,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GalaxyScale: 10
   BasMat: {fileID: -876546973899608171, guid: f578aa3d91f252647bf0fb06f9ad6f4f, type: 3}
-  BholMat: {fileID: 0}
-  OpaceMat: {fileID: 0}
+  BholMat: {fileID: 2100000, guid: b45f94f763cbdc5418038dd2d3f35652, type: 2}
+  OpaceMat: {fileID: -876546973899608171, guid: b327d0be7d75f2844a8b5480412bfb0f, type: 3}
   starParent: {fileID: 427197799}
   Generator: {fileID: 1498985392}
   IsDebug: 0
@@ -26613,6 +26589,10 @@ MonoBehaviour:
   GalaxyGenerator: {fileID: 1498985392}
   fade: {fileID: 1722941773}
   StartVideo: {fileID: 1034111716}
+  DefMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  ExtractData: {fileID: 10300, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!1 &1830867159
 GameObject:
   m_ObjectHideFlags: 0

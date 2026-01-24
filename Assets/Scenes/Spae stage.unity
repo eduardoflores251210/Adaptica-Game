@@ -152,7 +152,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GalaxyScale: 20
   BasMat: {fileID: 2100000, guid: 667ec4bb9942a8947b5c201c5562ef0a, type: 2}
-  BholMat: {fileID: 2100000, guid: 90fb7caabca84084e8c09e7b070936db, type: 2}
+  BholMat: {fileID: 2100000, guid: dd67431989bb8b740859c711f08c6dfb, type: 2}
   OpaceMat: {fileID: 2100000, guid: def9b81afa62b5c46b0eba9a2ac0f987, type: 2}
   starParent: {fileID: 40265168}
   Generator: {fileID: 40265167}
@@ -161,6 +161,7 @@ MonoBehaviour:
   BatchSize: 2250
   IsInMainMenu: 0
   HideRouguePlanets: 0
+  Use1FramesPerSecondMode: 1
   ChunckManager: {fileID: 40265169}
   galaxy:
     Name: 
@@ -170,6 +171,7 @@ MonoBehaviour:
     Type: 0
     Format: EffiGalaxy
     SectorPositions: []
+    Seed: 0
 --- !u!114 &40265167
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191,6 +193,7 @@ MonoBehaviour:
   totalSectoresX: 0
   totalSectoresY: 0
   DoesTheGalaxyExist: 0
+  IsGenerating: 0
   AAAAAAAAA: 
   BBBBBBBBB: 
   globalStarId: 0
@@ -443,6 +446,8 @@ MonoBehaviour:
   EnableZoom: 1
   ZoomOutput: 0
   CursorSpeed: 10
+  usandoMouse: 0
+  DisableCursor: 0
   inputActions: {fileID: -944628639613478452, guid: c4765c325f0af464799a1a764737ea39, type: 3}
   currentZoom: 10
 --- !u!114 &2049320191
@@ -465,6 +470,7 @@ MonoBehaviour:
   Galaxy: {fileID: 40265163}
   CurrentStar: {fileID: 0}
   BholMat: {fileID: -876546973899608171, guid: 156fa45563bb1644ea018493620a04be, type: 3}
+  BholDiskMat: {fileID: 2100000, guid: 90fb7caabca84084e8c09e7b070936db, type: 2}
   SelectedStarChildren: []
 --- !u!114 &2049320192
 MonoBehaviour:
