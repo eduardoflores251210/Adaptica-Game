@@ -703,6 +703,56 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "PPP",
+            "id": "54f0e170-cc3d-4d92-a787-92199bcd5654",
+            "actions": [
+                {
+                    "name": "PAUSA",
+                    "type": "Button",
+                    "id": "9203f3b4-e350-4d28-844d-e48306d417ce",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "9d9610a5-36b1-4728-9cad-b7d4ca1e4a5f",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PAUSA",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c1cd7efc-6994-4ace-aa85-4421a3fb7388",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PAUSA",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "395ae6a5-f7d1-4692-ac1b-877f8c64d4e0",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PAUSA",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

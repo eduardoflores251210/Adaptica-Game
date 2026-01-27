@@ -50,6 +50,7 @@ public class MouthComp : MonoBehaviour
 				cellController.CurrentEvoPoints++; //Definittivamente no son los puntos de ADN de spore pero con otro nombre definitivamente (Sarcasmo)
                 cellController.MaxEvoPointsGotStat++;
                 cellController.StageProgress += Mathf.Abs( Random.insideUnitCircle.x);
+                
                 Destroy(collision.gameObject);
             }
         }

@@ -274,6 +274,7 @@ namespace SerializableTypes
 		public List<HistoryActions> Actions;
 		public Diets CreatureDiet = Diets.Omnivore;
 		public double ingameTime = 0;
+		public CellGameData CellGameData;
 
 		public SavedGame(ulong planetID, bool isCPUEmpire, Stages curentStage, string creatureName, List<HistoryActions> actions, Diets creatureDiet, double ingameTime = 0)
 		{
@@ -297,7 +298,119 @@ namespace SerializableTypes
 			this.ingameTime = ingameTime;
 		}
 	}
+	[Serializable]
+	public struct CellGameData : IEquatable<CellGameData> 
+	{
+		public float DNA_Amount;
+		public float MaxDNA_Got;
+		public float Progress;
+		public float PlayerHealth;
+		public GéneroBiológico Gender;
 
+		public CellGameData(float dNA_Amount, float maxDNA_Got, float progress, float playerHealth, GéneroBiológico gender)
+		{
+			DNA_Amount = dNA_Amount;
+			MaxDNA_Got = maxDNA_Got;
+			Progress = progress;
+			PlayerHealth = playerHealth;
+			Gender = gender;
+		}
+
+		public bool Equals(CellGameData other)
+		{
+			return DNA_Amount == other.DNA_Amount && Progress == other.Progress &&  PlayerHealth == other.PlayerHealth && Gender == other.Gender && MaxDNA_Got == other.MaxDNA_Got ;
+		}
+		public override bool Equals (object o)
+		{
+			if (ReferenceEquals(this,o)) return true;
+			if (o is null ) return false;
+
+			if (o is CellGameData Cell)
+			{
+				return Equals((CellGameData)o);
+			}else return false;
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(DNA_Amount, Progress, PlayerHealth, Gender);
+		}
+		public override string ToString()
+		{
+			return $"DNA {DNA_Amount}, progresss {Progress}, HP {PlayerHealth}, Gender {Gender}";
+		}
+	}
+	[Serializable]
+	public struct SpaceStageData
+	{
+		public long MONEY_Amount;
+		public List<PopulatedPlanetData> PlanetData;
+	}
+	[Serializable]
+	public struct PopulatedPlanetData
+	{
+		public List<CityData> Cities;
+	}
+	[Serializable]
+	public struct CityData
+	{
+		
+	}
+	public enum Buiding_Type
+	{
+		None = 0,
+		House = 1,
+		Factory = 2,
+		Water_Pump = 3,
+		ElectricalGenerator = 4,
+		Farm = 5,
+		Schools_Kinder = 6,
+		Schools_Elementary = 7,
+		Schools_Middle = 8,
+		Schools_FarmHigh = 9,
+		Schools_TechnicalHigh = 10,
+		Schools_IndustrialHigh = 11,
+		Schools_GeneralHigh = 12,
+		Schools_University_Medical = 13,
+		Schools_University_Farm = 14,
+		Schools_University_Technical = 15,
+		Schools_University_Industrial = 16,
+		Schools_University_General = 17,
+		Schools_University_Space = 18,
+		Schools_DayCare = 19,
+		Schools_AllInOne = 20,
+		Schools_Unknown = 21,
+		Hospital = 22,
+		FireFighter_Station = 23,
+		FireFighter_Command = 24,
+		Police_Comisary = 25,
+		Police_Prison = 26,
+		Police_SherifOfice = 27,
+		Police_Command = 28,
+		Park_Small = 29,
+		Park_Medium = 30,
+		Park_Large = 31,
+		Park_Amusesment = 32,
+		Holy_Church = 33,
+		Holy_Temple = 34,
+		Holy_Generic = 35,
+		Transport_Bus_Stop = 36,
+		Transport_Bus_BigStation = 37,
+		Transport_Bus_Station = 38,
+		Transport_Taxi_Stop =39,
+		Transport_Taxi_Base = 40,
+		Transport_Metro_Station = 41,
+		Transport_Metro_BigStation = 42,
+		Transport_Train_Station = 43,
+		Transport_Train_BigStation = 44,
+		Transport_Train_StationFarm = 45,
+		Transport_Teleferic_Station = 46,
+		Transport_Teleferic_Depo = 47,
+		Transport_Generic_CETRAM_Small = 48,
+		Transport_Generic_CETRAM_Big = 49,
+		Transport_Generic_DepartamentOfMovility = 50,
+
+	}
 	[Serializable]
 	/// <summary>
 	/// Accion hecha por el jugador
@@ -1985,6 +2098,18 @@ namespace ActualUtils
 			}
 			return "????????";
 		}
+		public static bool HasLoadedAnySave() => !(CurrentGame == null || CurrentSaveName == null);
+		
+	}
+	[System.Serializable]
+	public class GameSavingException : System.Exception
+	{
+		public GameSavingException() { }
+		public GameSavingException(string message) : base(message) { }
+		public GameSavingException(string message, System.Exception inner) : base(message, inner) { }
+		protected GameSavingException(
+		  System.Runtime.Serialization.SerializationInfo info,
+		  System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
 	}
 }
 

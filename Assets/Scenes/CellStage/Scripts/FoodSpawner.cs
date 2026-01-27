@@ -106,10 +106,7 @@ public class FoodSpawner : MonoBehaviour
 	{
 		SceneManager.sceneUnloaded += OnSceneUnloaded;
 	}
-	void OnDisable()
-	{
-		SceneManager.sceneUnloaded -= OnSceneUnloaded;
-	}
+
 	void OnSceneUnloaded(Scene scene)
 	{
 		DestroyMsg = ("Se está descargando la escena." );
