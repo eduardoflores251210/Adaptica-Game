@@ -17,7 +17,8 @@ public class AudioManagerForMainMenu : MonoBehaviour
     [Header("Opcional")]
     public StartVideoPlayer StartVideo; //preparandome para cinematica de carga :D
     public LayerMask DefMask;
-    public Texture2D ExtractData;
+	public bool LoadScreenEXIST = false;
+	public GameObject LoadScreen;
     /// <summary>
     /// aka Fadeed aka
     /// Faded controla SI has hecho fundido o no 
@@ -27,10 +28,11 @@ public class AudioManagerForMainMenu : MonoBehaviour
     {
         if (CheckStuff())
             Debug.Log("⚠️⚠️ERROR CATASTROFICOOOOOO, ALGO IMPRESCINDIBLE NO ESTA ASIGNADO⚠️⚠️");
-        fade.OnFadeInEnd += delegate { fade.gameObject.SetActive(false); };
+		fade.OnFadeInEnd += DisabeObj;
     }
 
-    bool A = false;
+	void DisabeObj() { fade.gameObject.SetActive(false); Debug.Log("DISBING"); }
+	bool A = false;
     GameObject P = null;
     // Update is called once per frame
     void Update()
@@ -103,33 +105,30 @@ public class AudioManagerForMainMenu : MonoBehaviour
 		fade.StartFadeIn();
 		FaeDeed = true;
 		MusicPlayer.enabled = true;
-        if (P != null)
-        {
-            P.SetActive(false);
-        }
-        if (Camera.main != null)
-        {
-            Camera.main.cullingMask = DefMask;
-        }
+		if (P != null)
+		{
+			P.SetActive(false);
+		}
+		if (Camera.main != null)
+		{
+			Camera.main.cullingMask = DefMask;
+		}
+		if (LoadScreenEXIST && LoadScreen != null)
+		{
+			Destroy(LoadScreen);
+		}
 	}
 
 	bool CheckStuff()
     {
-        Texture2D t = CopyTexture(ExtractData);
-        
+		LoadScreen = GameObject.Find("LoadingScreen");
+		if (LoadScreen != null)
 
-         System.IO.File.WriteAllBytes(System.IO.Path.Join(Application.persistentDataPath,"Thing.PNG"), t.EncodeToPNG());
-		Texture2D aclarada = AclararTextura(t, 12.4f);
-		File.WriteAllBytes(
-			Path.Join(Application.persistentDataPath, "ThingAclarado.png"),
-			aclarada.EncodeToPNG()
-		);
-		Texture2D aclarada2 =MultiplicarTextura(t, 1.4f);
-		File.WriteAllBytes(
-			Path.Join(Application.persistentDataPath, "ThingAclarado2.png"),
-			aclarada2.EncodeToPNG()
-		);
+		{
+			LoadScreenEXIST = true;
+			StartVideo = null;
 
+		}
 		return MusicPlayer == null || GalaxyGenerator == null || fade == null;
 
 	}

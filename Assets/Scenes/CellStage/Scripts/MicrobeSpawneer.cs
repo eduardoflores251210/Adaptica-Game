@@ -59,10 +59,10 @@ public class MicrobeSpawneer : MonoBehaviour
 	private void OnDestroy()
 	{
 		StopAllCoroutines();
-		if (DestroyMsg != ("Se está cerrando el juego") && DestroyMsg != ("Se está descargando la escena."))
+		/*if (DestroyMsg != ("Se está cerrando el juego") && DestroyMsg != ("Se está descargando la escena."))
 			Debug.LogError("El generador se ha destruido de manera anomala con la siguiente razón citada:\n " + DestroyMsg);
 		else
-			Debug.Log("El generador se ha destruido de manera normal con la siguiente razón citada:\n " + DestroyMsg);
+			Debug.Log("El generador se ha destruido de manera normal con la siguiente razón citada:\n " + DestroyMsg);*/
 	}
 	/// <summary>
 	/// genera microbios
@@ -79,7 +79,7 @@ public class MicrobeSpawneer : MonoBehaviour
 			{
 				GO = null;
 				
-				pos = Random.insideUnitCircle * SpawnRadius;
+				pos =  (Random.insideUnitCircle * SpawnRadius);
 				var input = DateTime.Now.ToString("o");
 				using SHA512 sha = SHA512.Create();
 				byte[] hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(input));
@@ -101,6 +101,7 @@ public class MicrobeSpawneer : MonoBehaviour
 				microbe.RotateMicrobeEuler(new(0, 90, 0));
 				Mailman.SendTypedPackage(gameObject.name, sb.ToString(), microbe, new string[1] { nameof(MicrobeData) });
 				GO = Instantiate(CellPrefab);
+				GO.transform.position = (Vector3)pos + transform.position;
 				GO.name = sb.ToString();
 				MicrCount++;
 			}

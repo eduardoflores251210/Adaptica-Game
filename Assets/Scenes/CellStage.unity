@@ -985,6 +985,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   document: {fileID: 999764811}
   Player: {fileID: 1561327408}
+  PauseManager: {fileID: 310753784}
 --- !u!114 &999764814
 MonoBehaviour:
   m_ObjectHideFlags: 0

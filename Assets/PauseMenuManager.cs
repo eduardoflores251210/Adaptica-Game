@@ -21,18 +21,26 @@ public class PauseMenuManager : MonoBehaviour
         PauseAction = mapa.FindAction("PAUSA",true);
         PauseAction.performed += delegate
         {
-            if (!IsPaused)
-            {
-                Pause();
-            }
-            else
-            {
-                Resume();
-            }
+            TogglePause();
         };
     }
 
-    public void Pause()
+
+    public void TogglePause()
+    {
+
+		if (!IsPaused)
+		{
+			Pause();
+		}
+		else
+		{
+			Resume();
+		}
+
+	}
+
+	public void Pause()
     {
 		Canvas.enabled = true;
 		Time.timeScale = 0f;
@@ -64,6 +72,7 @@ public class PauseMenuManager : MonoBehaviour
     }
     public void Exit()
     {
+        Resume();
         Saver.UnloadCurrentGame(false);
     }
 }

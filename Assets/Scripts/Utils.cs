@@ -244,6 +244,7 @@ namespace SerializableTypes
 	/// city  (no ha empesado el desarollo pero tiene el mismo nombre que su equivalente descartado en spore)
 	/// Civilization (no ha empesado desarollo pero tiene el mismo nombre que en spore)
 	/// Space (estructuras de datos en cosntrucción aunque ya puedes visitar sistemas pero no planetas) tiene el mismo nombre que en spore
+	/// Main Menu         Es solo un stage para simplificar 
 	/// </summary>
 	public enum Stages
 	{
@@ -252,7 +253,8 @@ namespace SerializableTypes
 		tribal, //No ha empesado desarollos 
 		City, //No ha empesado desarollos       ademas se le llama acvtualmente feudal
 		Civilization, //No ha empesado desarollo		ademas se le llama actualmente NACION
-		Space //estructuras de datos en cosntrucción  aunque ya puedes visitar sistemas pero no planetas
+		Space, //estructuras de datos en cosntrucción  aunque ya puedes visitar sistemas pero no planetas
+		MainMenu //Funciona desde alpha 1 
 	}
 	public enum CreatureTypes
 	{
@@ -994,7 +996,9 @@ namespace SerializableTypes
 					Debug.Log("Cargando Space Stage...");
 					SceneManager.LoadScene(6);
 					break;
-
+				case Stages.MainMenu:
+					LoadWithLoadingScreen.LoadScene(0,Stages.MainMenu);
+					break;
 				default:
 					Debug.LogWarning($"Stage {stage} no tiene escena asignada");
 					break;
@@ -1022,9 +1026,11 @@ namespace SerializableTypes
 
 				case Stages.Space:
 					Debug.Log("Cargando Space Stage...");
-					SceneManager.LoadScene(6);
+					LoadWithLoadingScreen.LoadScene(6, stage);
 					break;
-
+				case Stages.MainMenu:
+					LoadWithLoadingScreen.LoadScene(0, stage);
+					break;
 				default:
 					Debug.LogWarning($"Stage {stage} no tiene escena asignada");
 					break;
@@ -1376,10 +1382,11 @@ namespace SerializableTypes
 			}
 
 			// 🔹 Crear Canvas
-			GameObject LoadSc = new("Loading Screen");
+			GameObject LoadSc = new("LoadingScreen");
 			Canvas C = LoadSc.AddComponent<Canvas>();
 			C.renderMode = RenderMode.ScreenSpaceOverlay;
-			C.sortingOrder = 99;
+			C.sortingOrder = 999;
+			LoadSc.layer = 1 << 5;
 
 			// 🔹 Crear Image
 			GameObject ImageGO = new("IMG");
@@ -1393,6 +1400,7 @@ namespace SerializableTypes
 				Stages.City => loadScreenConfig.FeudalLoadImg,
 				Stages.Civilization => loadScreenConfig.NationLoadImg,
 				Stages.Space => loadScreenConfig.SpaceLoadImg,
+				Stages.MainMenu => loadScreenConfig.MainMenuLoadImg,
 				_ => loadScreenConfig.CellLoadImg,
 			};
 
@@ -1402,7 +1410,8 @@ namespace SerializableTypes
 			IMG.rectTransform.anchorMax = Vector2.one;
 			IMG.rectTransform.offsetMin = Vector2.zero;
 			IMG.rectTransform.offsetMax = Vector2.zero;
-
+			if (Stage == Stages.MainMenu)
+				GameObject.DontDestroyOnLoad(LoadSc);
 			// 🔹 Liberar handle cuando ya no lo necesitamos
 			Addressables.Release(handle); // para no saturar la ram
 		}
@@ -2004,7 +2013,7 @@ namespace ActualUtils
 				CurrentGame = NewData;
 				SaveCurrentGame();
 			}
-			SceneManager.LoadScene(0);// Main Menu
+			LoadWithLoadingScreen.LoadScene(0, Stages.MainMenu);
 		}
 		public static void SaveCurrentGame()
 		{

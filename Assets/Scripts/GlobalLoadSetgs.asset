@@ -19,3 +19,4 @@ MonoBehaviour:
   FeudalLoadImg: {fileID: 21300000, guid: 6de15e2b54653364eb968507793bcd44, type: 3}
   NationLoadImg: {fileID: 21300000, guid: 59320c075f9ca0a44989851367a7ab1f, type: 3}
   SpaceLoadImg: {fileID: 21300000, guid: 4ed85536a8899b5469d75bc31214e56b, type: 3}
+  MainMenuLoadImg: {fileID: 21300000, guid: 8397e1e8d842fb041bd8fcd3bf720b97, type: 3}

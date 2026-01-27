@@ -5,14 +5,22 @@ public class CellHudSync : MonoBehaviour
 {
 	public UIDocument document;
 	public CellController Player;
+	public PauseMenuManager PauseManager;
 	ProgressBar ProgressBar95;//Jeje referencia a progressbar95
 	float MaxPoints = 260f;
 
 	void Start()
 	{
 		ProgressBar95 = document.rootVisualElement.Q<ProgressBar>();
+		var a = document.rootVisualElement.Q<Button>("Settings");
+		a.clicked += delegate
+		{
+			if (PauseManager != null)
+			{
+				PauseManager.TogglePause();
+			}
+		};
 	}
-
 	void Update()
 	{
 		if (document == null)document = GetComponent<UIDocument>(); //solucion propuesta por Unity

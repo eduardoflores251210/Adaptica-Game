@@ -61,10 +61,10 @@ public class FoodSpawner : MonoBehaviour
 	private void OnDestroy()
 	{
 		StopAllCoroutines();
-		if (DestroyMsg != ("Se está cerrando el juego") && DestroyMsg != ("Se está descargando la escena."))
+		/*if (DestroyMsg != ("Se está cerrando el juego") && DestroyMsg != ("Se está descargando la escena."))
 			Debug.LogError("El generador se ha destruido de manera anomala con la siguiente razón citada:\n " + DestroyMsg);
 		else 
-			Debug.Log("El generador se ha destruido de manera normal con la siguiente razón citada:\n " + DestroyMsg);
+			Debug.Log("El generador se ha destruido de manera normal con la siguiente razón citada:\n " + DestroyMsg);*/
 	}
 	/// <summary>
 	/// genera comida 
@@ -85,13 +85,13 @@ public class FoodSpawner : MonoBehaviour
 				pos = Random.insideUnitCircle * SpawnRadius;
 				if (StdUtils.Randomness.CoinFlip()) //mi random true false
 				{
-					GO = Instantiate(AlgaePrefab, new Vector3(pos.x,0,pos.y), AlgaePrefab.transform.rotation);
+					GO = Instantiate(AlgaePrefab,transform.position+ new Vector3(pos.x,0,pos.y), AlgaePrefab.transform.rotation);
 					foodComp = GO.GetComponent<FoodComp>();
 					foodComp.tipo = TipoDeComida.Alga;
 				}
 				else
 				{
-					GO = Instantiate(MeatPrefab, new Vector3(pos.x, 0, pos.y), AlgaePrefab.transform.rotation);
+					GO = Instantiate(MeatPrefab,transform.position+ new Vector3(pos.x, 0, pos.y), AlgaePrefab.transform.rotation);
 					foodComp = GO.GetComponent<FoodComp>();
 					foodComp.tipo = TipoDeComida.Carne;
 				}

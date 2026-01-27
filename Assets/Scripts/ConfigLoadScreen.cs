@@ -12,4 +12,5 @@ public class ConfigLoadScreen : ScriptableObject
 	public Sprite FeudalLoadImg;
 	public Sprite NationLoadImg;
 	public Sprite SpaceLoadImg;
+	public Sprite MainMenuLoadImg;
 }
