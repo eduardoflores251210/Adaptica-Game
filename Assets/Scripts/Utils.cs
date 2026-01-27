@@ -1741,6 +1741,12 @@ namespace ActualUtils
 			Directory.CreateDirectory(J(CC, "TribalClothes"));
 			Directory.CreateDirectory(J(CC, "FeudalClothes"));
 			Directory.CreateDirectory(J(CC, "NationClothes"));
+			MicrobeData microbeData = null;
+			try
+			{
+				microbeData = JsonUtility.FromJson<MicrobeData>(File.ReadAllText(Path.Combine(Paths.Cells, CreatureName)));
+			}
+			catch { }
 			SavedGame game = new()
 			{
 				CurentStage = Stages.Microbe,
@@ -1751,6 +1757,18 @@ namespace ActualUtils
 				isCPUEmpire = false,
 				PlanetID = PlanetID
 			};
+			if (microbeData != null)
+			{
+				game.CellGameData = new()
+				{
+					DNA_Amount = 0,
+					MaxDNA_Got = 0,
+					Gender = GéneroBiológico.Female,
+					PlayerHealth = 100,
+					Progress = 0,
+				};
+			}
+
 			string SAV = J(fil, "Save.Json");
 
 			string JAV = JsonUtility.ToJson(game, true);

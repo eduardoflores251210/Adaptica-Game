@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using StandartUtilities;
 using ModelosDeIdioma; //No se cuando probe aqui el generador de idiomas
 using SerializableTypes.Biology;
+using ActualUtils;
 /// <summary>
 /// Contolador principal del microbio en juego ademas tiene IA para NPC
 /// aunque son muy tontos por ahora
@@ -266,7 +267,15 @@ public class CellController : MonoBehaviour
 						 GéneroBiológico.Female :
 						 GéneroBiológico.Male;
 		}
-
+		if (Saver.HasLoadedAnySave())
+		{
+			var CD = Saver.CurrentGame.CellGameData;
+			CurrentGen = CD.Gender;
+			StageProgress = CD.Progress;
+			MaxEvoPointsGotStat = CD.MaxDNA_Got;
+			Health = CD.PlayerHealth;
+			CurrentEvoPoints = CD.DNA_Amount;
+		}
 		// Seleccionar color y partes según género
 		Color color;
 		var partsList = new List<SerializedPartData>(); 
@@ -380,7 +389,17 @@ public class CellController : MonoBehaviour
 		if (CrossScenePackageSender.Instance == null) return Tempdata;
 		if (!CrossScenePackageSender.Instance.IsThereAnyTypedMailForMe<MicrobeData>(gameObject, out var Mail))
 		{
-			return Tempdata;
+			if (!Saver.HasLoadedAnySave())
+				return Tempdata;
+			else
+			{
+				if (Saver.TryToLoadLastMicrobeRevision(Saver.CurrentSaveName, out var MC))
+				{
+					return MC;
+				}
+				else return Tempdata;
+			}
+
 		}
 		else return Mail[0].Contents; 
 	}
