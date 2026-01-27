@@ -39,7 +39,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _DistortionStrenght: 1.59
-    - _HoleSize: 0.766
+    - _HoleSize: 0.7
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Smoothnes: 0.044

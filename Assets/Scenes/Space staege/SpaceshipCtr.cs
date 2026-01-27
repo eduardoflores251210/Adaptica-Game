@@ -25,7 +25,7 @@ public class SpaceshipCtr : MonoBehaviour
 	private SpaceStageStar lastStarClicked;
 	public GameObject CurrentStar;
 	public bool ENTER_ANYWAY = false;
-
+	public Mesh Sphere;
 	private float timeSinceLastClick;
 	private bool isInSystem;
 
@@ -129,8 +129,8 @@ public class SpaceshipCtr : MonoBehaviour
 		SaveCameraSettings(orbit);
 		SetupSystemCamera(orbit);
 
-		Galaxy.transform.localScale = Vector3.zero;
-		HideGalaxyParticles(vis);
+		
+
 		ENTER_ANYWAY = false;
 		isInSystem = true;
 	}
@@ -146,6 +146,7 @@ public class SpaceshipCtr : MonoBehaviour
 
 		bigStar.SetActive(true);
 		bigStar.transform.localScale = Vector3.one * 5;
+		bigStar.transform.position = Vector3.one * 99999f;
 
 		var renderer = bigStar.GetComponent<MeshRenderer>();
 		renderer.material = vis.Mats[star.Type];
@@ -158,6 +159,7 @@ public class SpaceshipCtr : MonoBehaviour
 	{
 		acretionDisk = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
 		acretionDisk.transform.localScale = new Vector3(10, 0.025f, 10);
+		acretionDisk.transform.position = Vector3.one * 99999f;
 		acretionDisk.GetComponent<MeshRenderer>().material = (BholDiskMat);
 		starRenderer.material = BholMat;
 	}
@@ -180,7 +182,7 @@ public class SpaceshipCtr : MonoBehaviour
 
 			if (!TryGetPlanetData(child, star, vis, out var data))
 			{
-				RemoveInvalidPlanet(child, star, vis);
+				//RemoveInvalidPlanet(child, star, vis);
 				index++;
 				continue;
 			}
@@ -190,7 +192,7 @@ public class SpaceshipCtr : MonoBehaviour
 
 			var planet = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 			planet.name = data.Name;
-			planet.transform.position = new Vector3(xPos, 0, 0);
+			planet.transform.position = Vector3.one * 99999f + new Vector3(xPos, 0, 0);
 
 			planets.Add(planet);
 			index++;
@@ -237,6 +239,7 @@ public class SpaceshipCtr : MonoBehaviour
 	public CameraOrbitController orbit = null;
 	private void HandleSystemExit()
 	{
+
 		if (orbit == null)
 		 orbit = FindAnyObjectByType<CameraOrbitController>();
 		if (orbit == null)
@@ -271,7 +274,7 @@ public class SpaceshipCtr : MonoBehaviour
 		orbit.Target = lastStarClicked.transform;
 		orbit.currentZoom = 2.2f;
 
-		Galaxy.transform.localScale = Vector3.one;
+		Galaxy.transform.position = Vector3.zero;
 		isInSystem = false;
 
 		foreach (var p in planets)
