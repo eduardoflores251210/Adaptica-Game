@@ -360,6 +360,8 @@ public class CellController : MonoBehaviour
 		meshFilter.mesh = mesh;
 		ID = MicrobeData.GenerateMicrobeID(aa);
 		transform.position = OldPos;
+		if (!isAI)
+			PlayerManager.RegisterPlayer(this, Stages.Microbe);
 	}
 
 	/// <summary>
@@ -471,5 +473,9 @@ public class CellController : MonoBehaviour
 		return Mathf.Max(Rad.ToArray());
 
 	}
-	
+	private void OnDestroy()
+	{
+		if (!isAI && PlayerManager.Player == this)
+			PlayerManager.UnRegisterPlayer();
+	}
 }

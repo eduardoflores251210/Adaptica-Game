@@ -1,7 +1,6 @@
 ﻿using ActualUtils;
 using FixedMath;
 using SerializableTypes;
-using ActualUtils;
 using SerializableTypes.Biology;
 using SerializableTypes.Space;
 using StandartUtilities;
@@ -264,6 +263,43 @@ namespace SerializableTypes
 		FeudalCitizen,
 		Citizen,
 		SpaceCitizen,
+	}
+	public enum Editors
+	{
+		Microbe,
+		Animal,
+		TribeDresser,
+		FeudalCitizenDresser,
+		CitizenDresser,
+		SpaceCitizenDresser,
+		Plant,
+		Planet,
+		Vehicles_Car,
+		Vehicles_Car_Religius,
+		Vehicles_Car_Economic,
+		Vehicles_Car_Military,
+		Vehicles_Car_Civilian,
+		Vehicles_Car_BUS,
+		Vehicles_Train_Steam_Civilian,
+		Vehicles_Train_Steam_Military,
+		Vehicles_Train_Steam_Economic,
+		Vehicles_Train_Electrical_Metro,
+		Vehicles_Train_Electrical_Tram,
+		Vehicles_Train_Electrical_Monorail,
+		Vehicles_Train_Electrical_MagLev, //oh levita
+		Vehicles_Train_Electrical_LightTrain,
+		Vehicles_Train_Electrical_Suburban,
+		Vehicles_Train_Electrical_Bullet,
+		Vehicles_Train_TrainLike_CableCar,
+		Vehicles_Plane_Civilian,
+		Vehicles_Plane_Military,
+		Vehicles_Plane_Economic,
+		Vehicles_Plane_Religous,
+		Vehicles_Boat_Civilian,
+		Vehicles_Boat_Military,
+		Vehicles_Boat_Economic,
+		Vehicles_Boat_Religous,
+		Vehicles_Boat_Canoe, //si el abrco mas basico
 	}
 
 	[Serializable]
@@ -2123,7 +2159,6 @@ namespace ActualUtils
 				Debug.LogError(ex);
 				return null;
 			}
-			return "????????";
 		}
 		public static bool HasLoadedAnySave() => !(CurrentGame == null || CurrentSaveName == null);
 		
@@ -2137,6 +2172,73 @@ namespace ActualUtils
 		protected GameSavingException(
 		  System.Runtime.Serialization.SerializationInfo info,
 		  System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+	}
+
+
+	[AttributeUsage(AttributeTargets.Method)]
+	public class ConsoleCommandAttribute : Attribute
+	{
+		public string Name;
+		public bool IsCheat;
+		public ConsoleCommandAttribute(string name) 
+		{
+			Name = name;
+			IsCheat = false; 
+		}
+		public ConsoleCommandAttribute(string name, bool isCheat) : this(name)
+		{
+			Name = name;
+			IsCheat = isCheat;
+		}
+	}
+	public static class PlayerManager
+	{
+		public static UnityEngine.MonoBehaviour Player;
+		public static Stages Current_Stage;
+		public static Editors Current_Editor;
+		public static bool isInEditor;
+		public static void RegisterPlayer(MonoBehaviour @object, Stages stage)
+		{
+			bool Correct = stage switch
+			{
+				Stages.Microbe => @object is CellController,
+				_ => false,
+			};
+			if (Correct)
+			{
+				Player = @object;
+				Current_Stage = stage;
+			}
+			else
+				throw new ArgumentException("ERROR jugadro no es del tipo correcto");
+		}
+		public static void RegisterEditor(MonoBehaviour	 @object,Editors editor)
+		{
+			bool Correct = editor switch
+			{
+				Editors.Microbe => @object is PartManager,
+				Editors.Plant => @object is PlantStemGenerator,
+				_ => false,
+			};
+			if (Correct)
+			{
+				Player = @object;
+				Current_Editor = editor;
+				isInEditor = true;
+			}
+			else
+				throw new ArgumentException("ERROR jugadro no es del tipo correcto");
+		}
+		public static void UnRegisterPlayer()
+		{
+			if (!isInEditor)
+				Player = null;
+
+		}
+		public static void UnregisterEditor()
+		{
+			if(isInEditor) Player = null;
+		}
 	}
 }
 

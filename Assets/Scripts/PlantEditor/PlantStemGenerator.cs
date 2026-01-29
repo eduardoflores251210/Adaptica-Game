@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using ActualUtils;
 
 public class PlantStemGenerator : MonoBehaviour
 {
@@ -20,6 +21,10 @@ public class PlantStemGenerator : MonoBehaviour
 	private List<GameObject> spawnedBalls = new List<GameObject>();
 	private List<Metaball> spawnedBallsComp = new List<Metaball>();
 	public float OldSegmentSpacing = 0f;
+	private void Start()
+	{
+		PlayerManager.RegisterEditor(this, SerializableTypes.Editors.Plant);
+	}
 
 	private void Update()
 	{
@@ -98,5 +103,10 @@ public class PlantStemGenerator : MonoBehaviour
 		}
 
 		Debug.Log("🔧 Radios actualizados sin regenerar tallos.");
+	}
+	private void OnDestroy()
+	{
+		if (PlayerManager.Player == this)
+		PlayerManager.UnregisterEditor();
 	}
 }

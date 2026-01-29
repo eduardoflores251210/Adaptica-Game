@@ -1,3 +1,4 @@
+using ActualUtils;
 using SerializableTypes;
 using SerializableTypes.Biology;
 using System.Collections;
@@ -59,6 +60,7 @@ public class PartManager : MonoBehaviour
 		savedDIM = false;
 		savedMaleColor = MaleColor;
 		savedFemaleColor = FemaleColor;
+		PlayerManager.RegisterEditor(this, Editors.Microbe);
 	}
 	public void LoadMicrobe( MicrobeData microbe)
 	{
@@ -338,5 +340,10 @@ public class PartManager : MonoBehaviour
 			label.SetEnabled( false);
 		GenToggleButton.SetEnabled(!(C || !DIM.value));
 		Next.SetEnabled(label.text == "");
+	}
+	public void OnDestroy()
+	{
+		if (this == PlayerManager.Player)
+			PlayerManager.UnregisterEditor();
 	}
 }
