@@ -13,6 +13,10 @@ public class DynamicUIButtonCreator : MonoBehaviour
 	public PartsDatabase PlantDatabase;
 	public VisualTreeAsset buttonTemplate; // opcional, si quieres un template de botón
 	public UIDocument uiDocument;
+	public PlantStemGenerator PlantStemGenerator;
+	public MinMaxSlider radii;
+	public SliderInt	 segments;
+	public Slider espaciado;
 	public string UIDocumentRootName;
 	public List<string> buttonNames;
 	private void Start()
@@ -41,6 +45,10 @@ public class DynamicUIButtonCreator : MonoBehaviour
 		{
 			root = uiDocument.rootVisualElement;
 			var q = root.Q(UIDocumentRootName);
+			radii = root.Q<MinMaxSlider>("Radios");
+			segments = root.Q<SliderInt>("seg");
+			espaciado = root.Q<Slider>("esp");
+
 			root = q;
 		}
 		
@@ -75,6 +83,18 @@ public class DynamicUIButtonCreator : MonoBehaviour
 
 		Debug.Log("UI Document creado con " + PlantDatabase.allParts.Count + " botones.");
 	}
-
+	private void Update()
+	{
+		if (PlantStemGenerator ==  null)
+		{
+			PlantStemGenerator = FindAnyObjectByType<PlantStemGenerator>();
+		}
+		if (PlantStemGenerator == null)
+			return;
+		PlantStemGenerator.startRadius = radii.maxValue;
+		PlantStemGenerator.endRadius = radii.minValue;
+		PlantStemGenerator.segmentCount = segments.value;
+		PlantStemGenerator.segmentSpacing = espaciado.value;
+	}
 
 }

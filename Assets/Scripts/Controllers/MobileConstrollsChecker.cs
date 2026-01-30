@@ -10,30 +10,32 @@ using UnityEngine.InputSystem;
 public class MobileConstrollsChecker : MonoBehaviour
 {
     public InputActionAsset inputActions;
+	public InputAction Check;
+	public bool DOITANIWAYS;
+	public bool Disable;
+	public GameObject Controls;
 
-    public InputAction Check;
-
-    public bool Disable;
-    public GameObject Controls;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-        Check = map.FindAction("PPos", true); //no no es tartamudeo
-        Check.started += ctx =>
+	// Start is called before the first frame update
+	void Start()
+	{
+		var map = inputActions.FindActionMap("GC");
+        Check = map.FindAction("Click", true); //no no es tartamudeo
+        Check.performed += ctx =>
         {
-            if (ctx.control.device is Pointer)
-                Disable = true;
+			Debug.Log(ctx.control.device);
+            if (ctx.control.device is Touchscreen)
+                DOITANIWAYS = true;
+			else 
+				DOITANIWAYS = false;
         };
-    }
+	}
 
-    // Update is called once per frame
-    void Update() //por que obiamente tenemos que siempre ver el estado de los controles
-    {
-        if (Disable)
-        {
-            Controls.SetActive(!Disable);
-        }
-    }
+	// Update is called once per frame
+	void Update() //por que obiamente tenemos que siempre ver el estado de los controles
+	{
+		Disable = !Application.isMobilePlatform;
+		
+		Controls.SetActive(!Disable || DOITANIWAYS);
+		
+	}
 }

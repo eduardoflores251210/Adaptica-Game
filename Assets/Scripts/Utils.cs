@@ -1183,12 +1183,108 @@ namespace SerializableTypes
 				SceneManager.LoadScene(1); // Microbe Editor
 			}
 		}
+		public static void EditMicrobe()
+		{
+			if (!Saver.HasLoadedAnySave())
+			{
+				CrossScenePackageSender Mailman = CrossScenePackageSender.Instance;//No  puedo cambiar esos nombres de destinatario de MC yMain Camera CS por que el cartero No tiene codigo postal solo nombre de destinatario :(
+				Mailman.SendTypedPackage("EnterEdit", "CellSaver", false, new string[2] { nameof(Boolean), "LodStg" }); //avisarle a cellsaver QUE AL GUARDAR NO ENTRAREMOS AL ESTADIO CELULA DIGO MICROBIO
+				LoadWithLoadingScreen.LoadScene(1, Stages.Microbe); // Microbe Editor
+				return;
+			}
+			if (Saver.TryToLoadLastMicrobeRevision(Saver.CurrentGame.CreatureName, out var data))
+			{
+				CrossScenePackageSender Mailman = CrossScenePackageSender.Instance;//No  puedo cambiar esos nombres de destinatario de MC yMain Camera CS por que el cartero No tiene codigo postal solo nombre de destinatario :(
+				Mailman.SendTypedPackage("EnterEdit", "CellSaver", true, new string[2] { nameof(Boolean), "LodStg" }); //avisarle a cellsaver QUE AL GUARDAR ENTRAREMOS AL ESTADIO CELULA DIGO MICROBIO SIN CREAR NUEVA PARTIDA
+				Mailman.SendTypedPackage("EditorLoader", "MC.SegmentManager", data, new string[2] { nameof(MicrobeData), "LodMic" }); //avisarle al segment manager que TIENE QUE CARGAR UNA CRIATRURA
+				LoadWithLoadingScreen.LoadScene(1,Stages.Microbe); // Microbe Editor
+				return;
+			}
+		}
 		//simbologia:
 		//MC					: Marching Cubes
 		//Main Camera CS		: Basurero con componentes distintos que tambien renderiza la escena y guarda el microbio
 		//"EnterEdit"			: El Sender que le avisa a MicrobeSaver QUE YA HAY UNA PARTIDA Y NO TIENE QUE CREAR OTRA
 		//"CellSaver"			: Se añadio la capacidad que el Mailman te de paquetes basándote en un string en vez de game objects asi que ya no tengo que escribir el nombre de la cámara solo "CellSaver"
 		//"MC.SegmentManager"	: se especifica que es el segment manager de MC y no el componente de marching cubes
+		public static void EnterEditor(Editors editor)
+		{
+			switch (editor)
+			{
+				case Editors.Microbe:
+					EditMicrobe();
+					break;
+				case Editors.Animal:
+					break;
+				case Editors.TribeDresser:
+					break;
+				case Editors.FeudalCitizenDresser:
+					break;
+				case Editors.CitizenDresser:
+					break;
+				case Editors.SpaceCitizenDresser:
+					break;
+				case Editors.Plant:
+					SceneManager.LoadSceneAsync(5);
+					break;
+				case Editors.Planet:
+					break;
+				case Editors.Vehicles_Car:
+					break;
+				case Editors.Vehicles_Car_Religius:
+					break;
+				case Editors.Vehicles_Car_Economic:
+					break;
+				case Editors.Vehicles_Car_Military:
+					break;
+				case Editors.Vehicles_Car_Civilian:
+					break;
+				case Editors.Vehicles_Car_BUS:
+					break;
+				case Editors.Vehicles_Train_Steam_Civilian:
+					break;
+				case Editors.Vehicles_Train_Steam_Military:
+					break;
+				case Editors.Vehicles_Train_Steam_Economic:
+					break;
+				case Editors.Vehicles_Train_Electrical_Metro:
+					break;
+				case Editors.Vehicles_Train_Electrical_Tram:
+					break;
+				case Editors.Vehicles_Train_Electrical_Monorail:
+					break;
+				case Editors.Vehicles_Train_Electrical_MagLev:
+					break;
+				case Editors.Vehicles_Train_Electrical_LightTrain:
+					break;
+				case Editors.Vehicles_Train_Electrical_Suburban:
+					break;
+				case Editors.Vehicles_Train_Electrical_Bullet:
+					break;
+				case Editors.Vehicles_Train_TrainLike_CableCar:
+					break;
+				case Editors.Vehicles_Plane_Civilian:
+					break;
+				case Editors.Vehicles_Plane_Military:
+					break;
+				case Editors.Vehicles_Plane_Economic:
+					break;
+				case Editors.Vehicles_Plane_Religous:
+					break;
+				case Editors.Vehicles_Boat_Civilian:
+					break;
+				case Editors.Vehicles_Boat_Military:
+					break;
+				case Editors.Vehicles_Boat_Economic:
+					break;
+				case Editors.Vehicles_Boat_Religous:
+					break;
+				case Editors.Vehicles_Boat_Canoe:
+					break;
+				default:
+					break;
+			}
+		}
 
 	}
 	public static class CreationLoader
@@ -1726,6 +1822,57 @@ namespace SerializableTypes
 		MidNight
 	}
 
+	[Serializable]
+	public struct Resolution
+	{
+		public ulong Width;
+		public ulong Height;
+		public Resolution(ulong height, ulong width)
+		{
+			Height = height;
+			Width = width;
+		}
+
+		public static Resolution FromUnityRes(UnityEngine.Resolution resolution)
+		{
+			return new((ulong)resolution.height, (ulong)resolution.width);
+		}
+		public UnityEngine.Resolution ToUnityRes()
+		{
+			return new UnityEngine.Resolution() { width = (int)Width, height = (int)Height };
+		}
+	}
+	[Serializable]
+	public class Settings
+	{
+		public string LAST_VERSION;
+		public bool UseFullScreen;
+		public bool UseAniwayControlls;
+		public Resolution Res;
+
+
+		public static Settings Loaded;
+		public static bool TryToload()
+		{
+			string path = Path.Join(Application.persistentDataPath, "STGS.JSON");
+			try
+			{
+				Settings a = JsonUtility.FromJson<Settings>(path);
+				Loaded = a;
+				return true;
+			} catch
+			{
+				return false;
+			}
+		}
+
+		public static void Save()
+		{
+			string path = Path.Join(Application.persistentDataPath, "STGS.JSON");
+			string JSON = JsonUtility.ToJson(Loaded);
+			File.WriteAllText(path, JSON);
+		}
+	}
 }
 
 namespace ActualUtils

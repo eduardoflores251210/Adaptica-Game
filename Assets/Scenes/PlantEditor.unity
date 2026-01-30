@@ -1204,7 +1204,10 @@ MonoBehaviour:
   EnableZoom: 1
   ZoomOutput: 0
   CursorSpeed: 10
+  usandoMouse: 0
+  DisableCursor: 0
   inputActions: {fileID: -944628639613478452, guid: c4765c325f0af464799a1a764737ea39, type: 3}
+  currentZoom: 10
 --- !u!114 &2019509539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1244,6 +1247,7 @@ MonoBehaviour:
   PlantDatabase: {fileID: 11400000, guid: f34b1fbed2ed53641b1858fb5dcf87dc, type: 2}
   buttonTemplate: {fileID: 9197481963319205126, guid: 7b63c91bcd453c148ba2d4ae077edce9, type: 3}
   uiDocument: {fileID: 1203570667}
+  PlantStemGenerator: {fileID: 1378887522}
   UIDocumentRootName: AAA
   buttonNames: []
 --- !u!4 &543450652496261917

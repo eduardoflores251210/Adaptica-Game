@@ -83,7 +83,7 @@ public class PlantStemGenerator : MonoBehaviour
 			spawnedBallsComp.Add(m);
 		}
 
-		Debug.Log($"🌱 Tallos generados: {segmentCount}");
+		//Debug.Log($"🌱 Tallos generados: {segmentCount}");
 	}
 
 	private void UpdateRadii()
@@ -102,7 +102,7 @@ public class PlantStemGenerator : MonoBehaviour
 			}
 		}
 
-		Debug.Log("🔧 Radios actualizados sin regenerar tallos.");
+		//Debug.Log("🔧 Radios actualizados sin regenerar tallos.");
 	}
 	private void OnDestroy()
 	{

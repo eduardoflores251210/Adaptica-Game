@@ -38,6 +38,7 @@ public class ConsoleManager : MonoBehaviour
 
 		Instance = this;
 		DontDestroyOnLoad(gameObject);
+		DontDestroyOnLoad(consoleUI);
 	}
 
 	void OnEnable()
@@ -58,6 +59,8 @@ public class ConsoleManager : MonoBehaviour
 		sh = map.FindAction("Shift");
 		C = map.FindAction("C");
 		Ct.performed += Ct_performed;
+		sh.performed += Sh_performed;
+		C.performed += C_performed;
 		map.Enable();	
 		outputText.text = "";
 
@@ -65,6 +68,23 @@ public class ConsoleManager : MonoBehaviour
 		Debug.Log("🧠 Console ready. Type 'help'");
 	}
 
+	private void C_performed(InputAction.CallbackContext obj)
+	{
+
+		if (Ct.inProgress && sh.inProgress)
+		{
+			Toggle();
+		}
+	}
+
+	private void Sh_performed(InputAction.CallbackContext obj)
+	{
+
+		if (C.inProgress && Ct.inProgress)
+		{
+			Toggle();
+		}
+	}
 
 	private void Ct_performed(InputAction.CallbackContext obj)
 	{

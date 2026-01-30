@@ -1,5 +1,6 @@
 ﻿using ActualUtils;
 using SerializableTypes;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -47,7 +48,7 @@ creado por {Application.companyName}";
 		}
 		public static class Cheats
 		{
-			[ConsoleCommand("Motherlode", true)]
+			[ConsoleCommand("motherlode", true)]
 			public static void Motherlode()
 			{
 				int amnt = 50_000;
@@ -74,6 +75,40 @@ creado por {Application.companyName}";
 				}
 				else Debug.Log("INVALIDO");
 			}
+			[ConsoleCommand("money", true)]
+			public static void Money(int amnt)
+			{
+				if (IsInPlay())
+				{
+					if (Stages.Microbe != PlayerManager.Current_Stage)
+					{
+						Debug.Log("INVALIDO");
+					}
+					else
+					{
+						if (PlayerManager.Player is not CellController a)
+						{
+							Debug.Log("INVALIDO");
+
+						}
+						else
+						{
+							a.CurrentEvoPoints += amnt;
+							a.MaxEvoPointsGotStat += amnt;
+							a.StageProgress += amnt;
+						}
+					}
+				}
+				else Debug.Log("INVALIDO");
+			}
+			[ConsoleCommand("entereditor", true)]
+			public static void ED (int editor)
+			{
+				Debug.Log("Entando a editor " + (Editors )editor);
+				EditorLoader.EnterEditor((Editors)editor);
+			}
+
+
 		}
 		public static class EasterEggCommands
 		{
@@ -121,9 +156,17 @@ creado por {Application.companyName}";
 				Debug.Log(SceneManager.GetActiveScene().name);
 			}
 			[ConsoleCommand("/gamemode")]
-			public static void Gamemode()
+			public static void Gamemode(string mode)
 			{
-				Debug.Log("esto no es minecraft");
+
+				string moda = mode;
+				if (int.TryParse(mode, out var modo))
+				{
+					moda = ((minecraftGamemodes)modo).ToString();
+					Debug.Log($"esto no es minecraft no puedes entrar a modo {moda} POR QUE NO EXISTE aqui");
+				}
+				else
+					Debug.Log($"esto no es minecraft no puedes hacer /gamemode {moda}");
 			}
 		}
 		public static bool IsInPlay()
@@ -141,5 +184,12 @@ creado por {Application.companyName}";
 			}
 			return false;
 		}
+	}
+	enum minecraftGamemodes
+	{
+		survival = 0,
+		creative = 1,
+		adventure = 2,
+		spectator = 3,
 	}
 }

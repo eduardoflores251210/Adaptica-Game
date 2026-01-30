@@ -1,7 +1,7 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/dffdggfdgdfdgfdgfgdffdggdfdfgdfg.uss?fileID=7433441132597879392&amp;guid=ead36bdf9bda33845a7eed5d0b9b308f&amp;type=3#dffdggfdgdfdgfdgfgdffdggdfdfgdfg" />
-    <engine:VisualElement name="VisualElement" style="flex-grow: 1; height: 100%; flex-shrink: 1; max-width: 30%; min-width: 10%; background-color: rgb(164, 164, 164);">
-        <engine:Foldout text="#FoldParts" style="flex-grow: 0; min-width: auto; min-height: auto; max-height: none; flex-shrink: 0;">
+    <engine:ScrollView horizontal-scroller-visibility="Hidden" style="background-color: rgb(164, 164, 164); height: 100%; max-width: 30%; min-width: 10%; flex-grow: 1;">
+        <engine:Foldout text="#FoldParts" style="flex-grow: 1; min-width: auto; min-height: auto; max-height: none; flex-shrink: 0;">
             <engine:ScrollView mode="VerticalAndHorizontal" style="flex-wrap: wrap; flex-direction: column; align-items: stretch; justify-content: flex-start; align-self: auto;">
                 <engine:VisualElement style="flex-grow: 1; max-height: none; min-height: 137px;">
                     <engine:TabView style="background-color: rgb(123, 123, 123); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; flex-grow: 1; max-width: none; min-width: auto;">
@@ -27,9 +27,13 @@
                 </engine:VisualElement>
             </engine:ScrollView>
         </engine:Foldout>
-        <engine:Foldout text="#FoldStem" name="PlantProp" style="flex-grow: 0; max-height: none; flex-shrink: 0;">
-            <engine:MinMaxSlider label="Radio" value="0,18" low-limit="1" high-limit="8" picking-mode="Ignore" style="min-width: auto; flex-direction: column; min-height: auto;" />
-            <engine:Label text="Este dezlizador va de 1 a 8 y es el radio del tallo de tu planta" enable-rich-text="true" class="text-auto-size" style="flex-wrap: wrap; flex-grow: 1; height: auto; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px; padding-top: 3px; padding-right: 3px; padding-bottom: 3px; padding-left: 3px; white-space: normal; width: 100%;" />
+        <engine:Foldout text="#FoldStem" name="PlantProp" style="flex-grow: 1; max-height: none; flex-shrink: 0;">
+            <engine:MinMaxSlider label="Radio" value="0,18" low-limit="1" high-limit="8" picking-mode="Ignore" name="Radios" style="min-width: auto; flex-direction: column; min-height: auto;" />
+            <engine:Label text="Este dezlizador va de 1 a 8 y es el radio del tallo de tu planta" enable-rich-text="true" class="text-auto-size" style="flex-wrap: wrap; flex-grow: 0; height: auto; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px; padding-top: 3px; padding-right: 3px; padding-bottom: 3px; padding-left: 3px; white-space: normal; width: 100%;" />
+            <engine:Label text="segmentos" enable-rich-text="true" class="text-auto-size text-auto-size-max-9999" style="flex-wrap: wrap; flex-grow: 0; height: auto; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px; padding-top: 3px; padding-right: 3px; padding-bottom: 3px; padding-left: 3px; white-space: normal; width: 100%;" />
+            <engine:SliderInt value="42" high-value="10" name="seg" low-value="1" />
+            <engine:Label text="espaciado" enable-rich-text="true" class="text-auto-size text-auto-size-max-9999" style="flex-wrap: wrap; flex-grow: 0; height: auto; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px; padding-top: 3px; padding-right: 3px; padding-bottom: 3px; padding-left: 3px; white-space: normal; width: 100%;" />
+            <engine:Slider value="42" high-value="10" name="esp" />
         </engine:Foldout>
-    </engine:VisualElement>
+    </engine:ScrollView>
 </engine:UXML>

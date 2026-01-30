@@ -410,8 +410,30 @@
                 },
                 {
                     "name": "",
+                    "id": "4dfee75e-cf27-4fb8-80e6-3f85b1c25790",
+                    "path": "<Touchscreen>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "R",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "b877e08c-2680-4ed6-9f50-0a76e8b2d2db",
                     "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EnableR",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "43216a15-c4b5-4603-aba8-b06fc37b144c",
+                    "path": "<Touchscreen>/Press",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -489,6 +511,17 @@
                     "name": "",
                     "id": "5794760f-c348-469c-a591-91abe02fd981",
                     "path": "<Mouse>/scroll/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "68a0b3f3-10e4-4ddd-90c5-139d20001da4",
+                    "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
