@@ -19,8 +19,6 @@ public class MobileConstrollsChecker : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        var map = inputActions.FindActionMap("GC", true); //No no es Gamecube
-        map.Enable();
 
         Check = map.FindAction("PPos", true); //no no es tartamudeo
         Check.started += ctx =>
