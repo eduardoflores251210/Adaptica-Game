@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: -7848694424088851689}
   - component: {fileID: -1170861639342682206}
   - component: {fileID: 4427297907136339761}
-  - component: {fileID: -5964006357634233906}
-  - component: {fileID: -3743790981271354695}
+  - component: {fileID: 582283481744601402}
+  - component: {fileID: 472803494577844009}
   m_Layer: 0
   m_Name: Plant
   m_TagString: Untagged
@@ -105,7 +105,7 @@ MonoBehaviour:
   IsSpoiled: 0
   CanSpoil: 1
   tipo: 0
---- !u!64 &-5964006357634233906
+--- !u!64 &582283481744601402
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,7 +127,7 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2432090755550338912, guid: 0f722209fa2956a4d89d18a9c07e2d22, type: 3}
---- !u!54 &-3743790981271354695
+--- !u!54 &472803494577844009
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -152,5 +152,5 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 52
+  m_Constraints: 0
   m_CollisionDetection: 0

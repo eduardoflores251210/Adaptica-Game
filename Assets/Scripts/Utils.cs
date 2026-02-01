@@ -191,8 +191,12 @@ public static class SpaceUtils
 	}
 	public static string ToRoman(this int number)
 	{
-		if (number < 1 || number > 3999) return ""; // límites clásicos del sistema romano
-
+		if (number > 3999) return "0"; // límites clásicos del sistema romano
+		if (number == 0)
+			return "O";
+		bool isNEg = false;
+		if (number< 0 )
+			isNEg = true;
 		var romanNumerals = new[]
 		{
 		new { Value = 1000, Symbol = "M" },
@@ -219,6 +223,8 @@ public static class SpaceUtils
 				number -= item.Value;
 			}
 		}
+		if (isNEg)
+			result = '-' + result;
 
 		return result;
 	}
@@ -1518,7 +1524,7 @@ namespace SerializableTypes
 			Canvas C = LoadSc.AddComponent<Canvas>();
 			C.renderMode = RenderMode.ScreenSpaceOverlay;
 			C.sortingOrder = 999;
-			LoadSc.layer = 1 << 5;
+			LoadSc.layer = 5;
 
 			// 🔹 Crear Image
 			GameObject ImageGO = new("IMG");
@@ -2177,7 +2183,7 @@ namespace ActualUtils
 			SavedGame a;
 			if (!TryLoadSave(name, out a))
 			{
-				Debug.LogError("No se pudo cargar la partida " + name);
+				Debug.LogError($"No se pudo cargar la partida '{name}'");
 				return;
 			}
 			CurrentGame = a;
@@ -2306,6 +2312,25 @@ namespace ActualUtils
 				Debug.LogError(ex);
 				return null;
 			}
+		}
+		public static string GetFolderForSaveName(string name)
+		{
+			var d = ListSavefiles();
+			foreach (var sav in d)
+			{
+				string fil2 = Path.Combine(Paths.SaveFiles, sav);
+				string file = Path.Combine(fil2, "Save.json");
+				if (Application.platform == RuntimePlatform.WindowsPlayer ||
+Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsServer)
+					file = @"\\?\" + file;
+				SavedGame saved = JsonUtility.FromJson<SavedGame>(File.ReadAllText(file));
+				if (saved.CreatureName ==name )
+				{
+					return fil2;
+				}
+
+			}
+			return null;
 		}
 		public static bool HasLoadedAnySave() => !(CurrentGame == null || CurrentSaveName == null);
 		

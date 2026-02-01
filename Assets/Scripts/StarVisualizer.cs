@@ -270,31 +270,31 @@ public class StarVisualizer : MonoBehaviour
 
 
 
-// Namespace de prueba
+// Namespace con nombre raro
 namespace aaa
 {
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0044:Convertir el miembro en 'readonly'", Justification = "<pendiente>")]
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Estilos de nombres", Justification = "<pendiente>")]
 	public static class aaaa
 	{
-		static double aaaaaaaaaaaaaaaaaaa = 3.14;
+		static double aaaaaaaaaaaaaaaaaaa = 3.14; // No no lo uso 
 		public static Vector3 To3DXZ(this Vector2 a)
 		{
-			return new Vector3(a.x, 0, a.y);
+			return new Vector3(a.x, 0, a.y); //float 
 		}
 		public static Vector3 To3DXY(this Vector2 a)
 		{
 #pragma warning disable UNT0035 // A Vector3 can be converted into a Vector2.
-			return new Vector3(a.x, a.y, 0);
+			return new Vector3(a.x, a.y, 0);//float                     //DEVO DE SER CONSSITENTE UNITY
 #pragma warning restore UNT0035 // A Vector3 can be converted into a Vector2.
 		}
 		public static Vector3Int To3DXZ(this Vector2Int a)
 		{
-			return new Vector3Int(a.x, 0, a.y);
+			return new Vector3Int(a.x, 0, a.y); //int 
 		}
 		public static Vector3Int To3DXY(this Vector2Int a)
 		{
-			return new Vector3Int(a.x, a.y, 0);
+			return new Vector3Int(a.x, a.y, 0);//int
 		}
 		/// <summary>
 		/// Escala la malla directamente modificando sus vértices.
@@ -302,11 +302,11 @@ namespace aaa
 		/// </summary>
 		/// <param name="mesh">La malla a escalar.</param>
 		/// <param name="scale">Vector de escala por eje.</param>
-		public static Mesh ScaleMesh(this Mesh mesha, Vector3 scale)
+		public static Mesh ScaleMesh(this Mesh mesa, Vector3 scale) //ORIGINALMENTE SE LLAMABA Masha pero decidi que no era buena idea referenciar a la niña que molesta al pobre de oso (PD si MASHA y EL OSO)
 		{
-			if (mesha == null) throw new Exception("W");
+			if (mesa == null) throw new Exception("W");
 
-			Vector3[] verts = mesha.vertices;
+			Vector3[] verts = mesa.vertices;
 
 			for (int i = 0; i < verts.Length; i++)
 			{
@@ -314,12 +314,14 @@ namespace aaa
 			}
 			Mesh mesh = new Mesh();
 			mesh.vertices = verts;
-			mesh.triangles = mesha.triangles;
+			mesh.triangles = mesa.triangles;
+			mesa.uv = mesh.uv;
+			
 			mesh.RecalculateBounds();
 			mesh.RecalculateNormals();
 			return mesh;
 		}
-		public static Mesh CopyMesh(this Mesh mesh)
+		public static Mesh CopyMesh(this Mesh mesh) //Ctrl C, Ctrl V
 		{
 			var colors = mesh.colors;
 			var colors32 = mesh.colors32;

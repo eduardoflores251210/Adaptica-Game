@@ -19,10 +19,10 @@ public class MobileConstrollsChecker : MonoBehaviour
 	void Start()
 	{
 		var map = inputActions.FindActionMap("GC");
+		map.Enable();
         Check = map.FindAction("Click", true); //no no es tartamudeo
         Check.performed += ctx =>
         {
-			Debug.Log(ctx.control.device);
             if (ctx.control.device is Touchscreen)
                 DOITANIWAYS = true;
 			else 

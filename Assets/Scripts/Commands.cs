@@ -1,5 +1,8 @@
 ﻿using ActualUtils;
 using SerializableTypes;
+using SerializableTypes.Biology;
+using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -44,6 +47,175 @@ creado por {Application.companyName}";
 					msg += "NO HAY JUGADOR";
 				}
 				Debug.Log(msg);
+			}
+			[ConsoleCommand("listsaves")]
+			public static void listALlSaves()
+			{
+				string SavesFolderPath = Paths.SaveFiles;
+				if (!Directory.Exists(SavesFolderPath))
+				{
+					Debug.LogWarning($"La carpeta {SavesFolderPath} no existe, se creará una nueva.");
+					Directory.CreateDirectory(SavesFolderPath);
+					return;
+				}
+
+				int buttonCount = 0;
+				var ACTUALSAVES = Saver.ListSavefiles();
+
+				foreach (var fil in ACTUALSAVES)
+				{
+					string fil2 = Path.Combine(SavesFolderPath, fil);
+					string file = Path.Combine(fil2, "Save.json"); //ahora cada guardado es una carpeta con varios archivos dentro
+					/*Debug.Log(file);*/
+					try
+					{
+						string content = File.ReadAllText(file).Trim();
+						if (TryRepair(content, file))
+						{
+
+							var text = Saver.GetSaveNameForFolder(fil); //por que nadie quiere un SHA512 en su cara jeje XD
+							Vector3 a = new(1, 1, 1);
+
+							Debug.Log(text);
+
+							// Añadir al contenedor
+
+							buttonCount++;
+						}
+					}
+					catch (System.Exception e)
+					{
+						Debug.LogError($"Error al leer el archivo {file}: {e.Message}");
+					}
+
+
+			static bool validateSave(string Json, out SavedGame game)
+			{
+				game = null;
+				if (string.IsNullOrEmpty(Json))
+				{
+					return false;
+				}
+				SavedGame savefile = JsonUtility.FromJson<SavedGame>(Json);
+				if (savefile != null)
+				{
+					game = savefile;
+					if (savefile.CreatureName == null)
+					{
+						return false;
+					}
+					if (savefile.isCPUEmpire)
+					{
+						return false;
+					}
+					return true;
+				}
+				else
+					return false;
+			}
+			static bool IsValidNameForRepair(string FileName)
+			{
+
+				if (!string.IsNullOrEmpty(FileName))
+				{
+					string NoExtFilNam = FileName.Replace(".json", "");
+					string NoPrefFilNam = NoExtFilNam.Replace("Game", "");
+					if (int.TryParse(NoPrefFilNam, out var id))
+					{
+						return true;
+					}
+					else return false;
+				}
+				else return false;
+			}
+			static bool TryRepair(string contents, string FilePath)
+			{
+				try
+				{
+					if (!validateSave(contents, out var game))
+					{
+						if (game == null)
+						{
+							string FileName = Path.GetFileName(FilePath);
+							if (IsValidNameForRepair(FileName))
+							{
+
+								string NoExtFilNam = FileName.Replace(".json", "");
+								string NoPrefFilNam = NoExtFilNam.Replace("Game", "");
+								ulong id = ulong.Parse(NoPrefFilNam);
+								string[] cells = Directory.GetFiles(Paths.Cells);
+								if (cells.Length > 0)
+								{
+									string rnd = cells[Random.Range(0, cells.Length)];
+									string Cell = Path.GetFileNameWithoutExtension(rnd);
+									game = new SavedGame(id, false, Stages.Microbe, Cell, new List<HistoryActions>(), Diets.Omnivore, 0d);
+									var newContent = JsonUtility.ToJson(game);
+									File.WriteAllText(FilePath, newContent);
+									return true;
+								}
+								else return false;
+
+							}
+							else
+							{
+								return false;
+							}
+						}
+						else
+						{
+							if (game.CreatureName == null)
+							{
+								string[] cells = Directory.GetFiles(Paths.Cells);
+								if (cells.Length > 0)
+								{
+									string rnd = cells[Random.Range(0, cells.Length)];
+									string Cell = Path.GetFileNameWithoutExtension(rnd);
+									game.CreatureName = Cell;
+									var newContent = JsonUtility.ToJson(game);
+									File.WriteAllText(FilePath, newContent);
+									return true;
+								}
+								else return false;
+							}
+							else if (game.isCPUEmpire)
+							{
+								return false; // No queremos imperios de CPU en el menu de guardar causaria caos
+							}
+							else return false; //no se que pasa;
+
+						}
+					}
+					else return true; //el juego esta bien
+				}
+				catch (System.Exception) { return false; }
+			}
+		}
+			}
+			[ConsoleCommand("loadsave")]
+			public static void LoadSave(string name)
+			{
+				string fold1 = Saver.GetFolderForSaveName(name);
+				Debug.Log(fold1);
+				string fold2 = Path.GetFileName(fold1);
+				Debug.Log(fold2);
+				Saver.LoadGameComplete(fold2);
+			}
+			[ConsoleCommand("skipintro")]
+			public static void SkipIntro()
+			{
+				var sc =SceneManager.GetActiveScene();
+				if (sc.name == "MainMenui" )
+				{
+					var gOL = sc.GetRootGameObjects();
+					foreach (var gol in gOL)
+					{
+						if (gol.name == "NEG" || gol.name == "VID")
+						{
+							gol.SetActive(false);
+						}
+
+					}
+				}
 			}
 		}
 		public static class Cheats

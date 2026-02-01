@@ -1,13 +1,16 @@
+using aaa;
+using ActualUtils;
+using ModelosDeIdioma; //No se cuando probe aqui el generador de idiomas
 using SerializableTypes; //remanente de cuando los 3 serializables estaban en Utils.cs
+using SerializableTypes.Biology;
+using StandartUtilities;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using StandartUtilities;
-using ModelosDeIdioma; //No se cuando probe aqui el generador de idiomas
-using SerializableTypes.Biology;
-using ActualUtils;
+
 /// <summary>
 /// Contolador principal del microbio en juego ademas tiene IA para NPC
 /// aunque son muy tontos por ahora
@@ -142,18 +145,40 @@ public class CellController : MonoBehaviour
 
 	private void FixedUpdate()
 	{
+		var posY = transform.position;
+		posY.y = 0;
+		transform.position = posY;
 		if (isAI)
 		{
 			// Obtener todas las bocas de los hijos
 			MouthComp[] mouths = GetComponentsInChildren<MouthComp>();
 			if (mouths.Length == 0)
 			{
-				Debug.LogWarning("AI sin bocas detectadas");
-				return;
+				if (TryGetComponent<DestroyWithTimer>(out var tim))
+				{
+
+					Debug.LogWarning("AI sin bocas detectadas se van a morir de inanicion en T-" + (tim.Timer-tim.AliveTime));
+				}
+				else
+				{
+					Debug.LogWarning("AI sin bocas detectadas se van a morir de inanicion");
+					tim = gameObject.AddComponent<DestroyWithTimer>();
+					tim.Timer = 10; //10 segs
+					return;
+				}
+			}
+			else
+			{
+				if (TryGetComponent<DestroyWithTimer>(out var time))
+				{
+					time.Timer = int.MaxValue;
+					time.AliveTime = double.NegativeInfinity;
+					CreatureDiet = Diets.Omnivore; //va a asumir que se vovio omnivoro;
+				}
 			}
 
-			// Detectar comida en rango
-			float scaledViewRadius = viewRadius * ((transform.localScale.x + transform.localScale.y + transform.localScale.z) / 3);
+				// Detectar comida en rango
+				float scaledViewRadius = viewRadius * ((transform.localScale.x + transform.localScale.y + transform.localScale.z) / 3);
 			Collider[] hits = Physics.OverlapSphere(transform.position, scaledViewRadius);
 
 			FoodComp closestFood = null;
@@ -188,6 +213,7 @@ public class CellController : MonoBehaviour
 				// Opcional: mover el microbio de forma que la boca llegue primero
 				Vector3 offset = closestMouth.transform.position - transform.position;
 				targetPosition -= offset;
+				targetPosition.y = 0;
 			}
 			else if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
 			{
@@ -196,22 +222,31 @@ public class CellController : MonoBehaviour
 
 			// Moverse hacia el objetivo
 			Vector3 direction = (targetPosition - transform.position).normalized;
+			direction.y = 0; // ignorar altura para mover solo en XZ
 			transform.Translate(direction * (BaseSpeedMultiplier * SpeedMultiplier) * Time.fixedDeltaTime, Space.World);
 
-			// Rotar suavemente hacia el objetivo
+			// Rotar suavemente hacia el objetivo solo en Y
 			if (direction != Vector3.zero)
-				transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.1f);
+			{
+				Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
+				transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 0.1f);
+
+			}
 		}
+
 
 		// Control manual
 		if (!isAI && MoveMicrobe != null && MoveMicrobe.IsPressed())
 		{
-			Vector2 input = MoveMicrobe.ReadValue<Vector2>();
-			Vector2 movimiento = input * (BaseSpeedMultiplier * SpeedMultiplier) * Time.fixedDeltaTime;
+			Vector2 direction = MoveMicrobe.ReadValue<Vector2>();
+			Vector3 movimiento = direction.To3DXZ() * (BaseSpeedMultiplier * SpeedMultiplier) * Time.fixedDeltaTime;
 
 			// Mover el microbio
-			MoverMicrobio(new Vector3(0, movimiento.y, 0));
-			transform.Rotate(new Vector3(0, input.x, 0), Space.World);
+			transform.Translate(movimiento, Space.World);
+
+			// Rotar suavemente hacia el objetivo
+			if (direction != Vector2.zero)
+				transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction.To3DXZ(), Vector3.up), 0.1f);
 			if (!isOnCreatureStage)
 			{
 				Cam.position = transform.position + new Vector3(0, YCamOffset, 0);
@@ -235,9 +270,9 @@ public class CellController : MonoBehaviour
 	private void MoveCursor(Vector2 input,InputDevice a)
 	{
 		//Debug.Log(a.GetType().ToString());
-		if (!(a is Pointer))
+		if (!(a is not Pointer))
 		{
-			Debug.Log("Adsfd");
+			//Debug.Log("Adsfd");
 			cursorPosition += input * CursorSpeed;
 		}
 		else SetCursor();
@@ -293,42 +328,62 @@ public class CellController : MonoBehaviour
 
 		mat.color = color;
 		renderer.material = mat;
-		int HeCount=0;
-		int CaCount=0;
-		int OmCount=0;
-
+		int HeCount=0; //no no es cuenta de helio
+		int CaCount=0; // no no es cuenta calcio
+		int OmCount=0; 
+		int i = 0;
 		// Instanciar las partes
 		foreach (var ff in partsList)
 		{
-			var GO = Instantiate(Parts.GetPartByID(ff.Id).prefab);
+			var GOP = Parts.GetPartByID(ff.Id).prefab;
+			var meshI = GOP.GetComponent<MeshFilter>();
+			var Ren = GOP.GetComponent<MeshRenderer>();
+			var GO = new GameObject(i.ToRoman());
 			GO.transform.SetPositionAndRotation(ff.transform.Pos, Quaternion.Euler(ff.transform.Rot));
 			GO.transform.localScale = ff.transform.Scale;
 			GO.transform.SetParent(transform, true);
+			var red = GO.AddComponent<MeshRenderer>();
+			var meshf = GO.AddComponent<MeshFilter>();
+			meshf.mesh = meshI.sharedMesh;
+			red.materials = Ren.sharedMaterials;
 
-			if (Parts.GetPartByID(ff.Id) is BiologicalPart bio && bio.function == BiologicalPartFunction.Mouth)
+			try
 			{
-				var rb = GO.AddComponent<Rigidbody>();
-				rb.useGravity = false;
-				rb.isKinematic = true;
+				if (Parts.GetPartByID(ff.Id) is BiologicalPart bio && bio.function == BiologicalPartFunction.Mouth)
+				{
 
-				var MC = GO.AddComponent<MouthComp>();
-				MC.cellController = this;
-				if (bio.tags.Contains("Carn"))
-				{
-					MC.ComidasQuePuedeComer = Diets.Carnivore;
-					CaCount++;
+					GO.AddComponent<MeshCollider>();
+
+
+					var rb = GO.AddComponent<Rigidbody>();
+					rb.useGravity = false;
+					rb.isKinematic = true;
+
+					var MC = GO.AddComponent<MouthComp>();
+					MC.cellController = this;
+					MC.Is2D = false;
+					if (bio.tags.Contains("Carn"))
+					{
+						MC.ComidasQuePuedeComer = Diets.Carnivore;
+						CaCount++;
+					}
+					if (bio.tags.Contains("Herb"))
+					{
+						MC.ComidasQuePuedeComer = Diets.Herbivore;
+						HeCount++;
+					}
+					if (bio.tags.Contains("Omn"))
+					{
+						MC.ComidasQuePuedeComer = Diets.Herbivore;
+						OmCount++;
+					}
 				}
-				if (bio.tags.Contains("Herb"))
-				{
-					MC.ComidasQuePuedeComer = Diets.Herbivore;
-					HeCount++;
-				}
-				if (bio.tags.Contains("Omn"))
-				{
-					MC.ComidasQuePuedeComer = Diets.Herbivore;
-					OmCount++;
-				}
+			} catch(System.Exception ex) 
+			{
+				Debug.Log(ex)
+				;
 			}
+			i++;
 		}
 		if (HeCount > 0 && CaCount == 0)
 		{
