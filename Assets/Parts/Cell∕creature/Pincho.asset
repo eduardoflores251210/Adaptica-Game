@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ead6fd702543124ea0bfbcc159e82ac, type: 3}
+  m_Name: Pincho
+  m_EditorClassIdentifier: 
+  partID: 3
+  displayName: Pincho
+  description: un pincho
+  icon: {fileID: 0}
+  prefab: {fileID: 5631406292360733254, guid: 0e5e155d1a841234ca4afa5581867678, type: 3}
+  categories: 000000000b00000004000000
+  size: 1
+  healthBoost: 0
+  tags: []
+  Stats:
+    stats: []
+  attackPower: 10
+  movementBoost: 0
+  function: -1

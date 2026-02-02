@@ -29,6 +29,7 @@ public class PartManager : MonoBehaviour
 	private Button MH;
 	private Button MC;
 	private Button MO;
+	private Button Spike;
 	private Button GenToggleButton; // Botón para cambiar Genero
 	public Sprite MaleSprite;       // Sprite para Genero masculino
 	public Sprite FemaleSprite;     // Sprite para Genero femenino
@@ -103,6 +104,7 @@ public class PartManager : MonoBehaviour
 				MC = root.Q<Button>("MouthC");
 				MH = root.Q<Button>("MouthH");
 				MO = root.Q<Button>("MouthO");
+				Spike = root.Q<Button>("Spike");
 				GenToggleButton = root.Q<Button>("SRX"); // nombre del botón en UI
 				RepMethodEnum = root.Q<EnumField>("MTD");
 				RepTypeEnum = root.Q<EnumField>("ASE");
@@ -132,6 +134,7 @@ public class PartManager : MonoBehaviour
 				MC.clicked += MC_clicked;
 				MH.clicked += MH_clicked;
 				MO.clicked += MO_clicked;
+				Spike.clicked += Spike_clicked;
 				GenToggleButton.clicked += ToggleGender;
 				RepTypeEnum.RegisterValueChangedCallback(evt =>
 				{
@@ -208,6 +211,11 @@ public class PartManager : MonoBehaviour
 			inited = false;
 		}
 
+	}
+
+	private void Spike_clicked()
+	{
+		addPart("3");
 	}
 
 	private void MO_clicked()
