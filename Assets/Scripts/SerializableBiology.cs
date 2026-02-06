@@ -35,6 +35,7 @@ namespace SerializableTypes.Biology
 		Carnivore,
 		Herbivore
 	}
+	[Obsolete("Usa el otro ActionTypes instead")]
 	public enum ActionTypes
 	{
 		none = -1,

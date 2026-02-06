@@ -2,7 +2,16 @@ using System;
 using System.Collections;// se importa por que se me olvido quitarlo
 using System.Collections.Generic;
 using UnityEngine;
-
+/// <summary>
+/// el cartero interdimensional que envia paquetes entre escenas...
+/// Advertencia abajo hay musica:
+/// El cartero ya llego anunciando su cancion 
+/// y grito con emocion: CORREO.
+/// 
+/// 
+/// 
+/// oh no referencia a Las Pistas De Blue. aka Blue's Clues
+/// </summary>
 public class CrossScenePackageSender : MonoBehaviour
 {
     public static CrossScenePackageSender Instance;
@@ -14,7 +23,9 @@ public class CrossScenePackageSender : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else Destroy(this.gameObject);
+        else if (Instance == this)
+            return;// no queremos Autodestruccion
+		else Destroy(this.gameObject);
     }
 
     // Lista de paquetes

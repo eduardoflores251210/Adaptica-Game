@@ -46,6 +46,7 @@ public class CellController : MonoBehaviour
 	public float StageProgress = 0;
 	public Diets CreatureDiet;
 	public GéneroBiológico CurrentGen = GéneroBiológico.None;
+	public float PlayTime = 0;
 	private Vector2 cursorPosition = Vector2.zero;
 	private Vector3 targetPosition;
 	private float wanderRadius = 5f;      // radio de deambulación
@@ -157,11 +158,11 @@ public class CellController : MonoBehaviour
 				if (TryGetComponent<DestroyWithTimer>(out var tim))
 				{
 
-					Debug.LogWarning("AI sin bocas detectadas se van a morir de inanicion en T-" + (tim.Timer-tim.AliveTime));
+					//Debug.LogWarning("AI sin bocas detectadas se van a morir de inanicion en T-" + (tim.Timer-tim.AliveTime));
 				}
 				else
 				{
-					Debug.LogWarning("AI sin bocas detectadas se van a morir de inanicion");
+					//Debug.LogWarning("AI sin bocas detectadas se van a morir de inanicion");
 					tim = gameObject.AddComponent<DestroyWithTimer>();
 					tim.Timer = 10; //10 segs
 					return;
@@ -238,6 +239,7 @@ public class CellController : MonoBehaviour
 		// Control manual
 		if (!isAI && MoveMicrobe != null && MoveMicrobe.IsPressed())
 		{
+			PlayTime += Time.fixedDeltaTime;
 			Vector2 direction = MoveMicrobe.ReadValue<Vector2>();
 			Vector3 movimiento = direction.To3DXZ() * (BaseSpeedMultiplier * SpeedMultiplier) * Time.fixedDeltaTime;
 

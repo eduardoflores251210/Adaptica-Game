@@ -14,7 +14,8 @@ public class ArilloGizmo : MonoBehaviour
 
 
     public MultiEje eje;
-    private GizmoManager manager;
+    public float MultiplicadorRotacion = 1.0f;
+	private GizmoManager manager;
     private bool arrastrando = false;
     private Vector3 ultimaPosicionPointer;
     public InputActionAsset inputActionsAsset;
@@ -108,7 +109,7 @@ public class ArilloGizmo : MonoBehaviour
 
 
 
-        manager.RotarPorEje(eje, deltaPantalla, 30);
+        manager.RotarPorEje(eje, deltaPantalla, 30 * MultiplicadorRotacion);
     }
     private void OnPointerDown()
     {
@@ -124,4 +125,38 @@ public class ArilloGizmo : MonoBehaviour
     }
 
 
+}
+namespace EasterEggNOSeQUenumero
+{
+    using System;
+	public class ClaseVacia { }
+    public class Program
+    {
+        double Main()
+        {
+            Console.WriteLine("Este es un Easter Egg, felicidades por encontrarlo.");
+            return 0.0;
+		}
+		//C lloraria al ver Double Main() XD ajajaj [insertar risa malvada aqui] Muahahaha 
+	}
+    public static class clshuidsadsuih_ClaseRaraConfundir
+    {
+        public static void MetodoConfuso()
+        {
+            Console.WriteLine("Este metodo no hace nada, solo esta aqui para confundir.");
+        }
+        public static string Cancion()
+        {
+            return @"
+//musica random:
+// Cuando estas evolucinando y siempre estas Muriendo.
+// hay una cosa que te puede ayudar 
+// y esa es La consola de debug
+// no lo olvides contigo siemrpe estara.
+//
+//No olvides la consola de debug
+//una cosa rara que me dio por escribir y definitvamente No esta inspirada en Dont Forget de Toby Fox // SARCASMO pues si XD
+";          //si asi es la cancion ahora esta en un string y la voy a llamar "Cancion_DEBUG" 
+		}
+	}
 }

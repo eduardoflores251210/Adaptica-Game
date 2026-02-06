@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// classe para configurar las imágenes y spinner de la pantalla de carga
+/// </summary>
 [CreateAssetMenu(fileName = "Configuracion de pantalla de carga", menuName = "Config/ConfLoad")]
 public class ConfigLoadScreen : ScriptableObject
 {

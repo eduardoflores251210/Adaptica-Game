@@ -36,6 +36,10 @@ public class MobileConstrollsChecker : MonoBehaviour
 		Disable = !Application.isMobilePlatform;
 		
 		Controls.SetActive(!Disable || DOITANIWAYS);
+		if (Controls == null)
+		{
+			Destroy(this); return;
+		}
 		
 	}
 }

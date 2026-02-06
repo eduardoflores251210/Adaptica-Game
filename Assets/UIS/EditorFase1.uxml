@@ -1,8 +1,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UIS/sfdddfsdfsdsfsddfs.uss?fileID=7433441132597879392&amp;guid=c4436d509f060744e8655647c860f26f&amp;type=3#sfdddfsdfsdsfsddfs" />
-    <ui:ScrollView style="width: 35%; background-color: rgb(200, 200, 200); min-width: auto; min-height: 100%; max-height: 100%; border-left-color: rgb(159, 159, 159); border-right-color: rgb(111, 111, 111); border-top-color: rgb(168, 168, 168); border-bottom-color: rgb(63, 63, 63); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; flex-grow: 1;">
+    <ui:ScrollView style="width: 35%; background-color: rgb(200, 200, 200); border-left-color: rgb(159, 159, 159); border-right-color: rgb(111, 111, 111); border-top-color: rgb(168, 168, 168); border-bottom-color: rgb(63, 63, 63); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; flex-grow: 0;">
         <ui:Foldout text="Tools" name="Tool-Foldout" value="true" class="Tool" style="max-width: 98%; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; border-right-color: rgba(123, 0, 0, 0.82); border-bottom-color: rgb(77, 34, 34); left: 1%;">
-            <ui:RadioButtonGroup label="Herramienta elegida" choices="Mover,Girar,Rotar" name="SlctT" />
+            <ui:RadioButtonGroup label="Herramienta elegida" choices="Mover,Girar,Escalar,Auto Colocar,Ninguna" name="SlctT" />
         </ui:Foldout>
         <ui:Foldout text="Microbe Parts" value="true" name="Foldout" class="aaaaa" style="margin-top: 3px; margin-right: 3px; margin-bottom: 3px; margin-left: 3px; border-left-color: rgb(180, 180, 180); border-top-color: rgb(217, 217, 217); border-right-color: rgb(130, 130, 130);">
             <ui:Button text="Eye" name="eye" tooltip="AAAA" class="PBu" />
@@ -12,7 +12,6 @@
             <ui:Button text="Spike" name="Spike" class="PBu" />
             <ui:Button text="flagela" name="flagela" class="PBu" />
             <ui:Button text="poison shooter" name="Posion" class="PBu" />
-            <ui:Button text="Electricity" name="Shock" class="PBu yellow" />
         </ui:Foldout>
         <ui:Foldout text="Painting" name="Paint-Foldout" value="true" class="Paint" style="max-width: 98%; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; border-right-color: rgba(0, 123, 119, 0.82); border-bottom-color: rgb(34, 75, 77); left: 1%;">
             <ui:SliderInt label="R" value="0" high-value="255" name="R" class="aaaaaadssad R" style="max-width: 92%; height: 24px;" />
@@ -24,10 +23,10 @@
     </ui:ScrollView>
     <ui:Button text="Sig" name="Sig" class="text-auto-size text-auto-size-min-12-50 text-auto-size-max-999 PBu" style="width: 12%; height: 11%; position: absolute; right: 13%; bottom: 4%;" />
     <ui:Button text="Atras" name="Atrs" class="text-auto-size text-auto-size-min-12-50 text-auto-size-max-999 PBu" style="width: 12%; height: 11%; position: absolute; right: 30%; bottom: 4%;" />
-    <ui:ScrollView style="top: auto; right: 0; position: absolute; width: 27%; border-right-color: rgb(111, 111, 111); flex-direction: row-reverse; align-self: center; background-color: rgb(200, 200, 200); min-height: auto; border-bottom-color: rgb(63, 63, 63); border-left-color: rgb(159, 159, 159); border-top-color: rgb(168, 168, 168); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; align-items: stretch; flex-wrap: wrap; min-width: auto; max-height: 66%; flex-grow: 1;">
-        <ui:Label text="Editando El Genero" name="Edt" />
-        <ui:Button name="SRX" focusable="true" class="PBu" style="top: auto; right: auto; position: relative; background-image: url(&quot;project://database/Assets/Textures/UI/Iconos%20ZW.png?fileID=-865778052&amp;guid=329b2f4b0b818d944ac2408d16ff98d6&amp;type=3#Fem&quot;); width: 30%; height: 11%; display: flex; visibility: visible; opacity: 1; flex-shrink: 0; flex-grow: 0;" />
+    <ui:ScrollView class="aaaaa" style="align-self: flex-end; left: auto; right: 0; top: 0; flex-shrink: 0; flex-grow: 1; position: absolute;">
         <ui:Foldout text="Reproduccion" value="true" class="aaaaa">
+            <ui:Label text="Editando El Genero" name="Edt" />
+            <ui:Button name="SRX" focusable="true" class="PBu" style="top: auto; right: auto; position: relative; background-image: url(&quot;project://database/Assets/Textures/UI/Iconos%20ZW.png?fileID=-865778052&amp;guid=329b2f4b0b818d944ac2408d16ff98d6&amp;type=3#Fem&quot;); width: 30%; height: 11%; display: flex; visibility: visible; opacity: 1; flex-shrink: 0; flex-grow: 0;" />
             <ui:Label text="Tipo" />
             <ui:EnumField type="SerializableTypes.Biology.reproductionTypes, Assembly-CSharp" name="ASE" style="max-width: none; min-width: 120px;" />
             <ui:Label text="Metodo" />
@@ -35,6 +34,6 @@
             <ui:Label text="¿Hay diferencia de género biológico?" />
             <ui:Toggle name="DIM" style="flex-shrink: 1; flex-grow: 1; max-width: 27%; max-height: 27%;" />
         </ui:Foldout>
-        <ui:Label name="WARNING" class="text-auto-size text-auto-size-min-0" style="-unity-text-outline-width: 1px; -unity-text-outline-color: rgb(33, 4, 67); color: rgb(255, 0, 0); font-size: 28px; min-height: initial; min-width: initial; text-overflow: clip; white-space: normal; flex-shrink: 1; flex-grow: 0; visibility: visible; display: flex; max-height: 20%;" />
+        <ui:Label name="WARNING" class="text-auto-size-min-0" style="-unity-text-outline-width: 1px; -unity-text-outline-color: rgb(33, 4, 67); color: rgb(255, 0, 0); font-size: 28px; min-height: initial; min-width: initial; text-overflow: clip; white-space: normal; flex-shrink: 1; flex-grow: 0; visibility: visible; display: flex; max-height: 20%; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
     </ui:ScrollView>
 </ui:UXML>

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Gizmo para rotar el objeto seleccionado en el ObjectPlacer
+/// no confundir con ArilloGizmo que es lo mismo pero del editor con gizmos y no del editor de snapping
+/// </summary>
 public class SpinThing : MonoBehaviour
 {
 	public ObjectPlacer placer;        // Referencia al ObjectPlacer para acceder a selectedObject

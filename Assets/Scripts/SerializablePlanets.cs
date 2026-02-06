@@ -1294,8 +1294,8 @@ namespace SerializableTypes.Space
 		/// <summary>
 		///agujero negro
 		/// </summary>
-		X = -1, //AH claro un agujero negro es un tipo de estreya por que siempre me despierto y el sol es Sagitario A*      (Sarcasmo)
-		O,
+		X = -1, //AH claro un agujero negro es un tipo de estrea por que siempre me despierto y el sol es Sagitario A*      (Sarcasmo)
+		O, 
 		B,
 		A,
 		F,
@@ -1316,6 +1316,38 @@ namespace SerializableTypes.Space
 		/// enana Negra aunque ni tiene sentido que existan junto a las otras pues estas tardarían MUCHO tiempo para existir al ser enanas blancas MUY frias	
 		/// </summary>
 		EN,
+	}
+	/// <summary>
+	/// version sin easter eggs
+	/// </summary>
+	public enum PlanetTypesNoEgg
+	{
+		/// <summary>
+		/// Sin tipo esto es posiblemente por una corupcion
+		/// </summary>
+		None = -1,
+		/// <summary>
+		/// Terra como la tierra real
+		/// </summary>
+		Terra,
+		Barren,
+		ExTerra,
+		BasicGas,
+		IceGas,
+		IceRock,
+		MarsLike,
+		VenusLike,
+		Toxic,
+		WaterWorld,
+		Jungle,
+		Deserted,
+		/// <summary>
+		/// Planeta similar a una luna o a mercurio,
+		/// Tiene muchos cráteres y poca o ninguna atmósfera
+		/// </summary>
+		MoonLike,
+
+
 	}
 	/// <summary>
 	/// Tipos de planeta
@@ -1345,7 +1377,10 @@ namespace SerializableTypes.Space
 		/// Planeta similar a una luna o a mercurio,
 		/// Tiene muchos cráteres y poca o ninguna atmósfera
 		/// </summary>
-		MoonLike
+		MoonLike,
+
+
+		SPAMTON = 9999, //asi es NO ESCAPAS DE LOS EASTER EGGS DE SPAMTON
 	}
 	#endregion
 

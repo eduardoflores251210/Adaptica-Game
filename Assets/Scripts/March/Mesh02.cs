@@ -1,6 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
-
+/// <summary>
+/// Script de ejemplo del marchig cubes que instale FAVOR de eliminar pues no se usa
+/// XD :)
+/// </summary>
+[Obsolete("Script de ejemplo del marchig cubes que instale FAVOR de eliminar pues no se usa XD :)")]
 public class Mesh02 : MonoBehaviour
 {
     public Vector3 GridSize = new Vector3(3, 3, 3);

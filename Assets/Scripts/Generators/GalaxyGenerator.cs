@@ -58,8 +58,9 @@ public class GalaxyGenerator : MonoBehaviour
 			System.Security.Cryptography.RandomNumberGenerator.Fill(b);
 			return BitConverter.ToInt32(b);
 		}
-
-		Random = new Random(Seed());
+		int seed = Seed();
+		Random = new Random(seed);
+		Debug.Log($"SEED {seed}"); 
 		DoesTheGalaxyExist = GalaxyExists();
 		CalculateTotalSectors();
 		//Debug.Log($"GalaxyGenerator init: totalSectoresX={totalSectoresX}, totalSectoresY={totalSectoresY}");
@@ -648,11 +649,13 @@ public class GalaxyGenerator : MonoBehaviour
 		PlanetTypes[] frios = { PlanetTypes.IceRock, PlanetTypes.IceGas };
 		PlanetTypes[] neutros = { PlanetTypes.BasicGas, PlanetTypes.MoonLike, PlanetTypes.Barren, PlanetTypes.None };
 
+		if (Random.Value() < 0.005f) return PlanetTypes.SPAMTON; // easter egg ultra raro
+
 		if (total == 0) return PlanetTypes.None;
-		if (total == 1) return StdUtils.Randomness.GetRandomEnumValue<PlanetTypes>();
+		if (total == 1) return (PlanetTypes)StdUtils.Randomness.GetRandomEnumValue<PlanetTypesNoEgg>(); // por que no quremos a veces un spamton gritandonos "OFERTAS ESPECIALES SOLO POR [CANTIDAD NO ESPECIFICADA]"
 		if (total == 2) return index == 0 ? calientes[Random.Range(0, calientes.Length)] : frios[Random.Range(0, frios.Length)];
 
-		float t = (float)index / (total - 1);
+		float t = (float)index / (total - 1); //matematicas raras para que el ultimo planeta sea 1.0f y el primero 0.0f
 		if (Random.Value() < 0.15f) return neutros[Random.Range(0, neutros.Length)];
 		if (t < 0.33f) return calientes[Random.Range(0, calientes.Length)];
 		else if (t < 0.66f) return templados[Random.Range(0, templados.Length)];
@@ -689,8 +692,8 @@ public class GalaxyGenerator : MonoBehaviour
 		{
 			GalaxyTypes.Spiral => "Una galaxia espiral clásica.",
 			GalaxyTypes.Eliptical => "Una galaxia elíptica, disco de estrellas y gas.",
-			GalaxyTypes.Irregular => "Galaxia irregular, caótica y única.",
-			_ => "Galaxia desconocida, posiblemente corrupta."
+			GalaxyTypes.Irregular => "Galaxia irregular, caótica y única.",// por algun motivo son raras
+			_ => "Galaxia desconocida, posiblemente corrupta." // [insertar Sonido Dial Up aquí]
 		};
 	}
 
@@ -712,6 +715,7 @@ public class GalaxyGenerator : MonoBehaviour
 			PlanetTypes.Jungle => "Selvas densas y húmedas, hogar de flora y fauna salvaje. O tu partida olvidada de hace 10 meses",
 			PlanetTypes.Deserted => "Un mundo desolado, solo arena y viento. Los exploradores encontrarán soledad… y oportunidades.",
 			PlanetTypes.MoonLike => "Pequeño y rocoso, orbitando un gigante. Ideal para establecer colonias científicas o mirar las estrellas.",
+			PlanetTypes.SPAMTON => "¡UN PLANETA DE OFERTAS! COMPRA AHORA POR [CANTIDAD NO ESPECIFICADA] O ARREPENTIRÁS POR SIEMPRE. ¡OFERTA LIMITADA!",
 			_ => "Un planeta que desafía toda imaginación. Cada visita revela un misterio inesperado. o es un bug",
 		};
 	}

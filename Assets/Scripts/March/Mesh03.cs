@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+//mantener pues es util para inspiracion y referencia, aunque no se use directamente en el juego final
 public class Mesh03 : MonoBehaviour
 {
     // Purpose:

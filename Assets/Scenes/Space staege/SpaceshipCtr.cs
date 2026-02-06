@@ -17,14 +17,14 @@ public class SpaceshipCtr : MonoBehaviour
 	public GameObject Galaxy;
 	public LayerMask raycastMask;
 
-	[Header("Black Hole")]
+	[Header("Black Hole")]//si hay un agujero negro 
 	public Material BholMat;
 	public Material BholDiskMat;
 
-	[Header("STar")]
+	[Header("Star")]
 	private SpaceStageStar lastStarClicked;
 	public GameObject CurrentStar;
-	public bool ENTER_ANYWAY = false;
+	public bool ENTER_ANYWAY = false;//debug
 	public Mesh Sphere;
 	private float timeSinceLastClick;
 	private bool isInSystem;
@@ -45,7 +45,7 @@ public class SpaceshipCtr : MonoBehaviour
 
 	private void OnEnable()
 	{
-		map = inputActions.FindActionMap("GC", true);
+		map = inputActions.FindActionMap("GC", true);// no, no se llama GC por Garbage Collection sino por que pense en el Nintendo GameCube
 		map.Enable();
 
 		cursorAction = map.FindAction("PPos", true);

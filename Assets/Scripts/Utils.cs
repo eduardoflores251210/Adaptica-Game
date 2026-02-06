@@ -1,4 +1,6 @@
-﻿using ActualUtils;
+﻿//advertencia hay MUCHO comentario XD y NO hay que tocar mucho de este archivo por que es el corazon del juego
+//un momento de silencio por el pobre SHA512 que se queda sin su gloria de nombrar galaxias y ahora solo nombra guardados XD
+using ActualUtils;
 using FixedMath;
 using SerializableTypes;
 using SerializableTypes.Biology;
@@ -14,7 +16,7 @@ using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Mesh = StandartUtilities.StdUtils.Serializable.Mesh; //ignorar este remanenre 
+using Mesh = StandartUtilities.StdUtils.Serializable.Mesh; //ignorar este remanete 
 using Random = UnityEngine.Random;
 using Transform = StandartUtilities.StdUtils.Serializable.Transform; //basicamente son 3 vector 3 Pos Rot y Scale
 using Vector2 = UnityEngine.Vector2;
@@ -49,8 +51,8 @@ public static class SpaceUtils
 			//SGC Super Galactic Catalogue, //isnpiracion PGC
 			//Global Clusters and Galaxies Catalogue,    //inspiracion CGCG
 			//VGE = Virgo Galactic Extention //inspiracion  VCC fusionado con NGC 
-			//Guadalupe             //insperacion Messier
-			//SHA512 Galactic Catalogue	//inspiracion NINGUNO  
+			//Guadalupe             //insperacion Messier. si, MESSIER pero es una señora que amaba ver cometas pero solo encontró galaxias XD
+			//SHA512 Galactic Catalogue	//inspiracion NINGUNO, originalidad 100% XD 
 			string Catalogo = Catalogues[Random.Range(0, Catalogues.Length)];
 			int number1 = Random.Range(100, 9999);
 			int number2 = Random.Range(10, 999);
@@ -94,7 +96,9 @@ public static class SpaceUtils
 					
 			}
 
-
+			//funfact: NGC es el catalogo de galaxias mas famoso y usado en la vida real, pero no lo uso por que es muy obvio XD
+			//2 VGE se iba a llamar VGA pero VGA es un cable 
+			//3 S5GC era algo random que se me ocurio despues de tener la decimo cuarta crisis creativa del año 2026
 		}
 
 		public static string GenerateStarName_NASAStyle()
@@ -102,13 +106,14 @@ public static class SpaceUtils
 			int catalogNumber = Random.Range(10000, 999999);
 			List<string> Catalogues = new List<string>()
 			{
-				"SC",//Clasico 1
-				"SL",//Clasico 2
-				"Krumpler",
-				"HUP",
-				"FHD", //jaja FHD en vez de HD
-				"DESS" //ups referencia implicita accidental a deltarune (dess la hermana mayor de Noelle la que esta desaparecida) auque originamente esto era referencia a TESS
+				"SC",//Clasico 1 aka Star Catalog
+				"SL",//Clasico 2 //Star List // oh wow Comentario en un comentario X3
+				"Krumpler", //si Keppler pero inspirado en krampus... si el de la navidad XD
+				"HUP", //Hipparcos pero ahora es Hupparcus XD
+				"FHD", //jaja FHD en vez de HD // que significa Full HD  pregintaras? pues Flores-Hernandez-Diaz catalogo de estrellas       si es un nombre largo XD
+				"DESS" //ups referencia implicita accidental a deltarune (dess la hermana mayor de Noelle la que esta desaparecida) auque originamente esto era referencia a TESS. pero aqui DESS significa Deep Extra Stellar Survey no December Holiday (aka la Hermana de Noelle XD)
 			};
+			//favor de ignorar el infodump de DESS pls, no quiero cambiar el nombre por que ya lo use en varios lados XD
 			string catalogPrefix = Catalogues[Random.Range(0,Catalogues.Count)];
 			return $"{catalogPrefix} {catalogNumber}";
 		}
@@ -184,11 +189,17 @@ public static class SpaceUtils
 		}
 
 	}
+	//easter egg recursivo originalmentre pense que era un coinflip pero uego me di cuenta que era recursivo XD
 	static void a(bool f)
 	{
 		if (f) 
 		a(Random.Range(0,2)==0);
 	}
+	/// <summary>
+	/// Convierte un numero entero a numero romano
+	/// </summary>
+	/// <param name="number"> el numero</param>
+	/// <returns></returns>
 	public static string ToRoman(this int number)
 	{
 		if (number > 3999) return "0"; // límites clásicos del sistema romano
@@ -229,6 +240,7 @@ public static class SpaceUtils
 		return result;
 	}
 }
+//si Seria mas facil con Flags pero bueno no sabia de su existencia cuando hice el enum y no quiero cambiarlo por ahora
 public enum MultiEje 
 {
 	X,
@@ -239,6 +251,7 @@ public enum MultiEje
 	YZ,
 	XYZ
 }
+// el corazon del juego aqui esta todo dato un enum una estrutrua cualquier cosa usada ya sea en guardado o en runtime para manejar y representar datos del juego esta aqui, ademas de funciones utiles para el espacio como conversiones de unidades y generadores de nombres galacticos
 namespace SerializableTypes
 {
 	/// <summary>
@@ -246,10 +259,10 @@ namespace SerializableTypes
 	/// Microbio (cof cof Celúla de spore)
 	/// criatura (tiene el mismo nombre que en spore)
 	/// tribal (no ha empezado desarollo pero tiene el mismo nombre que en spore)
-	/// city  (no ha empesado el desarollo pero tiene el mismo nombre que su equivalente descartado en spore)
-	/// Civilization (no ha empesado desarollo pero tiene el mismo nombre que en spore)
+	/// city  (no ha empesado el desarollo pero tiene el mismo nombre que su equivalente descartado en spore) aunque actualmente a menudo se le llama feudal
+	/// Civilization (no ha empesado desarollo pero tiene el mismo nombre que en spore) // ademas se le llama actualmente NACION
 	/// Space (estructuras de datos en cosntrucción aunque ya puedes visitar sistemas pero no planetas) tiene el mismo nombre que en spore
-	/// Main Menu         Es solo un stage para simplificar 
+	/// Main Menu         Es solo un stage para simplificar  y facilitar el manejo de escenas pero como puedes notar en el codigo de guardado en PauseMenuManager no se guarda nada en este estadio
 	/// </summary>
 	public enum Stages
 	{
@@ -270,6 +283,8 @@ namespace SerializableTypes
 		Citizen,
 		SpaceCitizen,
 	}
+	//advertencia: muchos nombres de editores son largos y feos por que asi se evitan conflictos de nombres con otras clases
+	//2 algunos editores podrian NO usarse nunca pero estan aqui por si acaso y si son 43... Casi 42 ,, la respuesta a la vida el universo y todo lo demas XD
 	public enum Editors
 	{
 		Microbe,
@@ -278,18 +293,18 @@ namespace SerializableTypes
 		FeudalCitizenDresser,
 		CitizenDresser,
 		SpaceCitizenDresser,
-		Plant,
+		Plant,//tambien puedes no añadir ramas y crear un Prototaxites en vez de un árbol/planta/arbusto normal
 		Planet,
 		Vehicles_Car,
 		Vehicles_Car_Religius,
 		Vehicles_Car_Economic,
 		Vehicles_Car_Military,
-		Vehicles_Car_Civilian,
+		Vehicles_Car_Civilian,//hasta aqui van los posiblemente usados
 		Vehicles_Car_BUS,
 		Vehicles_Train_Steam_Civilian,
 		Vehicles_Train_Steam_Military,
 		Vehicles_Train_Steam_Economic,
-		Vehicles_Train_Electrical_Metro,
+		Vehicles_Train_Electrical_Metro,// [dun dundun] llegando a Martin Carrera. Puerta abierta, Cuidado al salir// Si una referencia a la CDMX XD y al metrobus por la voz de la estación XD
 		Vehicles_Train_Electrical_Tram,
 		Vehicles_Train_Electrical_Monorail,
 		Vehicles_Train_Electrical_MagLev, //oh levita
@@ -297,15 +312,15 @@ namespace SerializableTypes
 		Vehicles_Train_Electrical_Suburban,
 		Vehicles_Train_Electrical_Bullet,
 		Vehicles_Train_TrainLike_CableCar,
-		Vehicles_Plane_Civilian,
+		Vehicles_Plane_Civilian,//ok estos aviones de abajo a lo mejor si se usan
 		Vehicles_Plane_Military,
 		Vehicles_Plane_Economic,
 		Vehicles_Plane_Religous,
-		Vehicles_Boat_Civilian,
+		Vehicles_Boat_Civilian,//ok estos barcos a lo mejor si se usan
 		Vehicles_Boat_Military,
 		Vehicles_Boat_Economic,
 		Vehicles_Boat_Religous,
-		Vehicles_Boat_Canoe, //si el abrco mas basico
+		Vehicles_Boat_Canoe, //si el barco mas basico
 	}
 
 	[Serializable]
@@ -387,7 +402,7 @@ namespace SerializableTypes
 	[Serializable]
 	public struct SpaceStageData
 	{
-		public long MONEY_Amount;
+		public long MONEY_Amount;// capitalismo
 		public List<PopulatedPlanetData> PlanetData;
 	}
 	[Serializable]
@@ -398,8 +413,51 @@ namespace SerializableTypes
 	[Serializable]
 	public struct CityData
 	{
-		
+		public Mesh RoadPathMesh;
+		public Mesh TrackMesh;
+		public List<BuildingData> Buildings;
 	}
+	[Serializable]
+	public struct BuildingData
+	{
+		public Buiding_Type Type;
+		public int Level;
+		public Transform transform;
+	}
+	public enum GovermentType
+	{
+		Tribal = 0,
+		Feudal = 1,
+		DirectDemocracy = 2,
+		RepresentativeDemocracy = 3,
+		Dictatorship = 4,
+		Monarchies_Absolute = 5,
+		Monarchies_Constitutional = 6,
+		Monarchies_Parliamentary = 7, // god Save the Queen ... OH ups King XD aun no he superado lo de Elizabeth II. (1936-2022) RIP
+		Monarchies_Unspecified = 8,
+		Communism = 9,
+		Socialism = 10,
+		Anarchy = 11,
+		Oligarchy = 12,
+		Theocracy = 13,
+		JuntaMilitary = 14,// [Mira fijamente a [insetar pais con junta militar]]
+		Spamton = 99999// easter egg XD... hello do you wanto buy [GOVERMENT TYPE] for only 1 easy payment of 9.99 kromers?
+	}
+	[Flags]
+	public enum GovermentPowerSeparation
+	{
+		None = 0,
+		Executive = 1 << 0,//presidente primer ministro etc
+		Legislative = 1 << 1,//congreso parlamento etc
+		Judicial = 1 << 2,//corte suprema tribunales etc
+		TieneMaximoPoderConservador = 1 << 3, //si inspirado en Mexico  pero en e tiempo de republivas centralistas XD
+	}
+
+
+	/// <summary>
+	/// otro enum largo pero necesario
+	/// a lo mejor no se usan todos los tipos de edificios pero estan aqui por si acaso
+	/// </summary>
 	public enum Buiding_Type
 	{
 		None = 0,
@@ -1880,7 +1938,7 @@ namespace SerializableTypes
 		}
 	}
 }
-
+//utilidades de guardado y carga de partidas
 namespace ActualUtils
 {
 	using pt = Paths;
@@ -2346,12 +2404,16 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 		  System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
 	}
 
-
+	/// <summary>
+	/// Atributo para comandos de la consola debug/cheats
+	/// XD
+	/// </summary>
 	[AttributeUsage(AttributeTargets.Method)]
 	public class ConsoleCommandAttribute : Attribute
 	{
 		public string Name;
 		public bool IsCheat;
+		public bool IsEgg;
 		public ConsoleCommandAttribute(string name) 
 		{
 			Name = name;
@@ -2362,10 +2424,15 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 			Name = name;
 			IsCheat = isCheat;
 		}
+		public ConsoleCommandAttribute() 
+		{
+			Name = "MyCommand";
+			IsCheat = false;
+		}
 	}
 	public static class PlayerManager
 	{
-		public static UnityEngine.MonoBehaviour Player;
+		public static UnityEngine.MonoBehaviour Player;// el controlador del jugador actual, actualmente solo hay 2 pero en el futuro podria haber mas asi que lo dejo como MonoBehaviour para no limitarlo a un tipo especifico
 		public static Stages Current_Stage;
 		public static Editors Current_Editor;
 		public static bool isInEditor;
@@ -2382,7 +2449,7 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 				Current_Stage = stage;
 			}
 			else
-				throw new ArgumentException("ERROR jugadro no es del tipo correcto");
+				throw new ArgumentException("ERROR jugador no es del tipo correcto");
 		}
 		public static void RegisterEditor(MonoBehaviour	 @object,Editors editor)
 		{
@@ -2399,7 +2466,7 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 				isInEditor = true;
 			}
 			else
-				throw new ArgumentException("ERROR jugadro no es del tipo correcto");
+				throw new ArgumentException("ERROR jugador no es del tipo correcto");
 		}
 		public static void UnRegisterPlayer()
 		{
@@ -2414,200 +2481,212 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 	}
 }
 
-[Serializable]
-public struct EpiGeneticInstance
+//utilidades de genetica
+//ignora el nombre largo del namespace
+namespace RandomGeneStuffThatIsSupossedToExistsForASimsLikeGame
 {
-	public string Key;
-	public bool Value;
+	[Serializable]
+	public struct EpiGeneticInstance
+	{
+		public string Key;
+		public bool Value;
 
-	public EpiGeneticInstance(string key, bool value)
-	{
-		Key = key;
-		Value = value;
-	}
-
-	public override bool Equals(object obj)
-	{
-		return obj is EpiGeneticInstance instance &&
-			   Key == instance.Key &&
-			   Value == instance.Value;
-	}
-
-	public override int GetHashCode()
-	{
-		return HashCode.Combine(Key, Value);
-	}
-	public static bool operator ==(EpiGeneticInstance a, EpiGeneticInstance b)
-	{
-		return a.Equals(b);
-	}
-	public static bool operator != (EpiGeneticInstance a, EpiGeneticInstance b)
-	{ return !a.Equals(b); }
-}
-[Serializable]
-public class Gene
-{
-	public string Name;
-	public string Description;
-	public long value; //simplificacion por que para guardar muchas cosas dde genetica de sim cabe en long como color de cabello boca y demas
-	public bool Dominance; //False recesisvo true Dominante si hay 2 genes  dominates: CODOMINANCIA pasaria pero actuamente e codigo explota  pero adenas esto representa un solo alelo cariotipo es el que maneja los genes de los 2 padres 
-	public List<EpiGeneticInstance> EpigeneitcFactors;
-
-	public Gene()
-	{
-		Name = "";
-		Description = "";
-		value = 0;
-		Dominance = false;
-		EpigeneitcFactors = new();
-	}
-
-	public Gene(string name, string description, long value, bool dominance, Dictionary<string, bool> epigeneitcFactors)
-	{
-		Name = name;
-		Description = description;
-		this.value = value;
-		Dominance = dominance;
-		List<EpiGeneticInstance> NEW_FACTORS = new();
-		foreach (var i in epigeneitcFactors)
+		public EpiGeneticInstance(string key, bool value)
 		{
-			NEW_FACTORS.Add(new(i.Key, i.Value));
+			Key = key;
+			Value = value;
 		}
 
-		EpigeneitcFactors = NEW_FACTORS;
-	}
-
-	public override bool Equals(object obj)
-	{
-		if (obj is Gene gene)
-			return gene == this;
-		return false;
-	}
-
-	public override int GetHashCode()
-	{
-		return HashCode.Combine(Name, Description, value, Dominance);
-	}
-	public int GetHashCodeWithEpi()
-	{
-		return HashCode.Combine(Name, Description, value, Dominance, EpigeneitcFactors);
-	}
-
-	public static Boolean operator == (Gene a, Gene b)
-	{
-		if (a is null && b is null) return true;
-		if (b is not null && a is null) return false;
-		if (a is not null && b is null) return false;
-
-
-		bool NAM = (a.Name == b.Name);
-		bool DES = (a.Description == b.Description);
-		bool VAL = (a.value == b.value);
-		bool DOM = (a.Dominance == b.Dominance);
-		return (NAM  && DES && VAL && DOM)
-		;
-	}
-	public static Boolean operator != (Gene a, Gene b)
-	{
-		return !(a == b);
-	}
-	public static bool FactorsMatch(Gene a, Gene b)
-	{
-		if (a is null && b is null) return true;
-		if (b is not null && a is null) return false;
-		if (a is not null && b is null) return false;
-		if (a.EpigeneitcFactors is null && b.EpigeneitcFactors is null) return true;
-		if (b.EpigeneitcFactors is not null && a.EpigeneitcFactors is null) return false;
-		if (a.EpigeneitcFactors is not null && b.EpigeneitcFactors is null) return false;
-		bool MATCHLEngt = a.EpigeneitcFactors.Count == b.EpigeneitcFactors.Count;
-
-
-		if (MATCHLEngt)
+		public override bool Equals(object obj)
 		{
-			return (StdUtils.Comparisons.ListsAreEqual(a.EpigeneitcFactors, b.EpigeneitcFactors))
-			   ;
-			//si al parecer ya tenia definido ese metodo y apenas me acuerod que existe 
+			return obj is EpiGeneticInstance instance &&
+				   Key == instance.Key &&
+				   Value == instance.Value;
 		}
-		return false;
-	}
 
-}
-[Serializable]
-
-public class Chromatid
-{
-	public string Name; public string Description;
-	public List<Gene> Genes;
-
-	public Chromatid()
-	{
-		Genes = new();
-		Name = "";
-		Description = "";
-	}
-
-	public Chromatid(string name, string description, List<Gene> genes)
-	{
-		Name = name;
-		Description = description;
-		Genes = genes;
-	}
-
-	public static bool operator ==(Chromatid a, Chromatid b)
-	{
-		if (a is null && b is null) return true;
-		if (b is not null && a is null) return false;
-		if (a is not null && b is null) return false;
-		//solo nos fijamos en genes y que sea el mismo orden por que  otro orden == otra especie
-		int i = 0;
-		foreach (Gene e in a.Genes)
+		public override int GetHashCode()
 		{
-			if (e != b.Genes[i])
-				return false;
-			i++;
+			return HashCode.Combine(Key, Value);
 		}
-		return true;
-	}
-	public static Boolean operator != (Chromatid a, Chromatid b)
-	{
-		return !(a == b);
-	}
-	public override bool Equals(object obj)
-	{
-		if (obj is Chromatid a) 
+		public static bool operator ==(EpiGeneticInstance a, EpiGeneticInstance b)
 		{
-			return a == this;
+			return a.Equals(b);
 		}
-		return false;
+		public static bool operator !=(EpiGeneticInstance a, EpiGeneticInstance b)
+		{ return !a.Equals(b); }
 	}
-
-	public override int GetHashCode()
+	[Serializable]
+	public class Gene
 	{
-		return HashCode.Combine(Name, Genes.Count); 
+		public string Name;
+		public string Description;// ni me acuerdo para que es esto pero lo dejo por si acaso
+		public long value; //simplificacion por que para guardar muchas cosas dde genetica de sim cabe en long como color de cabello boca y demas
+		public bool Dominance; //False recesisvo true Dominante si hay 2 genes  dominates: CODOMINANCIA pasaria pero actuamente e codigo explota  pero adenas esto representa un solo alelo cariotipo es el que maneja los genes de los 2 padres 
+		public List<EpiGeneticInstance> EpigeneitcFactors;
+
+		public Gene()
+		{
+			Name = "";
+			Description = "";
+			value = 0;
+			Dominance = false;
+			EpigeneitcFactors = new();
+		}
+
+		public Gene(string name, string description, long value, bool dominance, Dictionary<string, bool> epigeneitcFactors)
+		{
+			Name = name;
+			Description = description;
+			this.value = value;
+			Dominance = dominance;
+			List<EpiGeneticInstance> NEW_FACTORS = new();
+			foreach (var i in epigeneitcFactors)
+			{
+				NEW_FACTORS.Add(new(i.Key, i.Value));
+			}
+
+			EpigeneitcFactors = NEW_FACTORS;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj is Gene gene)
+				return gene == this;
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(Name, Description, value, Dominance);
+		}
+		public int GetHashCodeWithEpi()
+		{
+			return HashCode.Combine(Name, Description, value, Dominance, EpigeneitcFactors);
+		}
+
+		public static Boolean operator ==(Gene a, Gene b)
+		{
+			if (a is null && b is null) return true;
+			if (b is not null && a is null) return false;
+			if (a is not null && b is null) return false;
+
+
+			bool NAM = (a.Name == b.Name);
+			bool DES = (a.Description == b.Description);
+			bool VAL = (a.value == b.value);
+			bool DOM = (a.Dominance == b.Dominance);
+			return (NAM && DES && VAL && DOM)
+			;
+		}
+		public static Boolean operator !=(Gene a, Gene b)
+		{
+			return !(a == b);
+		}
+		public static bool FactorsMatch(Gene a, Gene b)
+		{
+			if (a is null && b is null) return true;
+			if (b is not null && a is null) return false;
+			if (a is not null && b is null) return false;
+			if (a.EpigeneitcFactors is null && b.EpigeneitcFactors is null) return true;
+			if (b.EpigeneitcFactors is not null && a.EpigeneitcFactors is null) return false;
+			if (a.EpigeneitcFactors is not null && b.EpigeneitcFactors is null) return false;
+			bool MATCHLEngt = a.EpigeneitcFactors.Count == b.EpigeneitcFactors.Count;
+
+
+			if (MATCHLEngt)
+			{
+				return (StdUtils.Comparisons.ListsAreEqual(a.EpigeneitcFactors, b.EpigeneitcFactors))
+				   ;
+				//si al parecer ya tenia definido ese metodo y apenas me acuerod que existe 
+			}
+			return false;
+		}
+
 	}
-}
-[Serializable]
+	/// <summary>
+	/// cromatida  
+	/// si no sabes que es una cromatida es que no sabes nada de biologia asi que te lo explico rapido: es una cadena de ADN con sus genes ordenados, cada cromatida representa la contribucion genetica de cada padre, el orden de los genes en cada cromatida es importante para determinar la especie y demas cosas, ademas el cromosoma es el que maneja la interaccion entre los genes de las 2 cromatidas y sus factores epigeneticos para determinar la expresion genetica final del organismo
+	/// </summary>
+	[Serializable]
 
-public class Chromosome
-{
-	public Chromatid ChromatidA;
-	public Chromatid ChromatidB;
-
-	public Chromosome()
+	public class Chromatid
 	{
-	}
+		public string Name; public string Description;
+		public List<Gene> Genes;
 
-	public Chromosome(Chromatid chromatidA, Chromatid chromatidB)
+		public Chromatid()
+		{
+			Genes = new();
+			Name = "";
+			Description = "";
+		}
+
+		public Chromatid(string name, string description, List<Gene> genes)
+		{
+			Name = name;
+			Description = description;
+			Genes = genes;
+		}
+
+		public static bool operator ==(Chromatid a, Chromatid b)
+		{
+			if (a is null && b is null) return true;
+			if (b is not null && a is null) return false;
+			if (a is not null && b is null) return false;
+			//solo nos fijamos en genes y que sea el mismo orden por que  otro orden == otra especie
+			int i = 0;
+			foreach (Gene e in a.Genes)
+			{
+				if (e != b.Genes[i])
+					return false;
+				i++;
+			}
+			return true;
+		}
+		public static Boolean operator !=(Chromatid a, Chromatid b)
+		{
+			return !(a == b);
+		}
+		public override bool Equals(object obj)
+		{
+			if (obj is Chromatid a)
+			{
+				return a == this;
+			}
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(Name, Genes.Count);
+		}
+	}
+	/// <summary>
+	/// 2 cromatidas forman un cromosoma, cada cromatida representa la contribucion genetica de cada padre, el orden de los genes en cada cromatida es importante para determinar la especie y demas cosas, ademas el cromosoma es el que maneja la interaccion entre los genes de las 2 cromatidas y sus factores epigeneticos para determinar la expresion genetica final del organismo
+	/// </summary>
+	[Serializable]
+
+	public class Chromosome
 	{
-		ChromatidA = chromatidA;
-		ChromatidB = chromatidB;
-	}
-}
-[Serializable]
+		public Chromatid ChromatidA;
+		public Chromatid ChromatidB;
 
-public class Kariotype
-{
-	public string Name;
-	public string Description;
-	public List<Chromosome> Chromosomes; 
+		public Chromosome()
+		{
+		}
+
+		public Chromosome(Chromatid chromatidA, Chromatid chromatidB)
+		{
+			ChromatidA = chromatidA;
+			ChromatidB = chromatidB;
+		}
+	}
+	[Serializable]
+
+	public class Kariotype
+	{
+		public string Name;
+		public string Description;
+		public List<Chromosome> Chromosomes;
+	}
 }

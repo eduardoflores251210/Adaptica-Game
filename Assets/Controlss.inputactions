@@ -431,17 +431,6 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "",
-                    "id": "43216a15-c4b5-4603-aba8-b06fc37b144c",
-                    "path": "<Touchscreen>/Press",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "EnableR",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
                     "name": "Gamepad",
                     "id": "0c06f608-e684-4e38-92d9-2a9e9c1ad9e8",
                     "path": "1DAxis",

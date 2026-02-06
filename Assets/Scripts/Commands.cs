@@ -284,7 +284,7 @@ creado por {Application.companyName}";
 		}
 		public static class EasterEggCommands
 		{
-			[ConsoleCommand("dir")]
+			[ConsoleCommand("dir", IsEgg = true)]
 			public static void DIR()
 			{
 				Debug.Log("lo siento pero no puedes hacer dir\n usa una terinal real");
@@ -298,36 +298,36 @@ creado por {Application.companyName}";
 					}
 				}
 			}
-			[ConsoleCommand("rm")]
+			[ConsoleCommand("rm", IsEgg = true)]
 			public static void rm()
 			{
 				Debug.Log("lo siento pero no puedes hacer rm\n usa una terminal real\n ni te dejare eliminargame objects ");
 			}
-			[ConsoleCommand("ren")]
+			[ConsoleCommand("ren", IsEgg = true)]
 			public static void ren()
 			{
 				Debug.Log("lo siento pero no puedes hacer ren\n usa una terminal real");
 			}
-			[ConsoleCommand("rmdir")]
+			[ConsoleCommand("rmdir", IsEgg = true)]
 			public static void rmAll()
 			{
 				{
 					Debug.Log("lo siento pero no puedes hacer rmdir\n usa una terminal real");
 				}
 			}
-			[ConsoleCommand("del")]
+			[ConsoleCommand("del", IsEgg = true)]
 			public static void del()
 			{
 				{
 					Debug.Log("lo siento pero no puedes hacer del\n usa una terminal real");
 				}
 			}
-			[ConsoleCommand("pwd")]
+			[ConsoleCommand("pwd", IsEgg = true)]
 			public static void PWD()
 			{
 				Debug.Log(SceneManager.GetActiveScene().name);
 			}
-			[ConsoleCommand("/gamemode")]
+			[ConsoleCommand("/gamemode", IsEgg = true)]
 			public static void Gamemode(string mode)
 			{
 

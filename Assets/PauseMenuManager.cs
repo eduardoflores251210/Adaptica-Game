@@ -59,10 +59,28 @@ public class PauseMenuManager : MonoBehaviour
             throw new GameSavingException("EL JUGADOR ES NULL");
         if (Saver.HasLoadedAnySave())
         {
-            Saver.CurrentGame.CellGameData = new
-                ()
-            { DNA_Amount = Player.CurrentEvoPoints, MaxDNA_Got = Player.MaxEvoPointsGotStat, Gender = Player.CurrentGen, PlayerHealth = Player.Health, Progress = Player.StageProgress };
+			//mejor pongo una variable para acceder facilmente al estado actual
+            var STD = Saver.CurrentGame.CurentStage;
+			if (STD == SerializableTypes.Stages.Microbe)
 
+            {
+                Saver.CurrentGame.CellGameData = new
+                ()
+                { DNA_Amount = Player.CurrentEvoPoints, MaxDNA_Got = Player.MaxEvoPointsGotStat, Gender = Player.CurrentGen, PlayerHealth = Player.Health, Progress = Player.StageProgress };
+            }
+			//else if (STD == SerializableTypes.Stages.Creature)
+			//{
+			//
+			//}
+			//aun no implementado asi que por eso son comentarios
+			else if (STD == SerializableTypes.Stages.Creature)
+            {
+                throw new GameSavingException("NO IMPLEMENTADO AUN");
+			}
+            else if (STD == SerializableTypes.Stages.MainMenu)
+            {
+                throw new GameSavingException("????????????????\nNO SE PUEDE GUARDAR EN EL MENU PRINCIPAL");// el juego se confunde por que quieres guardar en el menu principal
+			}
             Saver.SaveCurrentGame();
         }else
         {

@@ -30,9 +30,16 @@ public class ConsoleManager : MonoBehaviour
 
 	void Awake()
 	{
+		if (Application.platform == RuntimePlatform.Switch)
+		{
+			Debug.Log("F** oh no esto no sirve en switch");
+			Destroy(this);
+			Destroy(consoleUI);
+		}
 		if (Instance != null && Instance != this)
 		{
 			Destroy(gameObject);
+			Destroy(consoleUI);
 			return;
 		}
 
@@ -225,8 +232,13 @@ public class ConsoleManager : MonoBehaviour
 	public static void ShowHelp()
 	{
 		Debug.Log("📖 Comandos disponibles:");
+
+		//si asi es PARECE Python
 		foreach (var cmd in Instance.commands.Values)
-			Debug.Log($" - {cmd.Attribute.Name}");
+			if (!cmd.Attribute.IsEgg)
+				Debug.Log($" - {cmd.Attribute.Name}");
+			else
+				continue;
 	}
 	void clear()
 	{
