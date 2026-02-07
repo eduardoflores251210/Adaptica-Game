@@ -19,6 +19,7 @@ public class PlanetGen : MonoBehaviour
 	[Header("Opciones de ruido")]
 	public float noiseScale = 0.1f;
 	public float noiseAmplitude = 5f;
+	public float ExtraOffset = 0f;
 	[Range(0f, 1f)]
 	public float noiseIntensity = 0.5f;
 
@@ -35,10 +36,20 @@ public class PlanetGen : MonoBehaviour
 		if (useAbstract)
 		{
 			BuildPlanetAbstract(radius);
+			foreach (Transform chunk in transform)
+			{
+				DrawChunkWireframe(chunk.gameObject); //se dibujae el wireframe de los chunks para vererificar que esta correcto.
+				//Debug.Log(chunk.name)			 // de momento no se requiere 																										;
+			}
 		}
 		else
 		{
 			BuildPlanetPhysical(radius);
+			foreach (Transform chunk in transform)
+			{
+				DrawChunkWireframe(chunk.gameObject); //se dibujae el wireframe de los chunks para vererificar que esta correcto.
+													  //Debug.Log(chunk.name)			 // de momento no se requiere 																										;
+			}
 		}
 	}
 
@@ -47,9 +58,9 @@ public class PlanetGen : MonoBehaviour
 	{
 		Vector3 planetCenter = new Vector3(radius, radius, radius);
 		Vector3Int chunksCount = new Vector3Int(
-			Mathf.CeilToInt(radius * 2 / chunkSize.x),
-			Mathf.CeilToInt(radius * 2 / chunkSize.y),
-			Mathf.CeilToInt(radius * 2 / chunkSize.z)
+			Mathf.CeilToInt((radius * 2 / chunkSize.x) + noiseAmplitude + ExtraOffset),
+			Mathf.CeilToInt((radius * 2 / chunkSize.y) + noiseAmplitude + ExtraOffset),
+			Mathf.CeilToInt((radius * 2 / chunkSize.z) + noiseAmplitude + ExtraOffset)
 		);
 
 		for (int x = 0; x < chunksCount.x; x++)
@@ -76,20 +87,28 @@ public class PlanetGen : MonoBehaviour
 			for (int y = 0; y <= chunkSize.y; y++)
 				for (int x = 0; x <= chunkSize.x; x++)
 				{
-					Vector3 pos = chunkOrigin + new Vector3(x, y, z);
-					float dist = Vector3.Distance(pos, planetCenter);
+					// 1. Posición relativa al CHUNK (0 a 16)
+					// Esto es lo que Marching Cubes usa para crear la malla local.
+					Vector3 posLocal = new Vector3(x, y, z);
 
-					// Perlin aproximado con intensidad
+					// 2. Posición en el MUNDO (donde realmente está el punto en el espacio)
+					// Esto solo se usa para calcular la distancia al centro y el ruido.
+					Vector3 posMundo = chunkOrigin + posLocal;
+
+					float dist = Vector3.Distance(posMundo, planetCenter);
+
+					// 3. El Ruido (Usando la posición de mundo para que sea continuo)
 					float offset = (
-						Mathf.PerlinNoise((pos.x + z) * noiseScale, (pos.y + z) * noiseScale) +
-						Mathf.PerlinNoise((pos.y + z) * noiseScale, (pos.z + z) * noiseScale) +
-						Mathf.PerlinNoise((pos.x + z) * noiseScale, (pos.z + z) * noiseScale)
+						Mathf.PerlinNoise((posMundo.x) * noiseScale, (posMundo.y) * noiseScale) +
+						Mathf.PerlinNoise((posMundo.y) * noiseScale, (posMundo.z) * noiseScale) +
+						Mathf.PerlinNoise((posMundo.x) * noiseScale, (posMundo.z) * noiseScale)
 					) / 3f * noiseAmplitude * noiseIntensity;
 
+					// 4. EL CAMBIO CLAVE:
 					grid[x, y, z] = new AbstractGridPoint
 					{
-						Position = pos,
-						Value = dist <= radius + offset ? 1f : 0f
+						Position = posLocal, // <-- AQUÍ: Usa posLocal, NO posMundo
+						Value = (radius + offset) - dist // <-- SUAVIZADO: (R + Ruido) - Distancia
 					};
 				}
 
@@ -143,9 +162,9 @@ public class PlanetGen : MonoBehaviour
 	{
 		Vector3 planetCenter = new Vector3(radius, radius, radius);
 		Vector3Int chunksCount = new Vector3Int(
-			Mathf.CeilToInt(radius * 2 / chunkSize.x),
-			Mathf.CeilToInt(radius * 2 / chunkSize.y),
-			Mathf.CeilToInt(radius * 2 / chunkSize.z)
+			Mathf.CeilToInt((radius * 2 / chunkSize.x) + noiseAmplitude + ExtraOffset), //si no se suma tenemos montañas cortadas Xd xdxdxdxdxdxdx
+			Mathf.CeilToInt((radius * 2 / chunkSize.y) + noiseAmplitude + ExtraOffset),
+			Mathf.CeilToInt((radius * 2 / chunkSize.z) + noiseAmplitude + ExtraOffset)
 		);
 
 		for (int x = 0; x < chunksCount.x; x++)
@@ -174,7 +193,7 @@ public class PlanetGen : MonoBehaviour
 				{
 					Vector3 pos = chunkOrigin + new Vector3(x, y, z);
 					float dist = Vector3.Distance(pos, planetCenter);
-
+					Vector3 posLocal = new Vector3(x, y, z);
 					float offset = (
 						Mathf.PerlinNoise((pos.x + z) * noiseScale, (pos.y + z) * noiseScale) +
 						Mathf.PerlinNoise((pos.y + z) * noiseScale, (pos.z + z) * noiseScale) +
@@ -186,7 +205,7 @@ public class PlanetGen : MonoBehaviour
 					gpObj.transform.localPosition = new Vector3(x, y, z);
 
 					GridPoint gp = gpObj.AddComponent<GridPoint>();
-					gp.Position = pos;
+					gp.Position = posLocal;
 					gp.Size = 0.1f;
 					gp.Value = dist <= radius + offset ? 1f : 0f;
 
@@ -342,11 +361,7 @@ public class PlanetGen : MonoBehaviour
 
 	private void Update()
 	{
-		foreach (Transform chunk in transform)
-		{
-			DrawChunkWireframe(chunk.gameObject);
-			Debug.Log(chunk.name)																													;
-		}
+
 
 	}
 
