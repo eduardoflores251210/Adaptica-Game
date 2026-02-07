@@ -4,6 +4,7 @@ using SerializableTypes.Space;
 using StandartUtilities;
 using System;
 using System.Collections.Generic;
+using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
 
 public class PlanetGen : MonoBehaviour
@@ -11,20 +12,24 @@ public class PlanetGen : MonoBehaviour
 	[Header("Datos del planeta")]
 	public PlanetData planetData;
 	public static PlanetGen ActiveIns;
+	public List<GameObject> Chuncks = new List<GameObject>();
 	[Header("Opciones de generación")]
 	public bool useAbstract = true; // true = array (AbstractGridPoint), false = MonoBehaviour
 	public Vector3Int chunkSize = new Vector3Int(16, 16, 16);
 	public Vector3Int cubeSize = new Vector3Int(4, 4, 4);
 	public float SurfaceLevel = 0.5f;
 	public Material material;
-
+	
 	[Header("Opciones de ruido")]
 	public float noiseScale = 0.1f;
 	public float noiseAmplitude = 5f;
 	public float ExtraOffset = 0f;
 	[Range(0f, 1f)]
 	public float noiseIntensity = 0.5f;
-
+	//Listas Temporales
+	private List<Vector3> _tempVertices = new List<Vector3>();
+	private List<int> _tempTriangles = new List<int>();
+	private List<Vector2> _tempUVs = new List<Vector2>();
 	private void Start()
 	{
 		if (planetData == null)
@@ -32,7 +37,7 @@ public class PlanetGen : MonoBehaviour
 			Debug.LogWarning("PlanetData no asignado, usando radio 1.");
 			planetData = new PlanetData { radius = 1f };
 		}
-
+		
 		float radius = planetData.radius * 100f;
 
 		if (useAbstract)
@@ -46,7 +51,9 @@ public class PlanetGen : MonoBehaviour
 		}
 		else
 		{
+			Debug.LogWarning("Modo físico en uso, puede ser ineficiente. ademas esta deprecado/obsoleto");
 			BuildPlanetPhysical(radius);
+			Debug.LogWarning("Se genero el planeta ya puedes descansar pues la parte pesada ya paso, ahora solo queda dibujar el wireframe de los chunks para verificar que esta correcto.");
 			foreach (Transform chunk in transform)
 			{
 				DrawChunkWireframe(chunk.gameObject); //se dibujae el wireframe de los chunks para vererificar que esta correcto.
@@ -116,7 +123,7 @@ public class PlanetGen : MonoBehaviour
 		chunkObj.transform.parent = transform;
 		chunkObj.transform.position = chunkOrigin;
 		chunkObj.AddComponent<LineRenderer>();
-
+		Chuncks.Add( chunkObj );
 		AbstractGridPoint[,,] grid = new AbstractGridPoint[chunkSize.x + 1, chunkSize.y + 1, chunkSize.z + 1];
 
 		for (int z = 0; z <= chunkSize.z; z++)
@@ -140,7 +147,7 @@ public class PlanetGen : MonoBehaviour
 						Mathf.PerlinNoise((posMundo.x) * noiseScale, (posMundo.z) * noiseScale)
 					) / 3f * noiseAmplitude * noiseIntensity;
 
-					// 4. EL CAMBIO CLAVE:
+					// 4. EL CAMBIO CLAVE para evitar que no haya offset:
 					grid[x, y, z] = new AbstractGridPoint
 					{
 						Position = posLocal, // <-- AQUÍ: Usa posLocal, NO posMundo
@@ -153,9 +160,10 @@ public class PlanetGen : MonoBehaviour
 
 	private void BuildChunkMeshArray(AbstractGridPoint[,,] grid, GameObject parent)
 	{
-		List<Vector3> vertices = new List<Vector3>();
-		List<int> triangles = new List<int>();
-		List<Vector2> uv = new List<Vector2>();
+		_tempVertices.Clear();
+		_tempTriangles.Clear();
+		_tempUVs.Clear();
+		// Usa estas listas para el Marching Cubes...
 
 		AbstractGridCell cell = new AbstractGridCell();
 		int gx = grid.GetLength(0) - 1;
@@ -176,13 +184,13 @@ public class PlanetGen : MonoBehaviour
 					cell.p[7] = grid[x, y + 1, z];
 
 					MarchingCube.IsoFaces(ref cell, SurfaceLevel);
-					BuildMeshCellData(ref cell, vertices, triangles, uv);
+					BuildMeshCellData(ref cell, _tempVertices, _tempTriangles, _tempUVs);
 				}
 
 		Mesh mesh = new Mesh();
-		mesh.vertices = vertices.ToArray();
-		mesh.triangles = triangles.ToArray();
-		mesh.uv = uv.ToArray();
+		mesh.vertices = _tempVertices.ToArray();
+		mesh.triangles = _tempTriangles.ToArray();
+		mesh.uv = _tempUVs.ToArray();
 		mesh.RecalculateNormals();
 
 		MeshFilter mf = parent.AddComponent<MeshFilter>();
@@ -325,8 +333,8 @@ public class PlanetGen : MonoBehaviour
 			uvAlternate = !uvAlternate;
 		}
 	}
-	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
 
+	#endregion
 	private void BuildMeshCellData(ref AbstractGridCell cell, List<Vector3> vertices, List<int> triangles, List<Vector2> uv)
 	{
 		bool uvAlternate = false;
@@ -355,7 +363,6 @@ public class PlanetGen : MonoBehaviour
 			uvAlternate = !uvAlternate;
 		}
 	}
-	#endregion
 
 	public bool drawGrid = true;
 	public Material debugLineMaterial;
@@ -406,6 +413,8 @@ public class PlanetGen : MonoBehaviour
 	private void Update()
 	{
 
+		//vacio como la empatia de los Politicos XD jajajajajaja
+		//ok es broma pero de momento no se requiere nada aqui, el planeta se genera una vez al inicio y ya, no hay necesidad de actualizar nada cada frame.
 
 	}
 	[ConsoleCommand("regplt", false)]
@@ -413,27 +422,7 @@ public class PlanetGen : MonoBehaviour
 	{
 		if (ActiveIns != null)
 		{
-			foreach (Transform child in ActiveIns.transform)
-			{
-				Destroy(child.gameObject);
-			}
-			float radius = ActiveIns.planetData.radius * 100f;
-			if (ActiveIns.useAbstract)
-			{
-				ActiveIns.BuildPlanetAbstract(radius);
-				foreach (Transform chunk in ActiveIns.transform)
-				{
-					ActiveIns.DrawChunkWireframe(chunk.gameObject);
-				}
-			}
-			else
-			{
-				ActiveIns.BuildPlanetPhysical(radius);
-				foreach (Transform chunk in ActiveIns.transform)
-				{
-					ActiveIns.DrawChunkWireframe(chunk.gameObject);
-				}
-			}
+			//aun no implementado
 		}
 		else
 		{
@@ -447,9 +436,30 @@ public class PlanetGen : MonoBehaviour
 		if (ActiveIns != null)
 		{
 			ActiveIns.drawGrid = !ActiveIns.drawGrid;
-			foreach (Transform chunk in ActiveIns.transform)
+			if (ActiveIns.drawGrid)
 			{
-				ActiveIns.DrawChunkWireframe(chunk.gameObject);
+				foreach (Transform chunk in ActiveIns.transform)
+				{
+					ActiveIns.DrawChunkWireframe(chunk.gameObject);
+				}
+			}
+			else
+			{
+				foreach (Transform chunk in ActiveIns.transform)
+				{
+					LineRenderer lr = chunk.GetComponent<LineRenderer>();
+					if (lr == null)
+					{
+						lr = chunk.gameObject.AddComponent<LineRenderer>();
+						lr.material = ActiveIns.material; // o cualquier material de debug
+						lr.widthMultiplier = 0.05f;
+						lr.loop = false;
+					}
+					else
+					{
+						lr.positionCount = 0;
+					}
+				}
 			}
 		}
 	}
