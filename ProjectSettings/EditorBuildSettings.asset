@@ -26,6 +26,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Spae stage.unity
     guid: 9c76b260387e10149ba53b024fcb3a72
+  - enabled: 1
+    path: Assets/Scenes/PlanetGenTest.unity
+    guid: c14e3846ce9193d4985900a645cf933b
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 94909584c2493ba43a8a1f9fde917513, type: 2}
     com.unity.input.settings: {fileID: 11400000, guid: 45dd730caf1d33d4e974ca5eb3ae1e76, type: 2}

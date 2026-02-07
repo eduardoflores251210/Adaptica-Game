@@ -12,77 +12,173 @@ public class PlanetGen : MonoBehaviour
 	[Header("Datos del planeta")]
 	public PlanetData planetData;
 	public static PlanetGen ActiveIns;
+
+	// Diccionario para guardar los datos de los chunks y poder editarlos después
+	// Si lo rellenaste por fuera antes de Start(), respetamos esos valores y no los limpiamos.
+	public Dictionary<Vector3Int, AbstractGridPoint[,,]> WorldData = new Dictionary<Vector3Int, AbstractGridPoint[,,]>();
+
+	// Lista de chunks activos (para inspección / iteración)
 	public List<GameObject> Chuncks = new List<GameObject>();
+
+	// Pool para reciclar GameObjects de chunks y evitar crear/destruir como si no hubiera mañana
+	private Stack<GameObject> chunkPool = new Stack<GameObject>();
+
 	[Header("Opciones de generación")]
 	public bool useAbstract = true; // true = array (AbstractGridPoint), false = MonoBehaviour
 	public Vector3Int chunkSize = new Vector3Int(16, 16, 16);
 	public Vector3Int cubeSize = new Vector3Int(4, 4, 4);
 	public float SurfaceLevel = 0.5f;
 	public Material material;
-	
+
 	[Header("Opciones de ruido")]
 	public float noiseScale = 0.1f;
 	public float noiseAmplitude = 5f;
 	public float ExtraOffset = 0f;
-	[Range(0f, 1f)]
+	[Range(0f, 10f)]
 	public float noiseIntensity = 0.5f;
+
 	//Listas Temporales
 	private List<Vector3> _tempVertices = new List<Vector3>();
 	private List<int> _tempTriangles = new List<int>();
 	private List<Vector2> _tempUVs = new List<Vector2>();
+
 	private void Start()
 	{
 		if (planetData == null)
 		{
-			Debug.LogWarning("PlanetData no asignado, usando radio 1.");
-			planetData = new PlanetData { radius = 1f };
+			Debug.LogWarning("PlanetData no asignado, usando radio 1. (Porque la vida es así de generosa).");
+			planetData = new PlanetData { radius = 1f, Seed = UnityEngine.Random.Range(-0xAAAA, 0xAAAA+0x1) };
 		}
-		
+
 		float radius = planetData.radius * 100f;
+
+		ActiveIns = this;
 
 		if (useAbstract)
 		{
-			BuildPlanetAbstract(radius);
+			// Si WorldData ya viene preparado (tu caso: lo preparaste antes), no lo limpiamos.
+			// Si está vacío, hacemos la generación completa y rellenamos WorldData.
+			if (WorldData.Count == 0)
+			{
+				Debug.Log("WorldData vacío: generando planeta por primera vez y rellenando diccionario. (Momento LENTO)."); //decia momento epico pero No me gusto que chat GPT puseria eso asi que yo le puse Momento Lento por que es lentop 
+				BuildPlanetAbstract(radius); // esto rellenará WorldData
+			}
+			else
+			{
+				Debug.Log("WorldData ya existente: reutilizando datos y reconstruyendo mallas (regenerar malla, no el planeta entero).");
+				RegenerateMeshesFromWorldData(radius);
+			}
+
 			foreach (Transform chunk in transform)
 			{
-				DrawChunkWireframe(chunk.gameObject); //se dibujae el wireframe de los chunks para vererificar que esta correcto.
-				//Debug.Log(chunk.name)			 // de momento no se requiere 																										;
+				DrawChunkWireframe(chunk.gameObject); // se dibuja el wireframe de los chunks para verificar que está correcto.
 			}
 		}
 		else
 		{
-			Debug.LogWarning("Modo físico en uso, puede ser ineficiente. ademas esta deprecado/obsoleto");
+			Debug.LogWarning("Modo físico en uso, puede ser ineficiente. además está deprecado/obsoleto");
 			BuildPlanetPhysical(radius);
-			Debug.LogWarning("Se genero el planeta ya puedes descansar pues la parte pesada ya paso, ahora solo queda dibujar el wireframe de los chunks para verificar que esta correcto.");
+			Debug.LogWarning("Se generó el planeta ya puedes descansar pues la parte pesada ya pasó, ahora solo queda dibujar el wireframe de los chunks para verificar que está correcto.");
 			foreach (Transform chunk in transform)
 			{
-				DrawChunkWireframe(chunk.gameObject); //se dibujae el wireframe de los chunks para vererificar que esta correcto.
-													  //Debug.Log(chunk.name)			 // de momento no se requiere 																										;
+				DrawChunkWireframe(chunk.gameObject);
 			}
 		}
 	}
-	//el Modo Abstract es el recomendado, es mucho más eficiente y fácil de manejar. El modo físico es solo para referencia histórica y no se recomienda usarlo.
+
+	// ------------------------------
+	// Helpers y nombres
+	// ------------------------------
+	private string GetChunkName(Vector3Int idx) => $"Chunk_{idx.x}_{idx.y}_{idx.z}";
+
+	private GameObject CreateNewChunkObject(string name, Vector3 position)
+	{
+		GameObject chunkObj;
+		if (chunkPool.Count > 0)
+		{
+			// Reutilizamos un objeto inactivo del pool
+			chunkObj = chunkPool.Pop();
+			chunkObj.name = name;
+			chunkObj.transform.parent = transform;
+			chunkObj.transform.position = position;
+			chunkObj.SetActive(true);
+			// limpiamos componentes pesados (mesh) por seguridad
+			var mf = chunkObj.GetComponent<MeshFilter>();
+			if (mf != null) mf.sharedMesh = null;
+			var mr = chunkObj.GetComponent<MeshRenderer>();
+			if (mr != null) mr.sharedMaterial = material;
+		}
+		else
+		{
+			chunkObj = new GameObject(name);
+			chunkObj.transform.parent = transform;
+			chunkObj.transform.position = position;
+			chunkObj.AddComponent<LineRenderer>();
+		}
+
+		// aseguramos que la lista de chunks lo contenga
+		if (!Chuncks.Contains(chunkObj)) Chuncks.Add(chunkObj);
+
+		return chunkObj;
+	}
+
+	private void PoolOrDestroyChunk(GameObject chunk)
+	{
+		// En lugar de destruir, lo desactivamos y lo metemos al pool para reciclarlo.
+		// También limpiamos el mesh para liberar memoria.
+		if (chunk == null) return;
+		var mf = chunk.GetComponent<MeshFilter>();
+		if (mf != null) mf.sharedMesh = null;
+		chunk.SetActive(false);
+		if (Chuncks.Contains(chunk)) Chuncks.Remove(chunk);
+		chunkPool.Push(chunk);
+	}
+
+	// Utility para destruir o limpiar componentes según sea necesario (evita duplicar MeshFilter)
+	private void EnsureMeshComponentsReplaced(GameObject parent, Mesh mesh)
+	{
+		// MeshFilter
+		MeshFilter mf = parent.GetComponent<MeshFilter>();
+		if (mf == null) mf = parent.AddComponent<MeshFilter>();
+		mf.sharedMesh = mesh;
+
+		// MeshRenderer
+		MeshRenderer mr = parent.GetComponent<MeshRenderer>();
+		if (mr == null) mr = parent.AddComponent<MeshRenderer>();
+		mr.sharedMaterial = material;
+	}
+
 	#region Abstract Mode
+	// ------------------------------
+	// Abstract Mode (revisado)
+	// ------------------------------
 	private void BuildPlanetAbstract(float radius)
 	{
-		ActiveIns = this;
-		// 1. Definimos el área de influencia real
+		// Rellenamos WORLD DATA en esta primera generación.
+		// Si ya tenías datos en WorldData (preparados por fuera), no tocamos esa parte.
 		float maxRadius = radius + noiseAmplitude;
 		Vector3 planetCenter = Vector3.zero; // El planeta MANDATORIAMENTE en 0,0,0
 
-		// 2. Calculamos cuántos chunks ocupan ese diámetro total
-		// (maxRadius * 2) es el diámetro. Lo dividimos por el tamaño del chunk.
 		int chunksX = Mathf.CeilToInt((maxRadius * 2) / chunkSize.x);
 		int chunksY = Mathf.CeilToInt((maxRadius * 2) / chunkSize.y);
 		int chunksZ = Mathf.CeilToInt((maxRadius * 2) / chunkSize.z);
 
-		// 3. Calculamos el "Offset de Inicio"
-		// Esto nos mueve a la esquina inferior-trasera-izquierda del planeta
 		Vector3 startOffset = new Vector3(
 			chunksX * chunkSize.x / 2f,
 			chunksY * chunkSize.y / 2f,
 			chunksZ * chunkSize.z / 2f
 		);
+
+		// Si es la primera vez, es buena idea limpiar hijos antiguos (si existen).
+		// Si WorldData ya venía relleno por ti, NO lo limpiamos arriba en Start().
+		if (WorldData.Count == 0)
+		{
+			// destruir o poolear hijos previos (por si el objeto tenía restos)
+			List<GameObject> childrenToPool = new List<GameObject>();
+			foreach (Transform t in transform) childrenToPool.Add(t.gameObject);
+			foreach (var c in childrenToPool) PoolOrDestroyChunk(c);
+			Chuncks.Clear();
+		}
 
 		for (int x = 0; x < chunksX; x++)
 		{
@@ -90,7 +186,6 @@ public class PlanetGen : MonoBehaviour
 			{
 				for (int z = 0; z < chunksZ; z++)
 				{
-					// Posición del chunk relativa al centro (0,0,0)
 					Vector3 chunkOrigin = new Vector3(
 						x * chunkSize.x,
 						y * chunkSize.y,
@@ -98,12 +193,9 @@ public class PlanetGen : MonoBehaviour
 					) - startOffset;
 
 					// --- OPTIMIZACIÓN: CULLING ---
-					// Centro del chunk para medir distancia
 					Vector3 chunkCenter = chunkOrigin + (Vector3)chunkSize / 2f;
 					float distToPlanet = Vector3.Distance(chunkCenter, planetCenter);
 
-					// Si el chunk está demasiado lejos o demasiado profundo, ni lo procesamos
-					// El margen de "chunkSize.magnitude" es para no cortar bordes
 					float margin = chunkSize.magnitude;
 					if (distToPlanet > maxRadius + margin || distToPlanet < (radius - noiseAmplitude) - margin)
 					{
@@ -119,51 +211,80 @@ public class PlanetGen : MonoBehaviour
 
 	private void BuildChunkArray(Vector3Int chunkIndex, Vector3 chunkOrigin, float radius, Vector3 planetCenter)
 	{
-		GameObject chunkObj = new GameObject($"Chunk_{chunkIndex.x}_{chunkIndex.y}_{chunkIndex.z}");
-		chunkObj.transform.parent = transform;
-		chunkObj.transform.position = chunkOrigin;
-		chunkObj.AddComponent<LineRenderer>();
-		Chuncks.Add( chunkObj );
+		string name = GetChunkName(chunkIndex);
+		GameObject chunkObj = CreateNewChunkObject(name, chunkOrigin);
+
+		// Aseguramos que tenga LineRenderer (para dibujar wireframe)
+		LineRenderer lr = chunkObj.GetComponent<LineRenderer>();
+		if (lr == null) lr = chunkObj.AddComponent<LineRenderer>();
+
 		AbstractGridPoint[,,] grid = new AbstractGridPoint[chunkSize.x + 1, chunkSize.y + 1, chunkSize.z + 1];
 
 		for (int z = 0; z <= chunkSize.z; z++)
 			for (int y = 0; y <= chunkSize.y; y++)
 				for (int x = 0; x <= chunkSize.x; x++)
 				{
-					// 1. Posición relativa al CHUNK (0 a 16)
-					// Esto es lo que Marching Cubes usa para crear la malla local.
 					Vector3 posLocal = new Vector3(x, y, z);
-
-					// 2. Posición en el MUNDO (donde realmente está el punto en el espacio)
-					// Esto solo se usa para calcular la distancia al centro y el ruido.
 					Vector3 posMundo = chunkOrigin + posLocal;
-
 					float dist = Vector3.Distance(posMundo, planetCenter);
 
-					// 3. El Ruido (Usando la posición de mundo para que sea continuo)
-					float offset = (
-						Mathf.PerlinNoise((posMundo.x) * noiseScale, (posMundo.y) * noiseScale) +
-						Mathf.PerlinNoise((posMundo.y) * noiseScale, (posMundo.z) * noiseScale) +
-						Mathf.PerlinNoise((posMundo.x) * noiseScale, (posMundo.z) * noiseScale)
-					) / 3f * noiseAmplitude * noiseIntensity;
-
-					// 4. EL CAMBIO CLAVE para evitar que no haya offset:
+					
+					
+					float offset = Noise4D(
+						new Vector4(posMundo.x, posMundo.y, posMundo.z, planetData.Seed),
+						noiseScale,
+						noiseAmplitude,
+						noiseIntensity
+					);
 					grid[x, y, z] = new AbstractGridPoint
 					{
-						Position = posLocal, // <-- AQUÍ: Usa posLocal, NO posMundo
-						Value = (radius + offset) - dist // <-- SUAVIZADO: (R + Ruido) - Distancia
+						Position = posLocal, // <-- usa posLocal
+						Value = (radius + offset) - dist
 					};
 				}
 
-		BuildChunkMeshArray(grid, chunkObj);
-	}
+		// Rellenamos el diccionario la PRIMERA vez.
+		// Si WorldData ya tiene la clave (p. ej. lo preparaste), respetamos tu grid y NO lo sobreescribimos.
+		if (!WorldData.ContainsKey(chunkIndex))
+		{
+			WorldData[chunkIndex] = grid;
+		}
+		else
+		{
+			// si quieres sobreescribir intencionalmente, aquí es donde podrías hacerlo.
+			// por ahora respetamos los datos que ya tenías (porque dijiste que los preparaste).
+		}
 
+		// Generamos malla usando el grid (sea el nuevo o el que ya tenías)
+		// IMPORTANTE: usamos WorldData[chunkIndex] para mantener consistencia con lo que pueda haber preparado el usuario.
+		BuildChunkMeshArray(WorldData[chunkIndex], chunkObj);
+	}
+	// Función auxiliar para ruido 4D (puedes ponerla al final de tu clase)
+	private static float Noise4D(Vector4 Pos, float noise_scale, float noiseAmplitud, float noiseIntensity)
+	{
+		// La escala DEBE multiplicar a las coordenadas antes de entrar al ruido
+		// Usamos Pos.w (tu semilla) como un offset que desplaza la "realidad" del ruido
+		float x = Pos.x * noise_scale;
+		float y = Pos.y * noise_scale;
+		float z = Pos.z * noise_scale;
+		float w = Pos.w; // La semilla no suele escalarse, es un offset puro
+
+		float ab = Mathf.PerlinNoise(x + w, y);
+		float bc = Mathf.PerlinNoise(y + w, z);
+		float ac = Mathf.PerlinNoise(x + w, z);
+
+		float ba = Mathf.PerlinNoise(y - w, x);
+		float cb = Mathf.PerlinNoise(z - w, y);
+		float ca = Mathf.PerlinNoise(z - w, x);
+
+		// El promedio se multiplica por la amplitud y la intensidad al final
+		return ((ab + bc + ac + ba + cb + ca) / 6f) * noiseAmplitud * noiseIntensity;
+	}
 	private void BuildChunkMeshArray(AbstractGridPoint[,,] grid, GameObject parent)
 	{
 		_tempVertices.Clear();
 		_tempTriangles.Clear();
 		_tempUVs.Clear();
-		// Usa estas listas para el Marching Cubes...
 
 		AbstractGridCell cell = new AbstractGridCell();
 		int gx = grid.GetLength(0) - 1;
@@ -192,23 +313,25 @@ public class PlanetGen : MonoBehaviour
 		mesh.triangles = _tempTriangles.ToArray();
 		mesh.uv = _tempUVs.ToArray();
 		mesh.RecalculateNormals();
+		mesh.name = "ChunkMesh";
 
-		MeshFilter mf = parent.AddComponent<MeshFilter>();
-		mf.mesh = mesh;
-
-		MeshRenderer mr = parent.AddComponent<MeshRenderer>();
-		mr.material = material;
+		// En lugar de añadir siempre componentes nuevos, reemplazamos/actualizamos los existentes.
+		EnsureMeshComponentsReplaced(parent, mesh);
 	}
+
 	#endregion
-	//Obsoleto, se deja para referencia pero no se recomienda usarlo.
-	#region Physical Mode
+
+	#region Pysical Mode
+	// ------------------------------
+	// Physical Mode (obsoleto, sin cambios mayores)
+	// ------------------------------
 	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
 	private void BuildPlanetPhysical(float radius)
 	{
 		ActiveIns = this;
 		Vector3 planetCenter = new Vector3(radius, radius, radius);
 		Vector3Int chunksCount = new Vector3Int(
-			Mathf.CeilToInt((radius * 2 / chunkSize.x) + noiseAmplitude + ExtraOffset), //si no se suma tenemos montañas cortadas Xd xdxdxdxdxdxdx
+			Mathf.CeilToInt((radius * 2 / chunkSize.x) + noiseAmplitude + ExtraOffset),
 			Mathf.CeilToInt((radius * 2 / chunkSize.y) + noiseAmplitude + ExtraOffset),
 			Mathf.CeilToInt((radius * 2 / chunkSize.z) + noiseAmplitude + ExtraOffset)
 		);
@@ -218,8 +341,8 @@ public class PlanetGen : MonoBehaviour
 				for (int z = 0; z < chunksCount.z; z++)
 					BuildChunkPhysical(new Vector3Int(x, y, z), radius, planetCenter);
 	}
-	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
 
+	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
 	private void BuildChunkPhysical(Vector3Int chunkIndex, float radius, Vector3 planetCenter)
 	{
 		GameObject chunkObj = new GameObject($"Chunk_{chunkIndex.x}_{chunkIndex.y}_{chunkIndex.z}");
@@ -261,8 +384,8 @@ public class PlanetGen : MonoBehaviour
 
 		BuildChunkMesh(grid, chunkObj);
 	}
-	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
 
+	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
 	private void BuildChunkMesh(GridPoint[,,] grid, GameObject parent)
 	{
 		List<Vector3> vertices = new List<Vector3>();
@@ -303,8 +426,8 @@ public class PlanetGen : MonoBehaviour
 		MeshRenderer mr = parent.AddComponent<MeshRenderer>();
 		mr.material = material;
 	}
-	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
 
+	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
 	private void BuildMeshCellData(ref GridCell cell, List<Vector3> vertices, List<int> triangles, List<Vector2> uv)
 	{
 		bool uvAlternate = false;
@@ -333,8 +456,10 @@ public class PlanetGen : MonoBehaviour
 			uvAlternate = !uvAlternate;
 		}
 	}
-
-	#endregion
+#endregion
+	// ------------------------------
+	// BuildMeshCellData para Abstract
+	// ------------------------------
 	private void BuildMeshCellData(ref AbstractGridCell cell, List<Vector3> vertices, List<int> triangles, List<Vector2> uv)
 	{
 		bool uvAlternate = false;
@@ -367,7 +492,6 @@ public class PlanetGen : MonoBehaviour
 	public bool drawGrid = true;
 	public Material debugLineMaterial;
 
-	//esto no es obsoleto hasta tendra un comando de consola para mostrarlo en el juego  :) y ya lo tiene es "togglewires"
 	private void DrawChunkWireframe(GameObject chunk)
 	{
 		LineRenderer lr = chunk.GetComponent<LineRenderer>();
@@ -378,14 +502,15 @@ public class PlanetGen : MonoBehaviour
 			lr.widthMultiplier = 0.05f;
 			lr.positionCount = 16; // 12 aristas + 4 para cerrar bucle
 			lr.loop = false;
-		}else
+		}
+		else
 		{
 			lr.material = material; // o cualquier material de debug
 			lr.widthMultiplier = 0.05f;
 			lr.positionCount = 16; // 12 aristas + 4 para cerrar bucle
 			lr.loop = false;
 		}
-		
+
 		Vector3 origin = chunk.transform.position;
 		Vector3 size = new Vector3(chunkSize.x, chunkSize.y, chunkSize.z);
 
@@ -401,28 +526,29 @@ public class PlanetGen : MonoBehaviour
 
 		Vector3[] positions = new Vector3[16]
 		{
-		corners[0], corners[1], corners[2], corners[3], corners[0], // base
-		corners[4], corners[5], corners[6], corners[7], corners[4], // top
-		corners[7], corners[3], corners[6], corners[2], corners[5], corners[1] // verticales
+			corners[0], corners[1], corners[2], corners[3], corners[0], // base
+			corners[4], corners[5], corners[6], corners[7], corners[4], // top
+			corners[7], corners[3], corners[6], corners[2], corners[5], corners[1] // verticales
 		};
 
 		lr.SetPositions(positions);
 	}
 
-
 	private void Update()
 	{
-
-		//vacio como la empatia de los Politicos XD jajajajajaja
-		//ok es broma pero de momento no se requiere nada aqui, el planeta se genera una vez al inicio y ya, no hay necesidad de actualizar nada cada frame.
-
+		// vacío como la empatía de los políticos XD jajajajajaja
+		// ok es broma pero de momento no se requiere nada aquí, el planeta se genera una vez al inicio y ya, no hay necesidad de actualizar nada cada frame.
 	}
-	[ConsoleCommand("regplt", false)]
+
+	// ------------------------------
+	// Regeneración (solo malla)
+	// ------------------------------
+	[ConsoleCommand("regplt", false)] // false porque no es un truco
 	public static void RegeneratePlanet()
 	{
 		if (ActiveIns != null)
 		{
-			//aun no implementado
+			ActiveIns.RegenerateMeshCommand();
 		}
 		else
 		{
@@ -430,7 +556,106 @@ public class PlanetGen : MonoBehaviour
 		}
 	}
 
-	[ConsoleCommand("togglewires", false)]
+	// Método que invoca la regeneración de mallas según WorldData
+	public void RegenerateMeshCommand()
+	{
+		// regenerar la malla (NO limpiar WorldData)
+		if (WorldData == null || WorldData.Count == 0)
+		{
+			Debug.LogWarning("WorldData vacío — nada que regenerar (se hará generación completa en su lugar).");
+			float radius = planetData.radius * 100f;
+			BuildPlanetAbstract(radius);
+			return;
+		}
+
+		float radiusCurrent = planetData.radius * 100f;
+		RegenerateMeshesFromWorldData(radiusCurrent);
+
+		Debug.Log("Regeneración de mallas completa. Tu planeta respira otra vez (la malla, no el planeta entero).");
+	}
+
+	// Reconstruye mallas a partir de WorldData y recicla/limpia objetos obsoletos.
+	private void RegenerateMeshesFromWorldData(float radius)
+	{
+		float maxRadius = radius + noiseAmplitude;
+
+		int chunksX = Mathf.CeilToInt((maxRadius * 2) / chunkSize.x);
+		int chunksY = Mathf.CeilToInt((maxRadius * 2) / chunkSize.y);
+		int chunksZ = Mathf.CeilToInt((maxRadius * 2) / chunkSize.z);
+
+		Vector3 startOffset = new Vector3(
+			chunksX * chunkSize.x / 2f,
+			chunksY * chunkSize.y / 2f,
+			chunksZ * chunkSize.z / 2f
+		);
+
+		// Marcar los nombres de chunks que necesitamos
+		HashSet<string> requiredNames = new HashSet<string>();
+		foreach (var kv in WorldData)
+		{
+			requiredNames.Add(GetChunkName(kv.Key));
+		}
+
+		// Poolear los hijos que NO estén en requiredNames (obsoletos)
+		List<GameObject> toPool = new List<GameObject>();
+		foreach (Transform child in transform)
+		{
+			if (!requiredNames.Contains(child.name))
+			{
+				toPool.Add(child.gameObject);
+			}
+		}
+		foreach (var obsolete in toPool) PoolOrDestroyChunk(obsolete);
+
+		// Para cada entry en WorldData, aseguramos un GameObject y reconstruimos su malla.
+		foreach (var kv in WorldData)
+		{
+			Vector3Int idx = kv.Key;
+			AbstractGridPoint[,,] grid = kv.Value;
+
+			Vector3 chunkOrigin = new Vector3(
+				idx.x * chunkSize.x,
+				idx.y * chunkSize.y,
+				idx.z * chunkSize.z
+			) - startOffset;
+
+			string name = GetChunkName(idx);
+			Transform t = transform.Find(name);
+			GameObject chunkObj;
+			if (t != null)
+			{
+				chunkObj = t.gameObject;
+				// si existe, dejamos su posición tal cual (por consistencia) o la reasignamos
+				chunkObj.transform.position = chunkOrigin;
+			}
+			else
+			{
+				// No existe: crear (reutilizando del pool si hay)
+				chunkObj = CreateNewChunkObject(name, chunkOrigin);
+			}
+
+			// Limpiar mesh viejo (si existiera) para evitar duplicados y luego regenerar
+			var mf = chunkObj.GetComponent<MeshFilter>();
+			if (mf != null) mf.sharedMesh = null;
+
+			// Reconstruimos la malla con los valores en WorldData: RECUERDA: NO modificamos grid.Values aquí.
+			BuildChunkMeshArray(grid, chunkObj);
+
+			// Dibujamos wireframe si toca
+			if (drawGrid)
+			{
+				DrawChunkWireframe(chunkObj);
+			}
+			else
+			{
+				// si no queremos wireframes, los podemos desactivar sin destruir el LR
+				var lr = chunkObj.GetComponent<LineRenderer>();
+				if (lr != null) lr.positionCount = 0;
+			}
+		}
+	}
+
+	[ConsoleCommand("togglewires", false)] // NO es un truco aunque llores y patalees 
 	public static void ToggleWires()
 	{
 		if (ActiveIns != null)
@@ -463,5 +688,40 @@ public class PlanetGen : MonoBehaviour
 			}
 		}
 	}
-}
 
+	[ConsoleCommand("!resetplt", true, IsEgg = true)] //es un truco asi que el primer tru y IsEgg para que e comando de ayuda no lo muestrte
+	public static void RESETPLANET()
+	{
+		if (ActiveIns == null)
+		{
+			Debug.Log("Instancia null :(");
+			return;
+		}
+
+		// 1. Limpiar los datos lógicos
+		ActiveIns.WorldData.Clear();
+
+		// 2. Limpiar los objetos físicos (Los devolvemos al pool para no destruir memoria)
+		// Usamos una lista temporal para evitar errores de "colección modificada"
+		List<GameObject> toCleanup = new List<GameObject>(ActiveIns.Chuncks);
+		foreach (GameObject chunk in toCleanup)
+		{
+			ActiveIns.PoolOrDestroyChunk(chunk);
+		}
+		ActiveIns.Chuncks.Clear();
+
+		// 3. Reiniciar el proceso
+		float radius = ActiveIns.planetData.radius * 100f;
+
+
+		// Si aún es un método void:
+		ActiveIns.BuildPlanetAbstract(radius);
+
+		Debug.Log("¡Planeta reseteado! (Como la economía de mi país, pero este sí funciona).");
+	}
+	[ConsoleCommand("!loadpt", true, IsEgg = true)] //es un truco asi que el primer tru y IsEgg para que e comando de ayuda no lo muestrte
+	public static void ldPT()
+	{
+		LoadWithLoadingScreen.LoadScene(7, Stages.Creature);
+	}
+}
