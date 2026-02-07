@@ -2,7 +2,9 @@ using SerializableTypes.Space;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+//modo prehistórico ON pero es mejor que pasta de punto flotante (asi le llamo a las deformaciones de cosas por problemas de precisión) o a veecs lo llamo Spaghetti de Punto Flotante
+// el termino lo acuñe jugando KSP ya quye lanze un kerbal MUY MUY lejos pero ahora
+// lo uso aqui :)
 public class GeoCentrism : MonoBehaviour
 {
 	[Header("Config")]

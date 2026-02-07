@@ -2412,6 +2412,7 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 	public class ConsoleCommandAttribute : Attribute
 	{
 		public string Name;
+		public string Description;
 		public bool IsCheat;
 		public bool IsEgg;
 		public ConsoleCommandAttribute(string name) 

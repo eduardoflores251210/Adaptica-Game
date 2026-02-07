@@ -1,6 +1,8 @@
+using ActualUtils;
 using SerializableTypes;
 using SerializableTypes.Space;
 using StandartUtilities;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,7 +10,7 @@ public class PlanetGen : MonoBehaviour
 {
 	[Header("Datos del planeta")]
 	public PlanetData planetData;
-
+	public static PlanetGen ActiveIns;
 	[Header("Opciones de generación")]
 	public bool useAbstract = true; // true = array (AbstractGridPoint), false = MonoBehaviour
 	public Vector3Int chunkSize = new Vector3Int(16, 16, 16);
@@ -52,36 +54,70 @@ public class PlanetGen : MonoBehaviour
 			}
 		}
 	}
-
+	//el Modo Abstract es el recomendado, es mucho más eficiente y fácil de manejar. El modo físico es solo para referencia histórica y no se recomienda usarlo.
 	#region Abstract Mode
 	private void BuildPlanetAbstract(float radius)
 	{
-		Vector3 planetCenter = new Vector3(radius, radius, radius);
-		Vector3Int chunksCount = new Vector3Int(
-			Mathf.CeilToInt((radius * 2 / chunkSize.x) + noiseAmplitude + ExtraOffset),
-			Mathf.CeilToInt((radius * 2 / chunkSize.y) + noiseAmplitude + ExtraOffset),
-			Mathf.CeilToInt((radius * 2 / chunkSize.z) + noiseAmplitude + ExtraOffset)
+		ActiveIns = this;
+		// 1. Definimos el área de influencia real
+		float maxRadius = radius + noiseAmplitude;
+		Vector3 planetCenter = Vector3.zero; // El planeta MANDATORIAMENTE en 0,0,0
+
+		// 2. Calculamos cuántos chunks ocupan ese diámetro total
+		// (maxRadius * 2) es el diámetro. Lo dividimos por el tamaño del chunk.
+		int chunksX = Mathf.CeilToInt((maxRadius * 2) / chunkSize.x);
+		int chunksY = Mathf.CeilToInt((maxRadius * 2) / chunkSize.y);
+		int chunksZ = Mathf.CeilToInt((maxRadius * 2) / chunkSize.z);
+
+		// 3. Calculamos el "Offset de Inicio"
+		// Esto nos mueve a la esquina inferior-trasera-izquierda del planeta
+		Vector3 startOffset = new Vector3(
+			chunksX * chunkSize.x / 2f,
+			chunksY * chunkSize.y / 2f,
+			chunksZ * chunkSize.z / 2f
 		);
 
-		for (int x = 0; x < chunksCount.x; x++)
-			for (int y = 0; y < chunksCount.y; y++)
-				for (int z = 0; z < chunksCount.z; z++)
-					BuildChunkArray(new Vector3Int(x, y, z), radius, planetCenter);
+		for (int x = 0; x < chunksX; x++)
+		{
+			for (int y = 0; y < chunksY; y++)
+			{
+				for (int z = 0; z < chunksZ; z++)
+				{
+					// Posición del chunk relativa al centro (0,0,0)
+					Vector3 chunkOrigin = new Vector3(
+						x * chunkSize.x,
+						y * chunkSize.y,
+						z * chunkSize.z
+					) - startOffset;
+
+					// --- OPTIMIZACIÓN: CULLING ---
+					// Centro del chunk para medir distancia
+					Vector3 chunkCenter = chunkOrigin + (Vector3)chunkSize / 2f;
+					float distToPlanet = Vector3.Distance(chunkCenter, planetCenter);
+
+					// Si el chunk está demasiado lejos o demasiado profundo, ni lo procesamos
+					// El margen de "chunkSize.magnitude" es para no cortar bordes
+					float margin = chunkSize.magnitude;
+					if (distToPlanet > maxRadius + margin || distToPlanet < (radius - noiseAmplitude) - margin)
+					{
+						continue;
+					}
+					// -----------------------------
+
+					BuildChunkArray(new Vector3Int(x, y, z), chunkOrigin, radius, planetCenter);
+				}
+			}
+		}
 	}
 
-	private void BuildChunkArray(Vector3Int chunkIndex, float radius, Vector3 planetCenter)
+	private void BuildChunkArray(Vector3Int chunkIndex, Vector3 chunkOrigin, float radius, Vector3 planetCenter)
 	{
 		GameObject chunkObj = new GameObject($"Chunk_{chunkIndex.x}_{chunkIndex.y}_{chunkIndex.z}");
 		chunkObj.transform.parent = transform;
-		chunkObj.transform.position = new Vector3(
-			chunkIndex.x * chunkSize.x,
-			chunkIndex.y * chunkSize.y,
-			chunkIndex.z * chunkSize.z
-		);
+		chunkObj.transform.position = chunkOrigin;
 		chunkObj.AddComponent<LineRenderer>();
 
 		AbstractGridPoint[,,] grid = new AbstractGridPoint[chunkSize.x + 1, chunkSize.y + 1, chunkSize.z + 1];
-		Vector3 chunkOrigin = new Vector3(chunkIndex.x * chunkSize.x, chunkIndex.y * chunkSize.y, chunkIndex.z * chunkSize.z);
 
 		for (int z = 0; z <= chunkSize.z; z++)
 			for (int y = 0; y <= chunkSize.y; y++)
@@ -156,10 +192,12 @@ public class PlanetGen : MonoBehaviour
 		mr.material = material;
 	}
 	#endregion
-
+	//Obsoleto, se deja para referencia pero no se recomienda usarlo.
 	#region Physical Mode
+	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
 	private void BuildPlanetPhysical(float radius)
 	{
+		ActiveIns = this;
 		Vector3 planetCenter = new Vector3(radius, radius, radius);
 		Vector3Int chunksCount = new Vector3Int(
 			Mathf.CeilToInt((radius * 2 / chunkSize.x) + noiseAmplitude + ExtraOffset), //si no se suma tenemos montañas cortadas Xd xdxdxdxdxdxdx
@@ -172,6 +210,7 @@ public class PlanetGen : MonoBehaviour
 				for (int z = 0; z < chunksCount.z; z++)
 					BuildChunkPhysical(new Vector3Int(x, y, z), radius, planetCenter);
 	}
+	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
 
 	private void BuildChunkPhysical(Vector3Int chunkIndex, float radius, Vector3 planetCenter)
 	{
@@ -214,6 +253,7 @@ public class PlanetGen : MonoBehaviour
 
 		BuildChunkMesh(grid, chunkObj);
 	}
+	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
 
 	private void BuildChunkMesh(GridPoint[,,] grid, GameObject parent)
 	{
@@ -255,7 +295,7 @@ public class PlanetGen : MonoBehaviour
 		MeshRenderer mr = parent.AddComponent<MeshRenderer>();
 		mr.material = material;
 	}
-	#endregion
+	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
 
 	private void BuildMeshCellData(ref GridCell cell, List<Vector3> vertices, List<int> triangles, List<Vector2> uv)
 	{
@@ -285,6 +325,7 @@ public class PlanetGen : MonoBehaviour
 			uvAlternate = !uvAlternate;
 		}
 	}
+	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
 
 	private void BuildMeshCellData(ref AbstractGridCell cell, List<Vector3> vertices, List<int> triangles, List<Vector2> uv)
 	{
@@ -314,9 +355,12 @@ public class PlanetGen : MonoBehaviour
 			uvAlternate = !uvAlternate;
 		}
 	}
+	#endregion
+
 	public bool drawGrid = true;
 	public Material debugLineMaterial;
 
+	//esto no es obsoleto hasta tendra un comando de consola para mostrarlo en el juego  :) y ya lo tiene es "togglewires"
 	private void DrawChunkWireframe(GameObject chunk)
 	{
 		LineRenderer lr = chunk.GetComponent<LineRenderer>();
@@ -351,8 +395,8 @@ public class PlanetGen : MonoBehaviour
 		Vector3[] positions = new Vector3[16]
 		{
 		corners[0], corners[1], corners[2], corners[3], corners[0], // base
-        corners[4], corners[5], corners[6], corners[7], corners[4], // top
-        corners[7], corners[3], corners[6], corners[2], corners[5], corners[1] // verticales
+		corners[4], corners[5], corners[6], corners[7], corners[4], // top
+		corners[7], corners[3], corners[6], corners[2], corners[5], corners[1] // verticales
 		};
 
 		lr.SetPositions(positions);
@@ -364,7 +408,50 @@ public class PlanetGen : MonoBehaviour
 
 
 	}
+	[ConsoleCommand("regplt", false)]
+	public static void RegeneratePlanet()
+	{
+		if (ActiveIns != null)
+		{
+			foreach (Transform child in ActiveIns.transform)
+			{
+				Destroy(child.gameObject);
+			}
+			float radius = ActiveIns.planetData.radius * 100f;
+			if (ActiveIns.useAbstract)
+			{
+				ActiveIns.BuildPlanetAbstract(radius);
+				foreach (Transform chunk in ActiveIns.transform)
+				{
+					ActiveIns.DrawChunkWireframe(chunk.gameObject);
+				}
+			}
+			else
+			{
+				ActiveIns.BuildPlanetPhysical(radius);
+				foreach (Transform chunk in ActiveIns.transform)
+				{
+					ActiveIns.DrawChunkWireframe(chunk.gameObject);
+				}
+			}
+		}
+		else
+		{
+			Debug.LogError("No hay instancia activa de PlanetGen para regenerar.");
+		}
+	}
 
-
+	[ConsoleCommand("togglewires", false)]
+	public static void ToggleWires()
+	{
+		if (ActiveIns != null)
+		{
+			ActiveIns.drawGrid = !ActiveIns.drawGrid;
+			foreach (Transform chunk in ActiveIns.transform)
+			{
+				ActiveIns.DrawChunkWireframe(chunk.gameObject);
+			}
+		}
+	}
 }
 

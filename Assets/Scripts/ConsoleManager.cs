@@ -233,10 +233,10 @@ public class ConsoleManager : MonoBehaviour
 	{
 		Debug.Log("📖 Comandos disponibles:");
 
-		//si asi es PARECE Python
+		//si asi es PARECE Python ohno
 		foreach (var cmd in Instance.commands.Values)
 			if (!cmd.Attribute.IsEgg)
-				Debug.Log($" - {cmd.Attribute.Name}");
+				Debug.Log($" - {cmd.Attribute.Name} -{cmd.Attribute.Description}"); //aunque a mayoria no tiene descripción, pero bueno
 			else
 				continue;
 	}
