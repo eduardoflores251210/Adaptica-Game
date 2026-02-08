@@ -14,3 +14,4 @@ using UnityEngine;
 [assembly: SuppressMessage("Style", "IDE0020:Usar coincidencia de patrones", Justification = "NO ES LEGIBLE", Scope = "module")]
 [assembly: SuppressMessage("Style", "IDE0251:Convertir el miembro en 'readonly'", Justification = "NO QUIERO", Scope = "module")]
 [assembly: SuppressMessage("Style", "IDE0038:Usar coincidencia de patrones", Justification = "NO NO NO", Scope = "module")]
+[assembly: SuppressMessage("Style", "IDE0054:Usar la asignación compuesta", Justification = "<pendiente>", Scope = "module")]
