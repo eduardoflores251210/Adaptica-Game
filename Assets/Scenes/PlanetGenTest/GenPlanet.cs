@@ -86,17 +86,32 @@ public class PlanetGen : MonoBehaviour
 				RegenerateMeshesFromWorldData(radius);
 			}
 
-			foreach (Transform chunk in transform)
-			{
-				DrawChunkWireframe(chunk.gameObject); // se dibuja el wireframe de los chunks para verificar que está correcto.
-			}
+
 		}
 		else
 		{
 			Debug.Log("YAn o existe el modo fisdico");
 		}
 	}
-
+	// Sólo para debug: compara 10 posiciones al azar entre native y converted grid
+	void DebugVerifyIndexing(NativeArray<AbstractGridPointbit> native, AbstractGridPoint[,,] converted)
+	{
+		int resX = chunkSize.x + 1, resY = chunkSize.y + 1, resZ = chunkSize.z + 1;
+		for (int z = 0; z < resZ; z++)
+			for (int y = 0; y < resY; y++)
+				for (int x = 0; x < resX; x++)
+				{
+					int idx = x + y * resX + z * resX * resY;
+					var n = native[idx];
+					var c = converted[x, y, z];
+					if (math.abs(n.Value - c.Value) > 1e-6f || (n.Position.x != c.Position.x || n.Position.y != c.Position.y || n.Position.z != c.Position.z))
+					{
+						Debug.LogError($"Index mismatch at {x},{y},{z} idx={idx} nativeVal={n.Value} convVal={c.Value}");
+						return;
+					}
+				}
+		Debug.Log("Indexing OK");
+	}
 	// ------------------------------
 	// Helpers y nombres
 	// ------------------------------
@@ -223,6 +238,11 @@ public class PlanetGen : MonoBehaviour
 					else bt++;
 				}
 			}
+
+		}
+		foreach (Transform chunk in transform)
+		{
+			DrawChunkWireframe(chunk.gameObject); // se dibuja el wireframe de los chunks para verificar que está correcto.
 		}
 	}
 
@@ -252,7 +272,6 @@ public class PlanetGen : MonoBehaviour
 			seed = planetData.Seed,
 			gridPoints = gridPoints
 		};
-
 		// 2. Job de Malla
 		var meshJob = new GenerateMeshJob
 		{
@@ -267,6 +286,8 @@ public class PlanetGen : MonoBehaviour
 
 		JobHandle handle = meshJob.Schedule(cellCount, 32, pointsJob.Schedule(pointCount, 64));
 		handle.Complete();
+		DebugVerifyIndexing(gridPoints, ConvertNativeToAbstract(gridPoints));
+		DebugDumpSample(gridPoints);
 
 		// 3. WorldData (Opcional - solo si necesitas editarlo luego)
 		if (!WorldData.ContainsKey(chunkIndex))
@@ -277,11 +298,19 @@ public class PlanetGen : MonoBehaviour
 		// 4. Aplicar Malla
 		UpdateMesh(chunkObj, outVerts, outNorms);
 
-		// 5. Limpieza total
+		// Pruebas unitarias locales
+		Debug.Assert(chunkObj != null, "Chunk obj NULL");
+		Debug.Assert(gridPoints.Length == pointCount, "??? inconsisten lenght ");
+		Debug.Assert(outVerts.Length > 0, "Verts > 0") ;
+		Debug.Log($"Cantidad de vértices generados: {outVerts.Length}");
+		Debug.Assert(WorldData.ContainsKey(chunkIndex) , "No key " + chunkIndex);
+
 		gridPoints.Dispose();
 		outVerts.Dispose();
 		outNorms.Dispose();
 	}
+
+
 	private AbstractGridPoint[,,] ConvertNativeToAbstract(NativeArray<AbstractGridPointbit> nativePoints)
 	{
 		// 1. Crear el array de clases con las dimensiones del chunk
@@ -662,6 +691,25 @@ public class PlanetGen : MonoBehaviour
 	{
 		LoadWithLoadingScreen.LoadScene(7, Stages.Creature);
 	}
+	private void DebugDumpSample(NativeArray<AbstractGridPointbit> gridPoints)
+	{
+		int w = chunkSize.x + 1;
+		int h = chunkSize.y + 1;
+		int d = chunkSize.z + 1;
+		Debug.Log($"Dump sample grid: w={w} h={h} d={d} total={gridPoints.Length}");
+		for (int z = 0; z < Mathf.Min(2, d); z++)
+		{
+			for (int y = 0; y < Mathf.Min(2, h); y++)
+			{
+				for (int x = 0; x < Mathf.Min(4, w); x++)
+				{
+					int idx = x + y * w + z * (w * h);
+					var p = gridPoints[idx];
+					Debug.Log($"idx={idx} -> ({x},{y},{z}) pos={p.Position} val={p.Value}");
+				}
+			}
+		}
+	}
 	
 }
 
@@ -730,27 +778,29 @@ public struct GenerateMeshJob : IJobParallelFor
 
 	public void Execute(int index)
 	{
-		// 1. Calcular X, Y, Z de la celda actual
 		int x = index % chunkSize.x;
 		int y = (index / chunkSize.x) % chunkSize.y;
 		int z = index / (chunkSize.x * chunkSize.y);
 
-		// Omitir las celdas del borde para evitar salirnos del array de puntos
+		int pW = chunkSize.x + 1;
+		int pLayers = pW * (chunkSize.y + 1);
+
+		// Seguridad: No procesar celdas fuera de rango
 		if (x >= chunkSize.x || y >= chunkSize.y || z >= chunkSize.z) return;
 
-		// 2. Obtener los 8 puntos usando TU mapeo de Metabolas
-		// p0: (x, y, z+1), p1: (x+1, y, z+1), etc...
 		AbstractGridCellBit cell = new AbstractGridCellBit();
-		cell.p0 = GetPoint(x, y, z + 1);
-		cell.p1 = GetPoint(x + 1, y, z + 1);
-		cell.p2 = GetPoint(x + 1, y, z);
-		cell.p3 = GetPoint(x, y, z);
-		cell.p4 = GetPoint(x, y + 1, z + 1);
-		cell.p5 = GetPoint(x + 1, y + 1, z + 1);
-		cell.p6 = GetPoint(x + 1, y + 1, z);
-		cell.p7 = GetPoint(x, y + 1, z);
 
-		// 3. Ejecutar Lógica de IsoFaces (Portado)
+		// PASO 3: Asignación de puntos (ESTÁNDAR BOURKE)
+		cell.p0 = gridPoints[x + y * pW + z * pLayers];
+		cell.p1 = gridPoints[(x + 1) + y * pW + z * pLayers];
+		cell.p2 = gridPoints[(x + 1) + y * pW + (z + 1) * pLayers];
+		cell.p3 = gridPoints[x + y * pW + (z + 1) * pLayers];
+		cell.p4 = gridPoints[x + (y + 1) * pW + z * pLayers];
+		cell.p5 = gridPoints[(x + 1) + (y + 1) * pW + z * pLayers];
+		cell.p6 = gridPoints[(x + 1) + (y + 1) * pW + (z + 1) * pLayers];
+		cell.p7 = gridPoints[x + (y + 1) * pW + (z + 1) * pLayers];
+
+		// PASO 3.1: Configuración de bits (Igual que antes)
 		cell.config = 0;
 		if (cell.p0.Value < surfaceLevel) cell.config |= 1;
 		if (cell.p1.Value < surfaceLevel) cell.config |= 2;
@@ -764,19 +814,22 @@ public struct GenerateMeshJob : IJobParallelFor
 		int edgeMask = edgeTableJ[cell.config];
 		if (edgeMask == 0) return;
 
-		// 4. Interpolación (Igual que Metabolas pero con float3)
+		// PASO 4: INTERPOLACIÓN SINCRONIZADA (Aquí estaba el fallo)
 		float3 e0 = float3.zero, e1 = float3.zero, e2 = float3.zero, e3 = float3.zero;
 		float3 e4 = float3.zero, e5 = float3.zero, e6 = float3.zero, e7 = float3.zero;
 		float3 e8 = float3.zero, e9 = float3.zero, e10 = float3.zero, e11 = float3.zero;
 
+		// Conexiones de la cara inferior
 		if ((edgeMask & 1) != 0) e0 = Interpolate(cell.p0, cell.p1);
 		if ((edgeMask & 2) != 0) e1 = Interpolate(cell.p1, cell.p2);
 		if ((edgeMask & 4) != 0) e2 = Interpolate(cell.p2, cell.p3);
 		if ((edgeMask & 8) != 0) e3 = Interpolate(cell.p3, cell.p0);
+		// Conexiones de la cara superior
 		if ((edgeMask & 16) != 0) e4 = Interpolate(cell.p4, cell.p5);
 		if ((edgeMask & 32) != 0) e5 = Interpolate(cell.p5, cell.p6);
 		if ((edgeMask & 64) != 0) e6 = Interpolate(cell.p6, cell.p7);
 		if ((edgeMask & 128) != 0) e7 = Interpolate(cell.p7, cell.p4);
+		// Conexiones verticales entre caras
 		if ((edgeMask & 256) != 0) e8 = Interpolate(cell.p0, cell.p4);
 		if ((edgeMask & 512) != 0) e9 = Interpolate(cell.p1, cell.p5);
 		if ((edgeMask & 1024) != 0) e10 = Interpolate(cell.p2, cell.p6);
@@ -804,13 +857,19 @@ public struct GenerateMeshJob : IJobParallelFor
 
 	// --- MÉTODOS AUXILIARES ---
 
+	// Pero el GetPoint DEBE usar el ancho del array de puntos (pointsPerRow)
 	private AbstractGridPointbit GetPoint(int x, int y, int z)
 	{
-		// Importante: El mismo cálculo de índice que usaste al generar los puntos
-		int idx = x + y * (chunkSize.x + 1) + z * (chunkSize.x + 1) * (chunkSize.y + 1);
+		// El ancho real del array de puntos es chunkSize + 1
+		int width = chunkSize.x + 1;
+		int slice = width * (chunkSize.y + 1);
+
+		// Si x, y o z se pasan del límite de puntos, esto causaría la telaraña
+		// Pero el Job de celdas (0 a 15) al pedir (x+1) debería llegar máximo a 16.
+		int idx = x + (y * width) + (z * slice);
+
 		return gridPoints[idx];
 	}
-
 	private float3 Interpolate(AbstractGridPointbit v1, AbstractGridPointbit v2)
 	{
 		if (math.abs(surfaceLevel - v1.Value) < 0.00001f) return v1.Position;

@@ -58,6 +58,7 @@ public class GalaxyGenerator : MonoBehaviour
 			System.Security.Cryptography.RandomNumberGenerator.Fill(b);
 			return BitConverter.ToInt32(b);
 		}
+		Soap soap = new Soap();
 		int seed = Seed();
 		Random = new Random(seed);
 		Debug.Log($"SEED {seed}"); 

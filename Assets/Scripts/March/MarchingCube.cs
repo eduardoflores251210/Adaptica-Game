@@ -1335,8 +1335,8 @@ public struct AbstractGridCellBit
 		config = 0;
 		numtriangles = 0;
 		T0.Clear(); T1.Clear(); T2.Clear(); T3.Clear(); T4.Clear();
-		edge0 = edge1 = edge2 = edge3 = edge4 = edge5 = Vector3.zero;
-		edge6 = edge7 = edge8 = edge9 = edge10 = edge11 = Vector3.zero;
+		edge0 = edge1 = edge2 = edge3 = edge4 = edge5 = float3.zero;
+		edge6 = edge7 = edge8 = edge9 = edge10 = edge11 = float3.zero;
 	}
 
 	public static explicit operator AbstractGridCellBit(AbstractGridCell c)
