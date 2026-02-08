@@ -5,13 +5,8 @@ using StandartUtilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Burst;
-using Unity.Collections;
-using Unity.Jobs;
-using Unity.Mathematics;
-using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.Rendering;
 
 public class PlanetGen : MonoBehaviour
 {
@@ -35,7 +30,7 @@ public class PlanetGen : MonoBehaviour
 	public Vector3Int cubeSize = new Vector3Int(4, 4, 4);
 	public float SurfaceLevel = 0.5f;
 	public Material material;
-	public byte Batches = 0x0F;
+	public Byte Batches = 0xF;
 	[Header("Opciones de ruido")]
 	public float noiseScale = 0.1f;
 	public float noiseAmplitude = 5f;
@@ -47,24 +42,13 @@ public class PlanetGen : MonoBehaviour
 	private List<Vector3> _tempVertices = new List<Vector3>();
 	private List<int> _tempTriangles = new List<int>();
 	private List<Vector2> _tempUVs = new List<Vector2>();
-	private void Awake()
-	{
-		ActiveIns = this; // Aprovechamos para asignar la instancia
-		InitializeNativeTables();
-	}
 
-	// ¡MUY IMPORTANTE! Si no haces esto, Unity explotará al cerrar el editor
-	private void OnDestroy()
-	{
-		if (nativeEdgeTable.IsCreated) nativeEdgeTable.Dispose();
-		if (nativeTriTable.IsCreated) nativeTriTable.Dispose();
-	}
 	private void Start()
 	{
 		if (planetData == null)
 		{
 			Debug.LogWarning("PlanetData no asignado, usando radio 1. (Porque la vida es así de generosa).");
-			planetData = new PlanetData { radius = 1f, Seed = UnityEngine.Random.Range(-0xAAAA, 0xAAAA+0x1) };
+			planetData = new PlanetData { radius = 1f, Seed = UnityEngine.Random.Range(-0xAAAA, 0xAAAA + 0x1) };
 		}
 
 		float radius = planetData.radius * 100f;
@@ -86,32 +70,23 @@ public class PlanetGen : MonoBehaviour
 				RegenerateMeshesFromWorldData(radius);
 			}
 
-
+			foreach (Transform chunk in transform)
+			{
+				DrawChunkWireframe(chunk.gameObject); // se dibuja el wireframe de los chunks para verificar que está correcto.
+			}
 		}
 		else
 		{
-			Debug.Log("YAn o existe el modo fisdico");
+			Debug.LogWarning("Modo físico en uso, puede ser ineficiente. además está deprecado/obsoleto");
+			BuildPlanetPhysical(radius);
+			Debug.LogWarning("Se generó el planeta ya puedes descansar pues la parte pesada ya pasó, ahora solo queda dibujar el wireframe de los chunks para verificar que está correcto.");
+			foreach (Transform chunk in transform)
+			{
+				DrawChunkWireframe(chunk.gameObject);
+			}
 		}
 	}
-	// Sólo para debug: compara 10 posiciones al azar entre native y converted grid
-	void DebugVerifyIndexing(NativeArray<AbstractGridPointbit> native, AbstractGridPoint[,,] converted)
-	{
-		int resX = chunkSize.x + 1, resY = chunkSize.y + 1, resZ = chunkSize.z + 1;
-		for (int z = 0; z < resZ; z++)
-			for (int y = 0; y < resY; y++)
-				for (int x = 0; x < resX; x++)
-				{
-					int idx = x + y * resX + z * resX * resY;
-					var n = native[idx];
-					var c = converted[x, y, z];
-					if (math.abs(n.Value - c.Value) > 1e-6f || (n.Position.x != c.Position.x || n.Position.y != c.Position.y || n.Position.z != c.Position.z))
-					{
-						Debug.LogError($"Index mismatch at {x},{y},{z} idx={idx} nativeVal={n.Value} convVal={c.Value}");
-						return;
-					}
-				}
-		Debug.Log("Indexing OK");
-	}
+
 	// ------------------------------
 	// Helpers y nombres
 	// ------------------------------
@@ -212,38 +187,33 @@ public class PlanetGen : MonoBehaviour
 			{
 				for (int z = 0; z < chunksZ; z++)
 				{
-					Vector3 chunkOrigin = new Vector3(
-						x * chunkSize.x,
-						y * chunkSize.y,
-						z * chunkSize.z
-					) - startOffset;
-
-					// --- OPTIMIZACIÓN: CULLING ---
+					// 1. Calculamos posición y Culling
+					Vector3 chunkOrigin = new Vector3(x * chunkSize.x, y * chunkSize.y, z * chunkSize.z) - startOffset;
 					Vector3 chunkCenter = chunkOrigin + (Vector3)chunkSize / 2f;
 					float distToPlanet = Vector3.Distance(chunkCenter, planetCenter);
 
 					float margin = chunkSize.magnitude;
+
+					// Si el chunk se descarta, pasamos al siguiente inmediatamente
 					if (distToPlanet > maxRadius + margin || distToPlanet < (radius - noiseAmplitude) - margin)
 					{
 						continue;
 					}
-					// -----------------------------
 
+					// 2. Si llegamos aquí, es un chunk que SÍ se va a procesar
 					BuildChunkArray(new Vector3Int(x, y, z), chunkOrigin, radius, planetCenter);
-					if (bt >= Batches)
+
+					// 3. Control de batches (PAUSA)
+					bt++;
+					if (bt >= Batches) // Asegúrate de que 'Batches' sea un número como 3 o 5
 					{
 						bt = 0;
-						yield return null; //esperamos al proximo frame
+						yield return null;
 					}
-					else bt++;
 				}
 			}
-
 		}
-		foreach (Transform chunk in transform)
-		{
-			DrawChunkWireframe(chunk.gameObject); // se dibuja el wireframe de los chunks para verificar que está correcto.
-		}
+		Debug.Log("Generación terminada.");
 	}
 
 	private void BuildChunkArray(Vector3Int chunkIndex, Vector3 chunkOrigin, float radius, Vector3 planetCenter)
@@ -251,137 +221,71 @@ public class PlanetGen : MonoBehaviour
 		string name = GetChunkName(chunkIndex);
 		GameObject chunkObj = CreateNewChunkObject(name, chunkOrigin);
 
-		int pointCount = (chunkSize.x + 1) * (chunkSize.y + 1) * (chunkSize.z + 1);
-		int cellCount = chunkSize.x * chunkSize.y * chunkSize.z;
+		// Aseguramos que tenga LineRenderer (para dibujar wireframe)
+		LineRenderer lr = chunkObj.GetComponent<LineRenderer>();
+		if (lr == null) lr = chunkObj.AddComponent<LineRenderer>();
 
-		// Usamos Persistent porque las corrutinas pueden durar más de 4 frames
-		NativeArray<AbstractGridPointbit> gridPoints = new NativeArray<AbstractGridPointbit>(pointCount, Allocator.Persistent);
-		NativeList<float3> outVerts = new NativeList<float3>(cellCount * 15, Allocator.Persistent);
-		NativeList<float3> outNorms = new NativeList<float3>(cellCount * 15, Allocator.Persistent);
+		AbstractGridPoint[,,] grid = new AbstractGridPoint[chunkSize.x + 1, chunkSize.y + 1, chunkSize.z + 1];
 
-		// 1. Job de Puntos
-		var pointsJob = new GeneratePointsJob
-		{
-			chunkSize = new int3(chunkSize.x, chunkSize.y, chunkSize.z),
-			chunkOrigin = chunkOrigin,
-			planetCenter = planetCenter,
-			radius = radius,
-			noiseScale = noiseScale,
-			noiseAmplitude = noiseAmplitude,
-			noiseIntensity = noiseIntensity,
-			seed = planetData.Seed,
-			gridPoints = gridPoints
-		};
-		// 2. Job de Malla
-		var meshJob = new GenerateMeshJob
-		{
-			chunkSize = new int3(chunkSize.x, chunkSize.y, chunkSize.z),
-			surfaceLevel = SurfaceLevel,
-			gridPoints = gridPoints,
-			edgeTableJ = nativeEdgeTable,
-			triTableJ = nativeTriTable,
-			outputVertices = outVerts.AsParallelWriter(),
-			outputNormals = outNorms.AsParallelWriter()
-		};
+		for (int z = 0; z <= chunkSize.z; z++)
+			for (int y = 0; y <= chunkSize.y; y++)
+				for (int x = 0; x <= chunkSize.x; x++)
+				{
+					Vector3 posLocal = new Vector3(x, y, z);
+					Vector3 posMundo = chunkOrigin + posLocal;
+					float dist = Vector3.Distance(posMundo, planetCenter);
 
-		JobHandle handle = meshJob.Schedule(cellCount, 32, pointsJob.Schedule(pointCount, 64));
-		handle.Complete();
-		DebugVerifyIndexing(gridPoints, ConvertNativeToAbstract(gridPoints));
-		DebugDumpSample(gridPoints);
 
-		// 3. WorldData (Opcional - solo si necesitas editarlo luego)
+
+					float offset = Noise4D(
+						new Vector4(posMundo.x, posMundo.y, posMundo.z, planetData.Seed),
+						noiseScale,
+						noiseAmplitude,
+						noiseIntensity
+					);
+					grid[x, y, z] = new AbstractGridPoint
+					{
+						Position = posLocal, // <-- usa posLocal
+						Value = (radius + offset) - dist
+					};
+				}
+
+		// Rellenamos el diccionario la PRIMERA vez.
+		// Si WorldData ya tiene la clave (p. ej. lo preparaste), respetamos tu grid y NO lo sobreescribimos.
 		if (!WorldData.ContainsKey(chunkIndex))
 		{
-			WorldData[chunkIndex] = ConvertNativeToAbstract(gridPoints);
+			WorldData[chunkIndex] = grid;
 		}
-
-		// 4. Aplicar Malla
-		UpdateMesh(chunkObj, outVerts, outNorms);
-
-		// Pruebas unitarias locales
-		Debug.Assert(chunkObj != null, "Chunk obj NULL");
-		Debug.Assert(gridPoints.Length == pointCount, "??? inconsisten lenght ");
-		Debug.Assert(outVerts.Length > 0, "Verts > 0") ;
-		Debug.Log($"Cantidad de vértices generados: {outVerts.Length}");
-		Debug.Assert(WorldData.ContainsKey(chunkIndex) , "No key " + chunkIndex);
-
-		gridPoints.Dispose();
-		outVerts.Dispose();
-		outNorms.Dispose();
-	}
-
-
-	private AbstractGridPoint[,,] ConvertNativeToAbstract(NativeArray<AbstractGridPointbit> nativePoints)
-	{
-		// 1. Crear el array de clases con las dimensiones del chunk
-		// Usamos +1 porque el grid de puntos siempre es un paso más grande que el de celdas
-		int resX = chunkSize.x + 1;
-		int resY = chunkSize.y + 1;
-		int resZ = chunkSize.z + 1;
-		AbstractGridPoint[,,] grid = new AbstractGridPoint[resX, resY, resZ];
-
-		// 2. Recorrer el NativeArray y reconstruir el array [,,]
-		for (int i = 0; i < nativePoints.Length; i++)
+		else
 		{
-			// Extraer los datos del struct (bit)
-			AbstractGridPointbit bitPoint = nativePoints[i];
-
-			// Desglosar el índice lineal 'i' a coordenadas 3D
-			// Debe coincidir EXACTAMENTE con la lógica de GeneratePointsJob
-			int x = i % resX;
-			int y = (i / resX) % resY;
-			int z = i / (resX * resY);
-
-			// 3. Conversión usando tu operador explícito (AbstractGridPoint)bitPoint
-			grid[x, y, z] = (AbstractGridPoint)bitPoint;
+			// si quieres sobreescribir intencionalmente, aquí es donde podrías hacerlo.
+			// por ahora respetamos los datos que ya tenías (porque dijiste que los preparaste).
 		}
 
-		return grid;
+		// Generamos malla usando el grid (sea el nuevo o el que ya tenías)
+		// IMPORTANTE: usamos WorldData[chunkIndex] para mantener consistencia con lo que pueda haber preparado el usuario.
+		BuildChunkMeshArray(WorldData[chunkIndex], chunkObj);
 	}
-	private NativeArray<int> nativeEdgeTable;
-	private NativeArray<int> nativeTriTable;
-	private void UpdateMesh(GameObject parent, NativeList<float3> verts, NativeList<float3> norms)
+	// Función auxiliar para ruido 4D (puedes ponerla al final de tu clase)
+	private static float Noise4D(Vector4 Pos, float noise_scale, float noiseAmplitud, float noiseIntensity)
 	{
-		Mesh mesh = new Mesh();
-		// Si el planeta es muy detallado, activamos índices de 32 bits
-		if (verts.Length > 65535) mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+		// La escala DEBE multiplicar a las coordenadas antes de entrar al ruido
+		// Usamos Pos.w (tu semilla) como un offset que desplaza la "realidad" del ruido
+		float x = Pos.x * noise_scale;
+		float y = Pos.y * noise_scale;
+		float z = Pos.z * noise_scale;
+		float w = Pos.w; // La semilla no suele escalarse, es un offset puro
 
-		mesh.SetVertices(verts.AsArray().Reinterpret<Vector3>());
-		mesh.SetNormals(norms.AsArray().Reinterpret<Vector3>());
+		float ab = Mathf.PerlinNoise(x + w, y);
+		float bc = Mathf.PerlinNoise(y + w, z);
+		float ac = Mathf.PerlinNoise(x + w, z);
 
-		// Como no estamos usando Indexing compartido, creamos un array secuencial [0, 1, 2, 3...]
-		int[] indices = new int[verts.Length];
-		for (int i = 0; i < indices.Length; i++) indices[i] = i;
+		float ba = Mathf.PerlinNoise(y - w, x);
+		float cb = Mathf.PerlinNoise(z - w, y);
+		float ca = Mathf.PerlinNoise(z - w, x);
 
-		mesh.SetTriangles(indices, 0);
-		EnsureMeshComponentsReplaced(parent, mesh);
-	}
-
-	void InitializeNativeTables()
-	{
-		nativeEdgeTable = new NativeArray<int>(MarchingCube.edgeTable, Allocator.Persistent);
-		nativeTriTable = new NativeArray<int>(FlattenArray<int>(MarchingCube.triangleTable), Allocator.Persistent);
-
-	}
-
-	public static T[] FlattenArray<T>(T[,] twoDArray)
-	{
-		if (twoDArray == null) return new T[0]; // prevención de nulls
-
-		int rows = twoDArray.GetLength(0);
-		int cols = twoDArray.GetLength(1);
-		T[] flat = new T[rows * cols];
-
-		int index = 0;
-		for (int i = 0; i < rows; i++)
-		{
-			for (int j = 0; j < cols; j++)
-			{
-				flat[index++] = twoDArray[i, j];
-			}
-		}
-
-		return flat;
+		// El promedio se multiplica por la amplitud y la intensidad al final
+		return ((ab + bc + ac + ba + cb + ca) / 6f) * noiseAmplitud * noiseIntensity;
 	}
 	private void BuildChunkMeshArray(AbstractGridPoint[,,] grid, GameObject parent)
 	{
@@ -424,7 +328,143 @@ public class PlanetGen : MonoBehaviour
 
 	#endregion
 
-	//-------------------------
+	#region Pysical Mode
+	// ------------------------------
+	// Physical Mode (obsoleto, sin cambios mayores)
+	// ------------------------------
+	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
+	private void BuildPlanetPhysical(float radius)
+	{
+		ActiveIns = this;
+		Vector3 planetCenter = new Vector3(radius, radius, radius);
+		Vector3Int chunksCount = new Vector3Int(
+			Mathf.CeilToInt((radius * 2 / chunkSize.x) + noiseAmplitude + ExtraOffset),
+			Mathf.CeilToInt((radius * 2 / chunkSize.y) + noiseAmplitude + ExtraOffset),
+			Mathf.CeilToInt((radius * 2 / chunkSize.z) + noiseAmplitude + ExtraOffset)
+		);
+
+		for (int x = 0; x < chunksCount.x; x++)
+			for (int y = 0; y < chunksCount.y; y++)
+				for (int z = 0; z < chunksCount.z; z++)
+					BuildChunkPhysical(new Vector3Int(x, y, z), radius, planetCenter);
+	}
+
+	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
+	private void BuildChunkPhysical(Vector3Int chunkIndex, float radius, Vector3 planetCenter)
+	{
+		GameObject chunkObj = new GameObject($"Chunk_{chunkIndex.x}_{chunkIndex.y}_{chunkIndex.z}");
+		chunkObj.transform.parent = transform;
+		chunkObj.transform.position = new Vector3(
+			chunkIndex.x * chunkSize.x,
+			chunkIndex.y * chunkSize.y,
+			chunkIndex.z * chunkSize.z
+		);
+		chunkObj.AddComponent<LineRenderer>();
+
+		GridPoint[,,] grid = new GridPoint[chunkSize.x + 1, chunkSize.y + 1, chunkSize.z + 1];
+		Vector3 chunkOrigin = new Vector3(chunkIndex.x * chunkSize.x, chunkIndex.y * chunkSize.y, chunkIndex.z * chunkSize.z);
+
+		for (int z = 0; z <= chunkSize.z; z++)
+			for (int y = 0; y <= chunkSize.y; y++)
+				for (int x = 0; x <= chunkSize.x; x++)
+				{
+					Vector3 pos = chunkOrigin + new Vector3(x, y, z);
+					float dist = Vector3.Distance(pos, planetCenter);
+					Vector3 posLocal = new Vector3(x, y, z);
+					float offset = (
+						Mathf.PerlinNoise((pos.x + z) * noiseScale, (pos.y + z) * noiseScale) +
+						Mathf.PerlinNoise((pos.y + z) * noiseScale, (pos.z + z) * noiseScale) +
+						Mathf.PerlinNoise((pos.x + z) * noiseScale, (pos.z + z) * noiseScale)
+					) / 3f * noiseAmplitude * noiseIntensity;
+
+					GameObject gpObj = new GameObject($"GP_{x}_{y}_{z}");
+					gpObj.transform.parent = chunkObj.transform;
+					gpObj.transform.localPosition = new Vector3(x, y, z);
+
+					GridPoint gp = gpObj.AddComponent<GridPoint>();
+					gp.Position = posLocal;
+					gp.Size = 0.1f;
+					gp.Value = dist <= radius + offset ? 1f : 0f;
+
+					grid[x, y, z] = gp;
+				}
+
+		BuildChunkMesh(grid, chunkObj);
+	}
+
+	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
+	private void BuildChunkMesh(GridPoint[,,] grid, GameObject parent)
+	{
+		List<Vector3> vertices = new List<Vector3>();
+		List<int> triangles = new List<int>();
+		List<Vector2> uv = new List<Vector2>();
+
+		GridCell cell = new GridCell();
+		int gx = grid.GetLength(0) - 1;
+		int gy = grid.GetLength(1) - 1;
+		int gz = grid.GetLength(2) - 1;
+
+		for (int z = 0; z < gz; z++)
+			for (int y = 0; y < gy; y++)
+				for (int x = 0; x < gx; x++)
+				{
+					cell.p[0] = grid[x, y, z + 1];
+					cell.p[1] = grid[x + 1, y, z + 1];
+					cell.p[2] = grid[x + 1, y, z];
+					cell.p[3] = grid[x, y, z];
+					cell.p[4] = grid[x, y + 1, z + 1];
+					cell.p[5] = grid[x + 1, y + 1, z + 1];
+					cell.p[6] = grid[x + 1, y + 1, z];
+					cell.p[7] = grid[x, y + 1, z];
+
+					MarchingCube.IsoFaces(ref cell, SurfaceLevel);
+					BuildMeshCellData(ref cell, vertices, triangles, uv);
+				}
+
+		Mesh mesh = new Mesh();
+		mesh.vertices = vertices.ToArray();
+		mesh.triangles = triangles.ToArray();
+		mesh.uv = uv.ToArray();
+		mesh.RecalculateNormals();
+
+		MeshFilter mf = parent.AddComponent<MeshFilter>();
+		mf.mesh = mesh;
+
+		MeshRenderer mr = parent.AddComponent<MeshRenderer>();
+		mr.material = material;
+	}
+
+	[Obsolete("POR favor usa el modo abstracto, es mucho más eficiente y fácil de manejar. Este modo físico es solo para referencia histórica.")]
+	private void BuildMeshCellData(ref GridCell cell, List<Vector3> vertices, List<int> triangles, List<Vector2> uv)
+	{
+		bool uvAlternate = false;
+		for (int i = 0; i < cell.numtriangles; i++)
+		{
+			vertices.Add(cell.triangle[i].p[0]);
+			vertices.Add(cell.triangle[i].p[1]);
+			vertices.Add(cell.triangle[i].p[2]);
+
+			triangles.Add(vertices.Count - 3);
+			triangles.Add(vertices.Count - 2);
+			triangles.Add(vertices.Count - 1);
+
+			if (uvAlternate)
+			{
+				uv.Add(UVCoord.A);
+				uv.Add(UVCoord.C);
+				uv.Add(UVCoord.D);
+			}
+			else
+			{
+				uv.Add(UVCoord.A);
+				uv.Add(UVCoord.B);
+				uv.Add(UVCoord.C);
+			}
+			uvAlternate = !uvAlternate;
+		}
+	}
+	#endregion
+	// ------------------------------
 	// BuildMeshCellData para Abstract
 	// ------------------------------
 	private void BuildMeshCellData(ref AbstractGridCell cell, List<Vector3> vertices, List<int> triangles, List<Vector2> uv)
@@ -681,8 +721,8 @@ public class PlanetGen : MonoBehaviour
 		float radius = ActiveIns.planetData.radius * 100f;
 
 
-		// ya no es un método void:
-		ActiveIns.StartCoroutine(ActiveIns.BuildPlanetAbstract(radius));
+		// Si aún es un método void:
+		ActiveIns.BuildPlanetAbstract(radius);
 
 		Debug.Log("¡Planeta reseteado! (Como la economía de mi país, pero este sí funciona).");
 	}
@@ -690,213 +730,5 @@ public class PlanetGen : MonoBehaviour
 	public static void ldPT()
 	{
 		LoadWithLoadingScreen.LoadScene(7, Stages.Creature);
-	}
-	private void DebugDumpSample(NativeArray<AbstractGridPointbit> gridPoints)
-	{
-		int w = chunkSize.x + 1;
-		int h = chunkSize.y + 1;
-		int d = chunkSize.z + 1;
-		Debug.Log($"Dump sample grid: w={w} h={h} d={d} total={gridPoints.Length}");
-		for (int z = 0; z < Mathf.Min(2, d); z++)
-		{
-			for (int y = 0; y < Mathf.Min(2, h); y++)
-			{
-				for (int x = 0; x < Mathf.Min(4, w); x++)
-				{
-					int idx = x + y * w + z * (w * h);
-					var p = gridPoints[idx];
-					Debug.Log($"idx={idx} -> ({x},{y},{z}) pos={p.Position} val={p.Value}");
-				}
-			}
-		}
-	}
-	
-}
-
-public struct MeshStruct
-{
-	public NativeArray<Vector3> Verts;
-	public NativeArray<int> Tris;
-}
-[BurstCompile]
-public struct GeneratePointsJob : IJobParallelFor
-{
-	public int3 chunkSize;
-	public float3 chunkOrigin;
-	public float3 planetCenter;
-	public float radius;
-	public float noiseScale;
-	public float noiseAmplitude;
-	public float noiseIntensity;
-	public float seed;
-
-	public NativeArray<AbstractGridPointbit> gridPoints;
-
-	public void Execute(int index)
-	{
-		// Convertir índice 1D a 3D
-		int x = index % (chunkSize.x + 1);
-		int y = (index / (chunkSize.x + 1)) % (chunkSize.y + 1);
-		int z = index / ((chunkSize.x + 1) * (chunkSize.y + 1));
-
-		// Dentro de Execute del GeneratePointsJob
-		float3 posLocal = new float3(x, y, z);
-		// Asegúrate de que chunkOrigin sea EXACTAMENTE múltiplo de chunkSize
-		float3 posMundo = chunkOrigin + posLocal;
-
-		float dist = math.distance(posMundo, planetCenter);
-
-		// Ruido simple compatible con Burst
-		float noiseVal = noise.snoise(new float4(posMundo * noiseScale, seed));
-		float offset = noiseVal * noiseAmplitude * noiseIntensity;
-
-		gridPoints[index] = new AbstractGridPointbit
-		{
-			Position = posLocal,
-			Value = (radius + offset) - dist
-		};
-	}
-}
-
-
-
-[BurstCompile]
-public struct GenerateMeshJob : IJobParallelFor
-{
-	// Datos del Grid
-	[ReadOnly] public NativeArray<AbstractGridPointbit> gridPoints;
-	[ReadOnly] public int3 chunkSize;
-	public float surfaceLevel;
-
-	// Tablas de Marching Cubes (Aplanadas a 1D)
-	[ReadOnly] public NativeArray<int> triTableJ;
-	[ReadOnly] public NativeArray<int> edgeTableJ;
-
-	// Salida (Usa ParallelWriter para que varios hilos escriban a la vez)
-	public NativeList<float3>.ParallelWriter outputVertices;
-	public NativeList<float3>.ParallelWriter outputNormals;
-
-	public void Execute(int index)
-	{
-		int x = index % chunkSize.x;
-		int y = (index / chunkSize.x) % chunkSize.y;
-		int z = index / (chunkSize.x * chunkSize.y);
-
-		int pW = chunkSize.x + 1;
-		int pLayers = pW * (chunkSize.y + 1);
-
-		// Seguridad: No procesar celdas fuera de rango
-		if (x >= chunkSize.x || y >= chunkSize.y || z >= chunkSize.z) return;
-
-		AbstractGridCellBit cell = new AbstractGridCellBit();
-
-		// PASO 3: Asignación de puntos (ESTÁNDAR BOURKE)
-		cell.p0 = gridPoints[x + y * pW + z * pLayers];
-		cell.p1 = gridPoints[(x + 1) + y * pW + z * pLayers];
-		cell.p2 = gridPoints[(x + 1) + y * pW + (z + 1) * pLayers];
-		cell.p3 = gridPoints[x + y * pW + (z + 1) * pLayers];
-		cell.p4 = gridPoints[x + (y + 1) * pW + z * pLayers];
-		cell.p5 = gridPoints[(x + 1) + (y + 1) * pW + z * pLayers];
-		cell.p6 = gridPoints[(x + 1) + (y + 1) * pW + (z + 1) * pLayers];
-		cell.p7 = gridPoints[x + (y + 1) * pW + (z + 1) * pLayers];
-
-		// PASO 3.1: Configuración de bits (Igual que antes)
-		cell.config = 0;
-		if (cell.p0.Value < surfaceLevel) cell.config |= 1;
-		if (cell.p1.Value < surfaceLevel) cell.config |= 2;
-		if (cell.p2.Value < surfaceLevel) cell.config |= 4;
-		if (cell.p3.Value < surfaceLevel) cell.config |= 8;
-		if (cell.p4.Value < surfaceLevel) cell.config |= 16;
-		if (cell.p5.Value < surfaceLevel) cell.config |= 32;
-		if (cell.p6.Value < surfaceLevel) cell.config |= 64;
-		if (cell.p7.Value < surfaceLevel) cell.config |= 128;
-
-		int edgeMask = edgeTableJ[cell.config];
-		if (edgeMask == 0) return;
-
-		// PASO 4: INTERPOLACIÓN SINCRONIZADA (Aquí estaba el fallo)
-		float3 e0 = float3.zero, e1 = float3.zero, e2 = float3.zero, e3 = float3.zero;
-		float3 e4 = float3.zero, e5 = float3.zero, e6 = float3.zero, e7 = float3.zero;
-		float3 e8 = float3.zero, e9 = float3.zero, e10 = float3.zero, e11 = float3.zero;
-
-		// Conexiones de la cara inferior
-		if ((edgeMask & 1) != 0) e0 = Interpolate(cell.p0, cell.p1);
-		if ((edgeMask & 2) != 0) e1 = Interpolate(cell.p1, cell.p2);
-		if ((edgeMask & 4) != 0) e2 = Interpolate(cell.p2, cell.p3);
-		if ((edgeMask & 8) != 0) e3 = Interpolate(cell.p3, cell.p0);
-		// Conexiones de la cara superior
-		if ((edgeMask & 16) != 0) e4 = Interpolate(cell.p4, cell.p5);
-		if ((edgeMask & 32) != 0) e5 = Interpolate(cell.p5, cell.p6);
-		if ((edgeMask & 64) != 0) e6 = Interpolate(cell.p6, cell.p7);
-		if ((edgeMask & 128) != 0) e7 = Interpolate(cell.p7, cell.p4);
-		// Conexiones verticales entre caras
-		if ((edgeMask & 256) != 0) e8 = Interpolate(cell.p0, cell.p4);
-		if ((edgeMask & 512) != 0) e9 = Interpolate(cell.p1, cell.p5);
-		if ((edgeMask & 1024) != 0) e10 = Interpolate(cell.p2, cell.p6);
-		if ((edgeMask & 2048) != 0) e11 = Interpolate(cell.p3, cell.p7);
-
-		// 5. Generar Triángulos
-		int row = cell.config * 16;
-		for (int i = 0; triTableJ[row + i] != -1; i += 3)
-		{
-			float3 v0 = GetEdgePoint(triTableJ[row + i], e0, e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11);
-			float3 v1 = GetEdgePoint(triTableJ[row + i + 1], e0, e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11);
-			float3 v2 = GetEdgePoint(triTableJ[row + i + 2], e0, e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11);
-
-			outputVertices.AddNoResize(v0);
-			outputVertices.AddNoResize(v1);
-			outputVertices.AddNoResize(v2);
-
-			// Normal por cara (Flat Shading)
-			float3 normal = math.normalize(math.cross(v1 - v0, v2 - v0));
-			outputNormals.AddNoResize(normal);
-			outputNormals.AddNoResize(normal);
-			outputNormals.AddNoResize(normal);
-		}
-	}
-
-	// --- MÉTODOS AUXILIARES ---
-
-	// Pero el GetPoint DEBE usar el ancho del array de puntos (pointsPerRow)
-	private AbstractGridPointbit GetPoint(int x, int y, int z)
-	{
-		// El ancho real del array de puntos es chunkSize + 1
-		int width = chunkSize.x + 1;
-		int slice = width * (chunkSize.y + 1);
-
-		// Si x, y o z se pasan del límite de puntos, esto causaría la telaraña
-		// Pero el Job de celdas (0 a 15) al pedir (x+1) debería llegar máximo a 16.
-		int idx = x + (y * width) + (z * slice);
-
-		return gridPoints[idx];
-	}
-	private float3 Interpolate(AbstractGridPointbit v1, AbstractGridPointbit v2)
-	{
-		if (math.abs(surfaceLevel - v1.Value) < 0.00001f) return v1.Position;
-		if (math.abs(surfaceLevel - v2.Value) < 0.00001f) return v2.Position;
-		if (math.abs(v1.Value - v2.Value) < 0.00001f) return v1.Position;
-
-		float mu = (surfaceLevel - v1.Value) / (v2.Value - v1.Value);
-		return math.lerp(v1.Position, v2.Position, mu);
-	}
-
-	private float3 GetEdgePoint(int index, float3 e0, float3 e1, float3 e2, float3 e3, float3 e4, float3 e5, float3 e6, float3 e7, float3 e8, float3 e9, float3 e10, float3 e11)
-	{
-		switch (index)
-		{
-			case 0: return e0;
-			case 1: return e1;
-			case 2: return e2;
-			case 3: return e3;
-			case 4: return e4;
-			case 5: return e5;
-			case 6: return e6;
-			case 7: return e7;
-			case 8: return e8;
-			case 9: return e9;
-			case 10: return e10;
-			case 11: return e11;
-			default: return float3.zero;
-		}
 	}
 }
