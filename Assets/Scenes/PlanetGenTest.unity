@@ -1486,34 +1486,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   planetData:
-    Name: AE
-    Description: st
+    Name: weqrfwsedsdcfv
+    Description: 
     transform:
       Pos: {x: 0, y: 0, z: 0}
       Rot: {x: 0, y: 0, z: 0}
       Scale: {x: 0, y: 0, z: 0}
     Children: []
-    id: P21321
-    ParentID: S21231
+    id: 
+    ParentID: 
     HMapID: 
     IsSaveFile: 0
-    type: 9999
-    radius: 0.166
+    type: 0
+    radius: 1.16
     GasColors: []
-    Seed: 0
+    Seed: 8
   Chuncks: []
   useAbstract: 1
-  chunkSize: {x: 8, y: 8, z: 8}
-  cubeSize: {x: 16, y: 16, z: 16}
+  chunkSize: {x: 16, y: 16, z: 16}
+  cubeSize: {x: 4, y: 4, z: 4}
   SurfaceLevel: 0.5
   material: {fileID: 2100000, guid: f40717f437e95f54288c72287c000658, type: 2}
   Batches: 15
-  noiseScale: 0.05
+  noiseScale: 0.02
   noiseAmplitude: 5
-  ExtraOffset: 10
-  noiseIntensity: 1.7
+  ExtraOffset: 30
+  noiseIntensity: 4
   drawGrid: 1
-  debugLineMaterial: {fileID: 2100000, guid: 90fb7caabca84084e8c09e7b070936db, type: 2}
+  debugLineMaterial: {fileID: 2100000, guid: d236d145e09d20a44966cfdc88e1236e, type: 2}
 --- !u!4 &1013769983
 Transform:
   m_ObjectHideFlags: 0

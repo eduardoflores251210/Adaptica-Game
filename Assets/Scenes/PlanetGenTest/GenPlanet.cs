@@ -4,9 +4,14 @@ using SerializableTypes.Space;
 using StandartUtilities;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
+// Añadir estos usings junto al resto (arriba del fichero)
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Mesh = StandartUtilities.StdUtils.Serializable.Mesh;
 
 public class PlanetGen : MonoBehaviour
 {
@@ -37,7 +42,9 @@ public class PlanetGen : MonoBehaviour
 	public float ExtraOffset = 0f;
 	[Range(0f, 10f)]
 	public float noiseIntensity = 0.5f;
-
+	// Campos nuevos (añadir en la clase PlanetGen)
+	private CancellationTokenSource meshCts = new CancellationTokenSource();
+	private readonly ConcurrentBag<Task> backgroundTasks = new ConcurrentBag<Task>();
 	//Listas Temporales
 	private List<Vector3> _tempVertices = new List<Vector3>();
 	private List<int> _tempTriangles = new List<int>();
@@ -57,8 +64,6 @@ public class PlanetGen : MonoBehaviour
 
 		if (useAbstract)
 		{
-			// Si WorldData ya viene preparado (tu caso: lo preparaste antes), no lo limpiamos.
-			// Si está vacío, hacemos la generación completa y rellenamos WorldData.
 			if (WorldData.Count == 0)
 			{
 				Debug.Log("WorldData vacío: generando planeta por primera vez y rellenando diccionario. (Momento LENTO)."); //decia momento epico pero No me gusto que chat GPT puseria eso asi que yo le puse Momento Lento por que es lentop 
@@ -136,7 +141,7 @@ public class PlanetGen : MonoBehaviour
 	}
 
 	// Utility para destruir o limpiar componentes según sea necesario (evita duplicar MeshFilter)
-	private void EnsureMeshComponentsReplaced(GameObject parent, Mesh mesh)
+	private void EnsureMeshComponentsReplaced(GameObject parent, UnityEngine.Mesh mesh)
 	{
 		// MeshFilter
 		MeshFilter mf = parent.GetComponent<MeshFilter>();
@@ -205,7 +210,7 @@ public class PlanetGen : MonoBehaviour
 
 					// 3. Control de batches (PAUSA)
 					bt++;
-					if (bt >= Batches) // Asegúrate de que 'Batches' sea un número como 3 o 5
+					if (bt >= Batches) 
 					{
 						bt = 0;
 						yield return null;
@@ -216,8 +221,10 @@ public class PlanetGen : MonoBehaviour
 		Debug.Log("Generación terminada.");
 	}
 
+	// Reemplaza tu método BuildChunkArray por esta versión que SCHEDULEA la generación de malla en background
 	private void BuildChunkArray(Vector3Int chunkIndex, Vector3 chunkOrigin, float radius, Vector3 planetCenter)
 	{
+		var to = System.Diagnostics.Stopwatch.StartNew();
 		string name = GetChunkName(chunkIndex);
 		GameObject chunkObj = CreateNewChunkObject(name, chunkOrigin);
 
@@ -225,6 +232,7 @@ public class PlanetGen : MonoBehaviour
 		LineRenderer lr = chunkObj.GetComponent<LineRenderer>();
 		if (lr == null) lr = chunkObj.AddComponent<LineRenderer>();
 
+		// 1) Generar grid lógico en main thread (como hacías)
 		AbstractGridPoint[,,] grid = new AbstractGridPoint[chunkSize.x + 1, chunkSize.y + 1, chunkSize.z + 1];
 
 		for (int z = 0; z <= chunkSize.z; z++)
@@ -235,36 +243,118 @@ public class PlanetGen : MonoBehaviour
 					Vector3 posMundo = chunkOrigin + posLocal;
 					float dist = Vector3.Distance(posMundo, planetCenter);
 
-
-
 					float offset = Noise4D(
 						new Vector4(posMundo.x, posMundo.y, posMundo.z, planetData.Seed),
 						noiseScale,
 						noiseAmplitude,
 						noiseIntensity
 					);
+
 					grid[x, y, z] = new AbstractGridPoint
 					{
-						Position = posLocal, // <-- usa posLocal
+						Position = posLocal,
 						Value = (radius + offset) - dist
 					};
 				}
 
-		// Rellenamos el diccionario la PRIMERA vez.
-		// Si WorldData ya tiene la clave (p. ej. lo preparaste), respetamos tu grid y NO lo sobreescribimos.
+		// Guardar WorldData (si corresponde)
 		if (!WorldData.ContainsKey(chunkIndex))
 		{
 			WorldData[chunkIndex] = grid;
 		}
-		else
+
+		// 2) Lanzar tarea en background para construir el StandartUtilities mesh
+		var gridCopy = grid; // referencia inmutable mientras no modifiques grid después
+		var chunkName = name;
+		var origin = chunkOrigin;
+		// Reemplaza la llamada a Task.Run(...) por esta versión (dentro de BuildChunkArray)
+		var token = meshCts.Token;
+		var task = Task.Run(() =>
 		{
-			// si quieres sobreescribir intencionalmente, aquí es donde podrías hacerlo.
-			// por ahora respetamos los datos que ya tenías (porque dijiste que los preparaste).
+			// Comprueba al inicio
+			token.ThrowIfCancellationRequested();
+
+			// Genera un mesh serializable puro (sin tocar Unity API)
+			var serialMesh = GenerateSerializableMesh(gridCopy);
+
+			// Comprobar cancelación antes de encolar
+			if (token.IsCancellationRequested) return;
+
+			// Encolar resultado para procesar en main thread
+			meshResults.Enqueue((chunkIndex, serialMesh, origin, chunkName));
+		}, token);
+
+		// Guardar referencia al Task (opcional, para esperar/inspección)
+		backgroundTasks.Add(task);
+
+		to.Stop();
+		Debug.Log($"Queued mesh generation for {chunkIndex}. (Init time MS:{to.ElapsedMilliseconds})");
+	}
+	// Método que GENERA la malla como StandartUtilities.StdUtils.Serializable.Mesh (se ejecuta en background).
+	// IMPORTANTE: no usar Unity API dentro de este método.
+	private Mesh GenerateSerializableMesh(AbstractGridPoint[,,] grid)
+	{
+		// Listas locales puras
+		var verts = new List<Vector3>();
+		var tris = new List<int>();
+		var uv = new List<Vector2>(); // si quieres UVs, pero el Serial Mesh no usa UVs en su clase actual
+
+		int gx = grid.GetLength(0) - 1;
+		int gy = grid.GetLength(1) - 1;
+		int gz = grid.GetLength(2) - 1;
+
+		AbstractGridCell cell = new AbstractGridCell();
+
+		for (int z = 0; z < gz; z++)
+		{
+			for (int y = 0; y < gy; y++)
+			{
+				for (int x = 0; x < gx; x++)
+				{
+					// Asignar los 8 puntos de la celda
+					cell.p[0] = grid[x, y, z + 1];
+					cell.p[1] = grid[x + 1, y, z + 1];
+					cell.p[2] = grid[x + 1, y, z];
+					cell.p[3] = grid[x, y, z];
+					cell.p[4] = grid[x, y + 1, z + 1];
+					cell.p[5] = grid[x + 1, y + 1, z + 1];
+					cell.p[6] = grid[x + 1, y + 1, z];
+					cell.p[7] = grid[x, y + 1, z];
+
+					// Calcula triángulos (usa tu implementación pura)
+					MarchingCube.IsoFaces(ref cell, SurfaceLevel);
+
+					// Si no hay triángulos, saltar
+					if (cell.numtriangles <= 0) continue;
+
+					// Añadir cada triángulo: copiamos vértices (tu pipeline actual duplica vértices por cara)
+					for (int t = 0; t < cell.numtriangles; t++)
+					{
+						// cada cell.triangle[t].p[0..2] son Vector3
+						verts.Add(cell.triangle[t].p[0]);
+						verts.Add(cell.triangle[t].p[1]);
+						verts.Add(cell.triangle[t].p[2]);
+
+						// índices secuenciales
+						int baseIdx = verts.Count - 3;
+						tris.Add(baseIdx);
+						tris.Add(baseIdx + 1);
+						tris.Add(baseIdx + 2);
+					}
+				}
+			}
 		}
 
-		// Generamos malla usando el grid (sea el nuevo o el que ya tenías)
-		// IMPORTANTE: usamos WorldData[chunkIndex] para mantener consistencia con lo que pueda haber preparado el usuario.
-		BuildChunkMeshArray(WorldData[chunkIndex], chunkObj);
+		// Convertir tris int-list a lista de TRIANGLE que espera tu serial Mesh
+		var triObjs = new List<StandartUtilities.StdUtils.Serializable.TRIANGLE>(tris.Count / 3);
+		for (int i = 0; i + 2 < tris.Count; i += 3)
+		{
+			triObjs.Add(new StandartUtilities.StdUtils.Serializable.TRIANGLE(tris[i], tris[i + 1], tris[i + 2]));
+		}
+
+		// Construir el Mesh serializable
+		var serialMesh = new StandartUtilities.StdUtils.Serializable.Mesh(verts, triObjs);
+		return serialMesh;
 	}
 	// Función auxiliar para ruido 4D (puedes ponerla al final de tu clase)
 	private static float Noise4D(Vector4 Pos, float noise_scale, float noiseAmplitud, float noiseIntensity)
@@ -315,7 +405,7 @@ public class PlanetGen : MonoBehaviour
 					BuildMeshCellData(ref cell, _tempVertices, _tempTriangles, _tempUVs);
 				}
 
-		Mesh mesh = new Mesh();
+		UnityEngine.Mesh mesh = new UnityEngine.Mesh();
 		mesh.vertices = _tempVertices.ToArray();
 		mesh.triangles = _tempTriangles.ToArray();
 		mesh.uv = _tempUVs.ToArray();
@@ -327,7 +417,45 @@ public class PlanetGen : MonoBehaviour
 	}
 
 	#endregion
+	// Añade OnDisable/OnDestroy para cancelar y limpiar (añadir en la clase)
+	private void OnDisable()
+	{
+		CancelBackgroundWork();
+	}
 
+	private void OnDestroy()
+	{
+		CancelBackgroundWork();
+	}
+
+	// Método helper
+	private void CancelBackgroundWork()
+	{
+		// Evitar llamada repetida
+		if (meshCts == null || meshCts.IsCancellationRequested) return;
+
+		// Pedimos cancelación cooperativa
+		meshCts.Cancel();
+
+		// Opcional: intentar esperar un pequeño tiempo por las tareas para terminar ordenadamente.
+		// No es obligatorio — bloquear el hilo principal mucho tiempo es indeseable.
+		try
+		{
+			Task[] tasks = backgroundTasks.ToArray();
+			if (tasks.Length > 0)
+			{
+				// Espera corta: p.ej. 200 ms para cerrar ordenadamente
+				Task.WaitAll(tasks, 200);
+			}
+		}
+		catch (Exception)
+		{
+			// ignorar: si fallan, ya se cancelaron
+		}
+
+		// Limpiar cola resultante si no quieres aplicar meshes pendientes
+		while (meshResults.TryDequeue(out _)) { }
+	}
 	#region Pysical Mode
 	// ------------------------------
 	// Physical Mode (obsoleto, sin cambios mayores)
@@ -421,7 +549,7 @@ public class PlanetGen : MonoBehaviour
 					BuildMeshCellData(ref cell, vertices, triangles, uv);
 				}
 
-		Mesh mesh = new Mesh();
+		UnityEngine.Mesh mesh = new UnityEngine.Mesh();
 		mesh.vertices = vertices.ToArray();
 		mesh.triangles = triangles.ToArray();
 		mesh.uv = uv.ToArray();
@@ -498,7 +626,12 @@ public class PlanetGen : MonoBehaviour
 
 	public bool drawGrid = true;
 	public Material debugLineMaterial;
+	// Campos de clase: (añádelos dentro de la clase PlanetGen)
+	private readonly ConcurrentQueue<(Vector3Int idx, StandartUtilities.StdUtils.Serializable.Mesh serialMesh, Vector3 origin, string chunkName)> meshResults
+					= new ConcurrentQueue<(Vector3Int, StandartUtilities.StdUtils.Serializable.Mesh, Vector3, string)>();
 
+	// Cuántos meshes aplicar por frame para evitar picos de trabajo en main thread
+	private int maxApplyPerFrame = 4;
 	private void DrawChunkWireframe(GameObject chunk)
 	{
 		LineRenderer lr = chunk.GetComponent<LineRenderer>();
@@ -543,8 +676,29 @@ public class PlanetGen : MonoBehaviour
 
 	private void Update()
 	{
-		// vacío como la empatía de los políticos XD jajajajajaja
-		// ok es broma pero de momento no se requiere nada aquí, el planeta se genera una vez al inicio y ya, no hay necesidad de actualizar nada cada frame.
+		// ya no vacío como la empatía de los políticos XD jajajajajaja
+		// ok es broma 
+		int applied = 0;
+		while (applied < maxApplyPerFrame && meshResults.TryDequeue(out var result))
+		{
+			// result.serialMesh es puro, la conversión a UnityEngine.Mesh debe hacerse en main thread.
+			try
+			{
+				UnityEngine.Mesh unityMesh = (UnityEngine.Mesh)result.serialMesh; // usa el operador explícito que ya tienes
+																				  // Busca o crea el GameObject/chunk
+				Transform t = transform.Find(result.chunkName);
+				GameObject chunkObj = t != null ? t.gameObject : CreateNewChunkObject(result.chunkName, result.origin);
+
+				// Asignar mesh en main thread
+				EnsureMeshComponentsReplaced(chunkObj, unityMesh);
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError("Error applying serial mesh on main thread: " + ex);
+			}
+
+			applied++;
+		}
 	}
 
 	// ------------------------------
@@ -720,9 +874,7 @@ public class PlanetGen : MonoBehaviour
 		// 3. Reiniciar el proceso
 		float radius = ActiveIns.planetData.radius * 100f;
 
-
-		// Si aún es un método void:
-		ActiveIns.BuildPlanetAbstract(radius);
+		ActiveIns.StartCoroutine(ActiveIns.BuildPlanetAbstract(radius)); // esto rellenará WorldData
 
 		Debug.Log("¡Planeta reseteado! (Como la economía de mi país, pero este sí funciona).");
 	}
@@ -731,4 +883,5 @@ public class PlanetGen : MonoBehaviour
 	{
 		LoadWithLoadingScreen.LoadScene(7, Stages.Creature);
 	}
+
 }
