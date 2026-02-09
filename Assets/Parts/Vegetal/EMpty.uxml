@@ -29,10 +29,10 @@
         </engine:Foldout>
         <engine:Foldout text="#FoldStem" name="PlantProp" style="flex-grow: 1; max-height: none; flex-shrink: 0;">
             <engine:MinMaxSlider label="Radio" value="0,18" low-limit="1" high-limit="8" picking-mode="Ignore" name="Radios" style="min-width: auto; flex-direction: column; min-height: auto;" />
-            <engine:Label text="Este dezlizador va de 1 a 8 y es el radio del tallo de tu planta" enable-rich-text="true" class="text-auto-size" style="flex-wrap: wrap; flex-grow: 0; height: auto; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px; padding-top: 3px; padding-right: 3px; padding-bottom: 3px; padding-left: 3px; white-space: normal; width: 100%;" />
-            <engine:Label text="segmentos" enable-rich-text="true" class="text-auto-size text-auto-size-max-9999" style="flex-wrap: wrap; flex-grow: 0; height: auto; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px; padding-top: 3px; padding-right: 3px; padding-bottom: 3px; padding-left: 3px; white-space: normal; width: 100%;" />
+            <engine:Label text="Este dezlizador va de 1 a 8 y es el radio del tallo de tu planta" enable-rich-text="true" style="flex-wrap: wrap; flex-grow: 0; height: auto; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px; padding-top: 3px; padding-right: 3px; padding-bottom: 3px; padding-left: 3px; white-space: normal; width: 100%;" />
+            <engine:Label text="segmentos" enable-rich-text="true" class="text-auto-size-max-9999" style="flex-wrap: wrap; flex-grow: 0; height: auto; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px; padding-top: 3px; padding-right: 3px; padding-bottom: 3px; padding-left: 3px; white-space: normal; width: 100%;" />
             <engine:SliderInt value="42" high-value="10" name="seg" low-value="1" />
-            <engine:Label text="espaciado" enable-rich-text="true" class="text-auto-size text-auto-size-max-9999" style="flex-wrap: wrap; flex-grow: 0; height: auto; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px; padding-top: 3px; padding-right: 3px; padding-bottom: 3px; padding-left: 3px; white-space: normal; width: 100%;" />
+            <engine:Label text="espaciado" enable-rich-text="true" class="text-auto-size-max-9999" style="flex-wrap: wrap; flex-grow: 0; height: auto; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px; padding-top: 3px; padding-right: 3px; padding-bottom: 3px; padding-left: 3px; white-space: normal; width: 100%;" />
             <engine:Slider value="42" high-value="10" name="esp" />
         </engine:Foldout>
     </engine:ScrollView>
