@@ -1503,14 +1503,15 @@ MonoBehaviour:
     Seed: 8
   Chuncks: []
   useAbstract: 1
-  chunkSize: {x: 16, y: 16, z: 16}
-  cubeSize: {x: 4, y: 4, z: 4}
+  chunkSize: {x: 64, y: 64, z: 64}
+  cubeSize: {x: 16, y: 16, z: 16}
   SurfaceLevel: 0.5
   material: {fileID: 2100000, guid: f40717f437e95f54288c72287c000658, type: 2}
   Batches: 15
   noiseScale: 0.02
   noiseAmplitude: 5
   ExtraOffset: 30
+  Multipicator: 400
   noiseIntensity: 4
   drawGrid: 1
   debugLineMaterial: {fileID: 2100000, guid: d236d145e09d20a44966cfdc88e1236e, type: 2}

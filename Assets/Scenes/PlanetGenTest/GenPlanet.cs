@@ -15,6 +15,7 @@ using Mesh = StandartUtilities.StdUtils.Serializable.Mesh;
 
 public class PlanetGen : MonoBehaviour
 {
+#region Campos
 	[Header("Datos del planeta")]
 	public PlanetData planetData;
 	public static PlanetGen ActiveIns;
@@ -40,6 +41,7 @@ public class PlanetGen : MonoBehaviour
 	public float noiseScale = 0.1f;
 	public float noiseAmplitude = 5f;
 	public float ExtraOffset = 0f;
+	public float Multipicator = 100f;
 	[Range(0f, 10f)]
 	public float noiseIntensity = 0.5f;
 	// Campos nuevos (añadir en la clase PlanetGen)
@@ -49,7 +51,7 @@ public class PlanetGen : MonoBehaviour
 	private List<Vector3> _tempVertices = new List<Vector3>();
 	private List<int> _tempTriangles = new List<int>();
 	private List<Vector2> _tempUVs = new List<Vector2>();
-
+#endregion
 	private void Start()
 	{
 		if (planetData == null)
@@ -58,7 +60,7 @@ public class PlanetGen : MonoBehaviour
 			planetData = new PlanetData { radius = 1f, Seed = UnityEngine.Random.Range(-0xAAAA, 0xAAAA + 0x1) };
 		}
 
-		float radius = planetData.radius * 100f;
+		float radius = planetData.radius * Multipicator;
 
 		ActiveIns = this;
 
@@ -176,7 +178,6 @@ public class PlanetGen : MonoBehaviour
 		);
 
 		// Si es la primera vez, es buena idea limpiar hijos antiguos (si existen).
-		// Si WorldData ya venía relleno por ti, NO lo limpiamos arriba en Start().
 		if (WorldData.Count == 0)
 		{
 			// destruir o poolear hijos previos (por si el objeto tenía restos)
@@ -221,7 +222,6 @@ public class PlanetGen : MonoBehaviour
 		Debug.Log("Generación terminada.");
 	}
 
-	// Reemplaza tu método BuildChunkArray por esta versión que SCHEDULEA la generación de malla en background
 	private void BuildChunkArray(Vector3Int chunkIndex, Vector3 chunkOrigin, float radius, Vector3 planetCenter)
 	{
 		var to = System.Diagnostics.Stopwatch.StartNew();
@@ -235,60 +235,78 @@ public class PlanetGen : MonoBehaviour
 		// 1) Generar grid lógico en main thread (como hacías)
 		AbstractGridPoint[,,] grid = new AbstractGridPoint[chunkSize.x + 1, chunkSize.y + 1, chunkSize.z + 1];
 
+		// Preinicializamos los AbstractGridPoint vacíos
 		for (int z = 0; z <= chunkSize.z; z++)
 			for (int y = 0; y <= chunkSize.y; y++)
 				for (int x = 0; x <= chunkSize.x; x++)
+					grid[x, y, z] = new AbstractGridPoint();
+
+		var inittime = to.ElapsedMilliseconds;
+		to.Restart();
+
+		// 2) Rellenamos los campos en paralelo
+		Parallel.For(0, chunkSize.z + 1, z =>
+		{
+			for (int y = 0; y <= chunkSize.y; y++)
+			{
+				for (int x = 0; x <= chunkSize.x; x++)
 				{
-					Vector3 posLocal = new Vector3(x, y, z);
-					Vector3 posMundo = chunkOrigin + posLocal;
-					float dist = Vector3.Distance(posMundo, planetCenter);
+					float px = chunkOrigin.x + x;
+					float py = chunkOrigin.y + y;
+					float pz = chunkOrigin.z + z;
+
+					float dx = px - planetCenter.x;
+					float dy = py - planetCenter.y;
+					float dz = pz - planetCenter.z;
+					float dist = Mathf.Sqrt(dx * dx + dy * dy + dz * dz);
 
 					float offset = Noise4D(
-						new Vector4(posMundo.x, posMundo.y, posMundo.z, planetData.Seed),
+						px, py, pz, planetData.Seed,
 						noiseScale,
 						noiseAmplitude,
 						noiseIntensity
 					);
 
-					grid[x, y, z] = new AbstractGridPoint
-					{
-						Position = posLocal,
-						Value = (radius + offset) - dist
-					};
+					// Solo rellenamos campos existentes
+					var point = grid[x, y, z];
+					point.Position = new Vector3(x, y, z);
+					point.Value = (radius + offset) - dist;
 				}
+			}
+		});
+		GC.Collect();
 
-		// Guardar WorldData (si corresponde)
+		var for_Time = to.ElapsedMilliseconds;
+		to.Restart();
+
 		if (!WorldData.ContainsKey(chunkIndex))
 		{
 			WorldData[chunkIndex] = grid;
 		}
 
-		// 2) Lanzar tarea en background para construir el StandartUtilities mesh
+		var SaveTime = to.ElapsedMilliseconds;
+		to.Restart();
+
+		// 3) Lanzar tarea en background para construir el StandartUtilities mesh
 		var gridCopy = grid; // referencia inmutable mientras no modifiques grid después
 		var chunkName = name;
 		var origin = chunkOrigin;
-		// Reemplaza la llamada a Task.Run(...) por esta versión (dentro de BuildChunkArray)
 		var token = meshCts.Token;
 		var task = Task.Run(() =>
 		{
-			// Comprueba al inicio
 			token.ThrowIfCancellationRequested();
 
-			// Genera un mesh serializable puro (sin tocar Unity API)
 			var serialMesh = GenerateSerializableMesh(gridCopy);
 
-			// Comprobar cancelación antes de encolar
 			if (token.IsCancellationRequested) return;
 
-			// Encolar resultado para procesar en main thread
 			meshResults.Enqueue((chunkIndex, serialMesh, origin, chunkName));
 		}, token);
 
-		// Guardar referencia al Task (opcional, para esperar/inspección)
 		backgroundTasks.Add(task);
 
 		to.Stop();
-		Debug.Log($"Queued mesh generation for {chunkIndex}. (Init time MS:{to.ElapsedMilliseconds})");
+		Debug.Log($"Queued mesh generation for {chunkIndex}. (Init time MS:{inittime}, For  time {for_Time}) SaveTime {SaveTime} StartTaskTime {to.ElapsedMilliseconds})");
 	}
 	// Método que GENERA la malla como StandartUtilities.StdUtils.Serializable.Mesh (se ejecuta en background).
 	// IMPORTANTE: no usar Unity API dentro de este método.
@@ -357,22 +375,29 @@ public class PlanetGen : MonoBehaviour
 		return serialMesh;
 	}
 	// Función auxiliar para ruido 4D (puedes ponerla al final de tu clase)
-	private static float Noise4D(Vector4 Pos, float noise_scale, float noiseAmplitud, float noiseIntensity)
+	public float Noise4D(Vector4 Pos, float noise_scale, float noiseAmplitud, float noiseIntensity)
+	{
+		return Noise4D(Pos.x, Pos.y, Pos.z, Pos.w, noise_scale, noiseAmplitud, noiseIntensity);
+	}
+	private static float Noise4D(float X, float Y, float Z, float W, float noise_scale, float noiseAmplitud, float noiseIntensity)
 	{
 		// La escala DEBE multiplicar a las coordenadas antes de entrar al ruido
 		// Usamos Pos.w (tu semilla) como un offset que desplaza la "realidad" del ruido
-		float x = Pos.x * noise_scale;
-		float y = Pos.y * noise_scale;
-		float z = Pos.z * noise_scale;
-		float w = Pos.w; // La semilla no suele escalarse, es un offset puro
+		float x = X * noise_scale;
+		float y = Y * noise_scale;
+		float z = Z * noise_scale;
+		float w = W; // La semilla no suele escalarse, es un offset puro
 
-		float ab = Mathf.PerlinNoise(x + w, y);
-		float bc = Mathf.PerlinNoise(y + w, z);
-		float ac = Mathf.PerlinNoise(x + w, z);
+		float xw = x + w;
+		float yw = y + w;
+		float zmw = z - w;
 
+		float ab = Mathf.PerlinNoise(xw, y);
+		float bc = Mathf.PerlinNoise(yw, z);
+		float ac = Mathf.PerlinNoise(xw, z);
 		float ba = Mathf.PerlinNoise(y - w, x);
-		float cb = Mathf.PerlinNoise(z - w, y);
-		float ca = Mathf.PerlinNoise(z - w, x);
+		float cb = Mathf.PerlinNoise(zmw, y);
+		float ca = Mathf.PerlinNoise(zmw, x);
 
 		// El promedio se multiplica por la amplitud y la intensidad al final
 		return ((ab + bc + ac + ba + cb + ca) / 6f) * noiseAmplitud * noiseIntensity;
@@ -718,18 +743,19 @@ public class PlanetGen : MonoBehaviour
 	}
 
 	// Método que invoca la regeneración de mallas según WorldData
+	//wrapper inNecesario hecho por IA tonta >:(
 	public void RegenerateMeshCommand()
 	{
 		// regenerar la malla (NO limpiar WorldData)
 		if (WorldData == null || WorldData.Count == 0)
 		{
 			Debug.LogWarning("WorldData vacío — nada que regenerar (se hará generación completa en su lugar).");
-			float radius = planetData.radius * 100f;
+			float radius = planetData.radius * Multipicator;
 			BuildPlanetAbstract(radius);
 			return;
 		}
 
-		float radiusCurrent = planetData.radius * 100f;
+		float radiusCurrent = planetData.radius * Multipicator;
 		RegenerateMeshesFromWorldData(radiusCurrent);
 
 		Debug.Log("Regeneración de mallas completa. Tu planeta respira otra vez (la malla, no el planeta entero).");
@@ -872,7 +898,7 @@ public class PlanetGen : MonoBehaviour
 		ActiveIns.Chuncks.Clear();
 
 		// 3. Reiniciar el proceso
-		float radius = ActiveIns.planetData.radius * 100f;
+		float radius = ActiveIns.planetData.radius * ActiveIns.Multipicator;
 
 		ActiveIns.StartCoroutine(ActiveIns.BuildPlanetAbstract(radius)); // esto rellenará WorldData
 
