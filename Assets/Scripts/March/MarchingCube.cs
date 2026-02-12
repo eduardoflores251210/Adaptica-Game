@@ -919,7 +919,7 @@ public static class MarchingCube
 			cell.numtriangles++;
 		}
 	}
-	public static void IsoFaces(ref AbstractGridCellBit cell, float surfacelevel)
+	public static void IsoFaces(ref AbstractGridCellStruct cell, float surfacelevel)
 	{
 		// Parameters:   
 		//  cell = GridCell to analyze for triangles
@@ -943,24 +943,24 @@ public static class MarchingCube
 
 		// step 1. determine cell config, corners below the surface of the mesh (inside / outside mesh) 
 		cell.config = 0;
-		if (cell.p0.Value < surfacelevel)
+		if (cell.p[0].Value < surfacelevel)
 			Bits.SetBit(ref cell.config, 0);    // A =0
-		if (cell.p1.Value < surfacelevel)
+		if (cell.p[1].Value < surfacelevel)
 			Bits.SetBit(ref cell.config, 1);    // B =1
-		if (cell.p2.Value < surfacelevel)
+		if (cell.p[2].Value < surfacelevel)
 			Bits.SetBit(ref cell.config, 2);    // C =2
-		if (cell.p3.Value < surfacelevel)
+		if (cell.p[3].Value < surfacelevel)
 			Bits.SetBit(ref cell.config, 3);    // D =3
-		if (cell.p4.Value < surfacelevel)
+		if (cell.p[4].Value < surfacelevel)
 			Bits.SetBit(ref cell.config, 4);    // E =4
-		if (cell.p5.Value < surfacelevel)
+		if (cell.p[5].Value < surfacelevel)
 			Bits.SetBit(ref cell.config, 5);    // F =5
-		if (cell.p6.Value < surfacelevel)
+		if (cell.p[6].Value < surfacelevel)
 			Bits.SetBit(ref cell.config, 6);    // G =6
-		if (cell.p7.Value < surfacelevel)
+		if (cell.p[7].Value < surfacelevel)
 			Bits.SetBit(ref cell.config, 7);    // H =7
 
-		if (edgeTableJ[cell.config] == 0)    //cell is entirely inside/outside mesh surface (make no triangles)
+		if (edgeTable[cell.config] == 0)    //cell is entirely inside/outside mesh surface (make no triangles)
 			return;
 
 		/*  edge 12 (0-12)              11
@@ -978,89 +978,41 @@ public static class MarchingCube
 		+-------C2------+               */
 
 		// step 2. determine interpolated edge point positions (where applicable)
-		if (Bits.isSet(edgeTableJ[cell.config], 0) == true) 
-			cell.edge0 = InterpolateEdgePosition(surfacelevel, cell.p0, cell.p1);
-		if (Bits.isSet(edgeTableJ[cell.config], 1) == true) 
-			cell.edge1 = InterpolateEdgePosition(surfacelevel, cell.p1, cell.p2);
-		if (Bits.isSet(edgeTableJ[cell.config], 2) == true) 
-			cell.edge2 = InterpolateEdgePosition(surfacelevel, cell.p2, cell.p3);
-		if (Bits.isSet(edgeTableJ[cell.config], 3) == true) 
-			cell.edge3 = InterpolateEdgePosition(surfacelevel, cell.p3, cell.p0);
-		if (Bits.isSet(edgeTableJ[cell.config], 4) == true) 
-			cell.edge4 = InterpolateEdgePosition(surfacelevel, cell.p4, cell.p5);
-		if (Bits.isSet(edgeTableJ[cell.config], 5) == true) 
-			cell.edge5 = InterpolateEdgePosition(surfacelevel, cell.p5, cell.p6);
-		if (Bits.isSet(edgeTableJ[cell.config], 6) == true) 
-			cell.edge6 = InterpolateEdgePosition(surfacelevel, cell.p6, cell.p7);
-		if (Bits.isSet(edgeTableJ[cell.config], 7) == true) 
-			cell.edge7 = InterpolateEdgePosition(surfacelevel, cell.p7, cell.p4);
-		if (Bits.isSet(edgeTableJ[cell.config], 8) == true) 
-			cell.edge8 = InterpolateEdgePosition(surfacelevel, cell.p0, cell.p4);
-		if (Bits.isSet(edgeTableJ[cell.config], 9) == true) 
-			cell.edge9 = InterpolateEdgePosition(surfacelevel, cell.p1, cell.p5);
-		if (Bits.isSet(edgeTableJ[cell.config], 10) == true) 
-			cell.edge10 = InterpolateEdgePosition(surfacelevel, cell.p2, cell.p6);
-		if (Bits.isSet(edgeTableJ[cell.config], 11) == true) 
-			cell.edge11 = InterpolateEdgePosition(surfacelevel, cell.p3, cell.p7);
-
+		if (Bits.isSet(edgeTable[cell.config], 0) == true) 
+			cell.edgepoint[0] = InterpolateEdgePosition(surfacelevel, cell.p[0], cell.p[1]);
+		if (Bits.isSet(edgeTable[cell.config], 1) == true) 
+			cell.edgepoint[1] = InterpolateEdgePosition(surfacelevel, cell.p[1], cell.p[2]);
+		if (Bits.isSet(edgeTable[cell.config], 2) == true) 
+			cell.edgepoint[2] = InterpolateEdgePosition(surfacelevel, cell.p[2], cell.p[3]);
+		if (Bits.isSet(edgeTable[cell.config], 3) == true) 
+			cell.edgepoint[3] = InterpolateEdgePosition(surfacelevel, cell.p[3], cell.p[0]);
+		if (Bits.isSet(edgeTable[cell.config], 4) == true) 
+			cell.edgepoint[4] = InterpolateEdgePosition(surfacelevel, cell.p[4], cell.p[5]);
+		if (Bits.isSet(edgeTable[cell.config], 5) == true) 
+			cell.edgepoint[5] = InterpolateEdgePosition(surfacelevel, cell.p[5], cell.p[6]);
+		if (Bits.isSet(edgeTable[cell.config], 6) == true) 
+			cell.edgepoint[6] = InterpolateEdgePosition(surfacelevel, cell.p[6], cell.p[7]);
+		if (Bits.isSet(edgeTable[cell.config], 7) == true) 
+			cell.edgepoint[7] = InterpolateEdgePosition(surfacelevel, cell.p[7], cell.p[4]);
+		if (Bits.isSet(edgeTable[cell.config], 8) == true) 
+			cell.edgepoint[8] = InterpolateEdgePosition(surfacelevel, cell.p[0], cell.p[4]);
+		if (Bits.isSet(edgeTable[cell.config], 9) == true) 
+			cell.edgepoint[9] = InterpolateEdgePosition(surfacelevel, cell.p[1], cell.p[5]);
+		if (Bits.isSet(edgeTable[cell.config], 10) == true) 
+			cell.edgepoint[10] = InterpolateEdgePosition(surfacelevel, cell.p[2], cell.p[6]);
+		if (Bits.isSet(edgeTable[cell.config], 11) == true) 
+			cell.edgepoint[11] = InterpolateEdgePosition(surfacelevel, cell.p[3], cell.p[7]);
 
 		// step 3. determine triangles (iso faces)
-		for (int i = 0; triangleTableJ[(cell.config * 16) + i] != -1; i += 3)
+		for (int i = 0; triangleTable[cell.config,i] != -1; i += 3)
 		{
-			// Creamos un triángulo temporal con los puntos interpolados
-			// Necesitas una función auxiliar 'GetEdgePoint' (ver más abajo)
-			TriangleBit tempTri = new TriangleBit(
-				GetEdgePoint(ref cell, triangleTable[cell.config, i]),
-				GetEdgePoint(ref cell, triangleTable[cell.config, i + 1]),
-				GetEdgePoint(ref cell, triangleTable[cell.config, i + 2])
-			);
-
-			// Guardamos en la variable correspondiente según el conteo
-			switch (cell.numtriangles)
-			{
-				case 0: cell.T0 = tempTri; break;
-				case 1: cell.T1 = tempTri; break;
-				case 2: cell.T2 = tempTri; break;
-				case 3: cell.T3 = tempTri; break;
-				case 4: cell.T4 = tempTri; break;
-			}
+			cell.triangle[cell.numtriangles].p[0] = cell.edgepoint[triangleTable[cell.config, i]];
+			cell.triangle[cell.numtriangles].p[1] = cell.edgepoint[triangleTable[cell.config, i + 1]];
+			cell.triangle[cell.numtriangles].p[2] = cell.edgepoint[triangleTable[cell.config, i + 2]];
 			cell.numtriangles++;
 		}
 	}
-	private static Vector3 GetEdgePoint(ref AbstractGridCellBit cell, int index)
-	{
-		switch (index)
-		{
-			case 0: return cell.edge0;
-			case 1: return cell.edge1;
-			case 2: return cell.edge2;
-			case 3: return cell.edge3;
-			case 4: return cell.edge4;
-			case 5: return cell.edge5;
-			case 6: return cell.edge6;
-			case 7: return cell.edge7;
-			case 8: return cell.edge8;
-			case 9: return cell.edge9;
-			case 10: return cell.edge10;
-			case 11: return cell.edge11;
-			default: return Vector3.zero;
-		}
-	}
-	public static Vector3 InterpolateEdgePosition(float isolevel, AbstractGridPointbit vertex1, AbstractGridPointbit vertex2)
-	{
-		Vector3 pointOnEdge = Vector3.zero;
 
-		if (Mathf.Approximately(isolevel - vertex1.Value, 0) == true) return vertex1.Position;
-		if (Mathf.Approximately(isolevel - vertex2.Value, 0) == true) return vertex2.Position;
-		if (Mathf.Approximately(vertex1.Value - vertex2.Value, 0) == true) return vertex1.Position;
-
-		float mu = (isolevel - vertex1.Value) / (vertex2.Value - vertex1.Value);
-		pointOnEdge.x = vertex1.Position.x + mu * (vertex2.Position.x - vertex1.Position.x);
-		pointOnEdge.y = vertex1.Position.y + mu * (vertex2.Position.y - vertex1.Position.y);
-		pointOnEdge.z = vertex1.Position.z + mu * (vertex2.Position.z - vertex1.Position.z);
-
-		return pointOnEdge;
-	}
 	public static void IsoFaces(ref GridCell cell, float surfacelevel)
 	{
 		// Parameters:   
@@ -1153,6 +1105,21 @@ public static class MarchingCube
 			cell.triangle[cell.numtriangles].p[2] = cell.edgepoint[triangleTable[cell.config, i + 2]];
 			cell.numtriangles++;
 		}
+	}
+	public static Vector3 InterpolateEdgePosition(float isolevel, AbstractGridPointStruct vertex1, AbstractGridPointStruct vertex2)
+	{
+		Vector3 pointOnEdge = Vector3.zero;
+
+		if (Mathf.Approximately(isolevel - vertex1.Value, 0) == true) return vertex1.Position;
+		if (Mathf.Approximately(isolevel - vertex2.Value, 0) == true) return vertex2.Position;
+		if (Mathf.Approximately(vertex1.Value - vertex2.Value, 0) == true) return vertex1.Position;
+
+		float mu = (isolevel - vertex1.Value) / (vertex2.Value - vertex1.Value);
+		pointOnEdge.x = vertex1.Position.x + mu * (vertex2.Position.x - vertex1.Position.x);
+		pointOnEdge.y = vertex1.Position.y + mu * (vertex2.Position.y - vertex1.Position.y);
+		pointOnEdge.z = vertex1.Position.z + mu * (vertex2.Position.z - vertex1.Position.z);
+
+		return pointOnEdge;
 	}
 	public static Vector3 InterpolateEdgePosition(float isolevel, AbstractGridPoint vertex1, AbstractGridPoint vertex2)
 	{
@@ -1321,166 +1288,65 @@ public class AbstractGridCell
 			p[0].Value.ToString("0.0"));
 	}
 }
-
-public struct AbstractGridCellBit
+public struct AbstractGridCellStruct
 {
-	public AbstractGridPointbit p0, p1, p2, p3, p4, p5, p6, p7;
+	public AbstractGridPointStruct[] p ;
 	public int config;
 	public int numtriangles;
-	public TriangleBit T0, T1, T2, T3, T4;
-	public float3 edge0, edge1, edge2, edge3, edge4, edge5, edge6, edge7, edge8, edge9, edge10, edge11;
+	public Vector3[] edgepoint;
+	public Triangle2[] triangle ;
 
 	public void ClearCalculations()
 	{
+		if (p is null)
+			p = new AbstractGridPointStruct[8];
+		if (edgepoint is null)
+			edgepoint = new Vector3[12];
+		if (triangle is null)
+			triangle = new Triangle2[5];
+
+
 		config = 0;
+
 		numtriangles = 0;
-		T0.Clear(); T1.Clear(); T2.Clear(); T3.Clear(); T4.Clear();
-		edge0 = edge1 = edge2 = edge3 = edge4 = edge5 = float3.zero;
-		edge6 = edge7 = edge8 = edge9 = edge10 = edge11 = float3.zero;
+		for (int i = 0; i < triangle.Length; i++)
+		{
+			if (triangle[i].p == null)
+				triangle[i] = new Triangle2();
+			triangle[i].p = new Vector3[3];
+		}
+
+		for (int i = 0; i < edgepoint.Length; i++)
+		{
+			edgepoint[0] = Vector3.zero;
+			edgepoint[1] = Vector3.zero;
+			edgepoint[2] = Vector3.zero;
+			edgepoint[3] = Vector3.zero;
+			edgepoint[4] = Vector3.zero;
+			edgepoint[5] = Vector3.zero;
+			edgepoint[6] = Vector3.zero;
+			edgepoint[7] = Vector3.zero;
+			edgepoint[8] = Vector3.zero;
+			edgepoint[9] = Vector3.zero;
+			edgepoint[10] = Vector3.zero;
+			edgepoint[11] = Vector3.zero;
+		}
 	}
-
-	public static explicit operator AbstractGridCellBit(AbstractGridCell c)
+	public string strPoints()
 	{
-		AbstractGridCellBit res = new AbstractGridCellBit();
-
-		// 1. Convertir Puntos (Usando tus operadores de AbstractGridPointbit)
-		res.p0 = (AbstractGridPointbit)c.p[0]; res.p1 = (AbstractGridPointbit)c.p[1];
-		res.p2 = (AbstractGridPointbit)c.p[2]; res.p3 = (AbstractGridPointbit)c.p[3];
-		res.p4 = (AbstractGridPointbit)c.p[4]; res.p5 = (AbstractGridPointbit)c.p[5];
-		res.p6 = (AbstractGridPointbit)c.p[6]; res.p7 = (AbstractGridPointbit)c.p[7];
-
-		res.config = c.config;
-		res.numtriangles = c.numtriangles;
-
-		// 2. Convertir Triángulos
-		for (int i = 0; i < c.triangle.Length; i++)
-		{
-			TriangleBit tBit = (TriangleBit)c.triangle[i];
-			switch (i)
-			{
-				case 0: res.T0 = tBit; break;
-				case 1: res.T1 = tBit; break;
-				case 2: res.T2 = tBit; break;
-				case 3: res.T3 = tBit; break;
-				case 4: res.T4 = tBit; break;
-			}
-		}
-
-		// 3. Convertir Edgepoints
-		for (int i = 0; i < c.edgepoint.Length; i++)
-		{
-			Vector3 e = c.edgepoint[i];
-			switch (i)
-			{
-				case 0: res.edge0 = e; break;
-				case 1: res.edge1 = e; break;
-				case 2: res.edge2 = e; break;
-				case 3: res.edge3 = e; break;
-				case 4: res.edge4 = e; break;
-				case 5: res.edge5 = e; break;
-				case 6: res.edge6 = e; break;
-				case 7: res.edge7 = e; break;
-				case 8: res.edge8 = e; break;
-				case 9: res.edge9 = e; break;
-				case 10: res.edge10 = e; break;
-				case 11: res.edge11 = e; break;
-			}
-		}
-
-		return res;
-	}
-	public static implicit operator AbstractGridCell(AbstractGridCellBit b)
-	{
-		// 1. Creamos la instancia de la clase (esto genera basura para el GC, usar con moderación)
-		AbstractGridCell res = new AbstractGridCell();
-
-		// 2. Convertimos los 8 puntos de vuelta a la clase
-		res.p = new AbstractGridPoint[8];
-		res.p[0] = (AbstractGridPoint)b.p0;
-		res.p[1] = (AbstractGridPoint)b.p1;
-		res.p[2] = (AbstractGridPoint)b.p2;
-		res.p[3] = (AbstractGridPoint)b.p3;
-		res.p[4] = (AbstractGridPoint)b.p4;
-		res.p[5] = (AbstractGridPoint)b.p5;
-		res.p[6] = (AbstractGridPoint)b.p6;
-		res.p[7] = (AbstractGridPoint)b.p7;
-
-		res.config = b.config;
-		res.numtriangles = b.numtriangles;
-
-		// 3. Reconstruimos el array de triángulos (máximo 5)
-		res.triangle = new Triangle[b.numtriangles];
-		for (int i = 0; i < b.numtriangles; i++)
-		{
-			TriangleBit tBit = default;
-			switch (i)
-			{
-				case 0: tBit = b.T0; break;
-				case 1: tBit = b.T1; break;
-				case 2: tBit = b.T2; break;
-				case 3: tBit = b.T3; break;
-				case 4: tBit = b.T4; break;
-			}
-			// Asumiendo que tienes el operador de conversión en TRIANGLE
-			res.triangle[i] = (Triangle)tBit;
-		}
-
-		// 4. Reconstruimos los puntos de borde (siempre son 12 en Marching Cubes)
-		res.edgepoint = new Vector3[12];
-		res.edgepoint[0] = b.edge0; res.edgepoint[1] = b.edge1;
-		res.edgepoint[2] = b.edge2; res.edgepoint[3] = b.edge3;
-		res.edgepoint[4] = b.edge4; res.edgepoint[5] = b.edge5;
-		res.edgepoint[6] = b.edge6; res.edgepoint[7] = b.edge7;
-		res.edgepoint[8] = b.edge8; res.edgepoint[9] = b.edge9;
-		res.edgepoint[10] = b.edge10; res.edgepoint[11] = b.edge11;
-
-		return res;
+		return string.Format("[{0} {1} {2} {3}] - [{4} {5} {6} {7}]",
+			p[7].Value.ToString("0.0"),
+			p[6].Value.ToString("0.0"),
+			p[5].Value.ToString("0.0"),
+			p[4].Value.ToString("0.0"),
+			p[3].Value.ToString("0.0"),
+			p[2].Value.ToString("0.0"),
+			p[1].Value.ToString("0.0"),
+			p[0].Value.ToString("0.0"));
 	}
 }
-[System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-public struct AbstractGridPointbit
+
+public struct Triangle2
 {
-	public float3 Position; // Campo público directo
-	public float Value;
-	public float Size;
-	public bool On;
-	public float Color;
-	public bool Glow;
-
-	public override string ToString()
-	{
-		return string.Format("{0} {1}", Position, Value);
-	}
-	public static explicit operator AbstractGridPointbit(AbstractGridPoint p)
-	{
-		return new AbstractGridPointbit() { Value = p.Value, Color = p.Color, Size = p.Size,Position = p.Position, On = p.On };
-	}
-	public static implicit operator AbstractGridPoint(AbstractGridPointbit p) => new() { Value = p.Value, Color = p.Color, Size = p.Size, Position = p.Position, On = p.On };
-}
-public struct TriangleBit
-{
-	// Un triángulo SIEMPRE tiene 3 vértices. No uses arreglos.
-	public float3 v0;
-	public float3 v1;
-	public float3 v2;
-
-	public void Clear()
-	{
-		v0 = v1 = v2 = Vector3.zero;
-	}
-	public TriangleBit(Vector3 V0, Vector3 V1, Vector3 V2)
-	{
-		v0 = V0;
-		v1 = V1;
-		v2 = V2;
-	}
-	public static explicit operator TriangleBit(Triangle t)
-	{
-		return new TriangleBit() { v0 = t.p[0], v1 = t.p[1], v2 = t.p[2] };
-	}
-	public static implicit operator Triangle(TriangleBit t)
-	{
-		return new Triangle() { p = new Vector3[3] { t.v0, t.v1, t.v2 } };
-	}
-
+	public Vector3[] p;
 }

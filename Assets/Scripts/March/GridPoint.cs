@@ -133,81 +133,42 @@ public class AbstractGridPoint
 	public static event PointValueChange OnPointValueChange;
 	#endregion
 
-	private Vector3 _position = Vector3.zero;
-	public float _value = 0f;
-	private float _size = 0.1f;
-	private bool _on = true;
-	private float _color = 0.5f;
-	private bool _glow = false;
-
-	public Vector3 Position
-	{
-		get
-		{
-			return _position;
-		}
-        set
-        {
-            _position = new Vector3(value.x, value.y, value.z);
-        }
-	}
+	public Vector3 Position = Vector3.zero;
 	[Inspectable]
-	public float Value
+	public float Value = 0f;
+	public float Size = 0.1f;
+	public bool On = true;
+	public float Color = 0.5f;
+	public bool Glow = false;
+
+
+
+
+
+
+
+	
+	public override string ToString()
 	{
-		get
-		{
-			return _value;
-		}
-		set
-		{
-			_value = value;
-		}
+		return string.Format("{0} {1}", Position, Value);
 	}
-	public float Size
-	{
-		get
-		{
-			return _size;
-		}
-		set
-		{
-			_size = value;
-			
-		}
-	}
-	public bool On
-	{
-		get
-		{
-			return _on;
-		}
-		set
-		{
-			_on = value;
-		}
-	}
-	public float Color
-	{
-		get
-		{
-			return _color;
-		}
-		set
-		{
-			_color = value;
-		}
-	}
-	public bool Glow
-	{
-		get
-		{
-			return _glow;
-		}
-		set
-		{
-			_glow = value;
-		}
-	}
+}
+public struct AbstractGridPointStruct
+{
+
+
+	public Vector3 Position;
+
+	public float Value;
+
+	public bool On;
+
+
+
+
+
+
+
 
 	
 	public override string ToString()

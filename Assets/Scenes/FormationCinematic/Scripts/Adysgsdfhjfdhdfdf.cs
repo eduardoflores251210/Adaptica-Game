@@ -89,7 +89,10 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 					if (SwirchMail[0].Contents)
 					{
 						IsRougueSon = true;
+
 					}
+					Mailman.DeleteMyPackage(SwirchMail[0]);
+
 				}
 			}
 		}
@@ -110,13 +113,15 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 	}
 	GameObject GameMePlanet;
 	PlanetData GPdata = null;
+	GalaxyData g;
 	void GeneratePlanets()
 	{
 		if (Stardata == null || Stardata.Children == null) return;
+		if (g is null)
+			g = GalaxyData.LoadGalaxy(); //carga la galaxia 1 vez en vez de 1 trillon de veses OK es hiperbole
 
 		foreach (var planeti in Stardata.Children)
 		{
-			var g = GalaxyData.LoadGalaxy(); //carga la galaxia 1 trillon de veces OK es hiperbole
 			var planet = g.LoadPlanet(BodyID.FromString(planeti).GetID());
 			planets_Data.Add(planet);
 			GameObject planetGO = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -177,7 +182,8 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 	void GenerateMoons()
 	{
 		if (ParentPlanetData == null || ParentPlanetData.Children == null) return;
-		var g = GalaxyData.LoadGalaxy(); //carga una sola vez la galaxia en vez de 1 trillon de veses OK es hiperbole
+		if (g is null)
+			g = GalaxyData.LoadGalaxy(); //carga una sola vez la galaxia en vez de 1 trillon de veses OK es hiperbole
 		foreach (var planeti in ParentPlanetData.Children)
 		{
 		   

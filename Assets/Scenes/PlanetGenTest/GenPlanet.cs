@@ -164,7 +164,7 @@ public class PlanetGen : MonoBehaviour
 	{
 		// Rellenamos WORLD DATA en esta primera generación.
 		// Si ya tenías datos en WorldData (preparados por fuera), no tocamos esa parte.
-		float maxRadius = radius + noiseAmplitude;
+		float maxRadius = radius + noiseAmplitude+noiseIntensity+ExtraOffset;
 		Vector3 planetCenter = Vector3.zero; // El planeta MANDATORIAMENTE en 0,0,0
 
 		int chunksX = Mathf.CeilToInt((maxRadius * 2) / chunkSize.x);
@@ -200,12 +200,12 @@ public class PlanetGen : MonoBehaviour
 
 					float margin = chunkSize.magnitude;
 
-					// Si el chunk se descarta, pasamos al siguiente inmediatamente
+					/*// Si el chunk se descarta, pasamos al siguiente inmediatamente
 					if (distToPlanet > maxRadius + margin || distToPlanet < (radius - noiseAmplitude) - margin)
 					{
 						continue;
 					}
-
+					*/
 					// 2. Si llegamos aquí, es un chunk que SÍ se va a procesar
 					BuildChunkArray(new Vector3Int(x, y, z), chunkOrigin, radius, planetCenter);
 
@@ -223,86 +223,117 @@ public class PlanetGen : MonoBehaviour
 	}
 
 	private void BuildChunkArray(Vector3Int chunkIndex, Vector3 chunkOrigin, float radius, Vector3 planetCenter)
+{
+	//var to = System.Diagnostics.Stopwatch.StartNew();
+	string name = GetChunkName(chunkIndex);
+	GameObject chunkObj = CreateNewChunkObject(name, chunkOrigin);
+
+	// Aseguramos LineRenderer
+	LineRenderer lr = chunkObj.GetComponent<LineRenderer>();
+	if (lr == null) lr = chunkObj.AddComponent<LineRenderer>();
+
+	// pasos de muestreo por eje (>=1)
+	int stepX = Math.Max(1, cubeSize.x);
+	int stepY = Math.Max(1, cubeSize.y);
+	int stepZ = Math.Max(1, cubeSize.z);
+
+	// número de celdas en la grilla muestreada
+	int cellsX = Mathf.CeilToInt((float)chunkSize.x / stepX);
+	int cellsY = Mathf.CeilToInt((float)chunkSize.y / stepY);
+	int cellsZ = Mathf.CeilToInt((float)chunkSize.z / stepZ);
+
+	// puntos por eje = celdas + 1
+	int resX = cellsX + 1;
+	int resY = cellsY + 1;
+	int resZ = cellsZ + 1;
+
+	// Grid muestreado (más pequeño)
+	AbstractGridPoint[,,] sampled = new AbstractGridPoint[resX, resY, resZ];
+
+	// Rellenar grid muestreado en hilo principal (seguimos usando el mismo ruido)
+	for (int z = 0; z < resZ; z++)
 	{
-		var to = System.Diagnostics.Stopwatch.StartNew();
-		string name = GetChunkName(chunkIndex);
-		GameObject chunkObj = CreateNewChunkObject(name, chunkOrigin);
-
-		// Aseguramos que tenga LineRenderer (para dibujar wireframe)
-		LineRenderer lr = chunkObj.GetComponent<LineRenderer>();
-		if (lr == null) lr = chunkObj.AddComponent<LineRenderer>();
-
-		// 1) Generar grid lógico en main thread (como hacías)
-		AbstractGridPoint[,,] grid = new AbstractGridPoint[chunkSize.x + 1, chunkSize.y + 1, chunkSize.z + 1];
-
-		// Preinicializamos los AbstractGridPoint vacíos
-		for (int z = 0; z <= chunkSize.z; z++)
-			for (int y = 0; y <= chunkSize.y; y++)
-				for (int x = 0; x <= chunkSize.x; x++)
-					grid[x, y, z] = new AbstractGridPoint();
-
-		var inittime = to.ElapsedMilliseconds;
-		to.Restart();
-
-		// 2) Rellenamos los campos en paralelo
-		Parallel.For(0, chunkSize.z + 1, z =>
+		for (int y = 0; y < resY; y++)
 		{
-			for (int y = 0; y <= chunkSize.y; y++)
+			for (int x = 0; x < resX; x++)
 			{
-				for (int x = 0; x <= chunkSize.x; x++)
+				// posición local en unidades de voxel ORIGINAL
+				int vx = Math.Min(x * stepX, chunkSize.x);
+				int vy = Math.Min(y * stepY, chunkSize.y);
+				int vz = Math.Min(z * stepZ, chunkSize.z);
+
+				Vector3 posLocal = new Vector3(vx, vy, vz);
+				Vector3 posMundo = chunkOrigin + posLocal;
+				float dist = Vector3.Distance(posMundo, planetCenter);
+
+				float offset = GenOffset(planetData.type,
+					new Vector4(posMundo.x, posMundo.y, posMundo.z, planetData.Seed),
+					noiseScale,
+					noiseAmplitude,
+					noiseIntensity
+				);
+
+				sampled[x, y, z] = new AbstractGridPoint
 				{
-					float px = chunkOrigin.x + x;
-					float py = chunkOrigin.y + y;
-					float pz = chunkOrigin.z + z;
-
-					float dx = px - planetCenter.x;
-					float dy = py - planetCenter.y;
-					float dz = pz - planetCenter.z;
-					float dist = Mathf.Sqrt(dx * dx + dy * dy + dz * dz);
-
-					float offset = Noise4D(
-						px, py, pz, planetData.Seed,
-						noiseScale,
-						noiseAmplitude,
-						noiseIntensity
-					);
-
-					// Solo rellenamos campos existentes
-					var point = grid[x, y, z];
-					point.Position = new Vector3(x, y, z);
-					point.Value = (radius + offset) - dist;
-				}
+					Position = posLocal, // NOTA: posición en unidades de voxels originales
+					Value = (radius + offset) - dist
+				};
 			}
-
-		if (!WorldData.ContainsKey(chunkIndex))
-		{
-			WorldData[chunkIndex] = grid;
 		}
-
-		var SaveTime = to.ElapsedMilliseconds;
-		to.Restart();
-
-		// 3) Lanzar tarea en background para construir el StandartUtilities mesh
-		var gridCopy = grid; // referencia inmutable mientras no modifiques grid después
-		var chunkName = name;
-		var origin = chunkOrigin;
-		var token = meshCts.Token;
-		var task = Task.Run(() =>
-		{
-			token.ThrowIfCancellationRequested();
-
-			var serialMesh = GenerateSerializableMesh(gridCopy);
-
-			if (token.IsCancellationRequested) return;
-
-			meshResults.Enqueue((chunkIndex, serialMesh, origin, chunkName));
-		}, token);
-
-		backgroundTasks.Add(task);
-
-		to.Stop();
-		Debug.Log($"Queued mesh generation for {chunkIndex}. (Init time MS:{inittime}, For  time {for_Time}) SaveTime {SaveTime} StartTaskTime {to.ElapsedMilliseconds})");
 	}
+
+	// Guardar la versión muestreada en WorldData (sustituye a la antigua)
+	if (!WorldData.ContainsKey(chunkIndex))
+	{
+		WorldData[chunkIndex] = sampled;
+	}
+	else
+	{
+		WorldData[chunkIndex] = sampled;
+	}
+
+	// Lanzar la generación de malla en background como ya haces (usa el grid muestreado)
+	var gridCopy = sampled;
+	var chunkName = name;
+	var origin = chunkOrigin;
+	var token = meshCts.Token;
+	var task = Task.Run(() =>
+	{
+		token.ThrowIfCancellationRequested();
+
+		var serialMesh = GenerateSerializableMesh(gridCopy);
+
+		if (token.IsCancellationRequested) return;
+
+		meshResults.Enqueue((chunkIndex, serialMesh, origin, chunkName));
+	}, token);
+
+	backgroundTasks.Add(task);
+
+	//to.Stop();
+	//Debug.Log($"Queued sampled mesh generation for {chunkIndex}. SampleRes={resX}x{resY}x{resZ} InitMS={to.ElapsedMilliseconds}");
+}
+
+	private float GenOffset(PlanetTypes type, Vector4 vector4, float noiseScale, float noiseAmplitude, float noiseIntensity)
+	{
+		float of = 0;
+		switch (type)
+		{
+			case PlanetTypes.BasicGas or PlanetTypes.IceGas:
+				of = 1;
+				break;
+			default:
+				of = Noise4D(
+					vector4,
+					noiseScale,
+					noiseAmplitude,
+					noiseIntensity
+				);
+				break;
+		}
+		return of;
+	}
+
 	// Método que GENERA la malla como StandartUtilities.StdUtils.Serializable.Mesh (se ejecuta en background).
 	// IMPORTANTE: no usar Unity API dentro de este método.
 	private Mesh GenerateSerializableMesh(AbstractGridPoint[,,] grid)
@@ -905,4 +936,14 @@ public class PlanetGen : MonoBehaviour
 		LoadWithLoadingScreen.LoadScene(7, Stages.Creature);
 	}
 
+}
+
+
+public struct MarchCubeTexturePlanet
+{
+	public float[] Values;
+	public long Width;	//X
+	public long Height;	//y
+	public long Depth;  //z
+	public double WaterLevel; //0 no hay 2 totalmente cubierto;
 }
