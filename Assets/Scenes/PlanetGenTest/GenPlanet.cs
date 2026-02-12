@@ -273,11 +273,6 @@ public class PlanetGen : MonoBehaviour
 					point.Value = (radius + offset) - dist;
 				}
 			}
-		});
-		GC.Collect();
-
-		var for_Time = to.ElapsedMilliseconds;
-		to.Restart();
 
 		if (!WorldData.ContainsKey(chunkIndex))
 		{
