@@ -1,0 +1,39 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:VisualElement style="flex-grow: 1; flex-direction: row; width: auto; height: auto; justify-content: space-between; flex-shrink: 0;">
+        <engine:Foldout text="#l" style="flex-grow: 0; flex-shrink: 0; height: 100%; background-color: rgb(46, 92, 123);">
+            <engine:ScrollView style="background-color: rgb(128, 128, 128); height: 100%; align-self: flex-start; flex-grow: 1; flex-shrink: 0;">
+                <engine:TabView>
+                    <engine:Tab label="Cuerpo" name="BOD" />
+                    <engine:Tab label="Partes" name="Part">
+                        <engine:TabView>
+                            <engine:Tab label="#e" />
+                            <engine:Tab label="#m" />
+                            <engine:Tab label="#w" />
+                        </engine:TabView>
+                    </engine:Tab>
+                </engine:TabView>
+            </engine:ScrollView>
+        </engine:Foldout>
+        <engine:Foldout text="#r" style="background-color: rgb(180, 89, 89);">
+            <engine:ScrollView style="background-color: rgb(128, 128, 128); height: 100%; align-self: flex-end; justify-content: flex-start; flex-shrink: 0;">
+                <engine:TabView>
+                    <engine:Tab label="Pintura" name="pin" />
+                    <engine:Tab label="Reproduccion" name="Rep" />
+                </engine:TabView>
+            </engine:ScrollView>
+        </engine:Foldout>
+    </engine:VisualElement>
+    <engine:VisualElement style="flex-grow: 0; height: 7%; flex-direction: row; align-items: auto; align-self: auto; justify-content: space-between; -unity-text-outline-color: rgba(0, 188, 255, 0.94); background-color: rgb(53, 139, 229);">
+        <engine:Button enable-rich-text="false" emoji-fallback-support="false" select-word-by-double-click="false" style="align-self: flex-start; background-image: url(&quot;project://database/Assets/UIS/GEARS%20fsdihusdfhuisdfuihfsd0001.png?fileID=21300000&amp;guid=e468ecad4c6e5f845ba57e7012d9bc91&amp;type=3#GEARS fsdihusdfhuisdfuihfsd0001&quot;); flex-grow: 0; -unity-background-scale-mode: scale-to-fit; flex-basis: auto; height: 90%;" />
+        <engine:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: flex-end;">
+            <engine:Button enable-rich-text="false" emoji-fallback-support="false" style="align-self: flex-end; justify-content: flex-end; align-items: center; background-image: url(&quot;project://database/Assets/UIS/---esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs.png?fileID=21300000&amp;guid=ca932e011acd5c34ab8e3df9c4818680&amp;type=3#---esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs&quot;);" />
+            <engine:Button style="background-image: url(&quot;project://database/Assets/UIS/esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs.png?fileID=21300000&amp;guid=285cbd1f0d868be46b77dfb66ad0cfd3&amp;type=3#esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs&quot;);" />
+        </engine:VisualElement>
+    </engine:VisualElement>
+    <engine:Button text="Button" name="Button" style="position: absolute; top: auto; bottom: 0; left: 43%; right: auto; width: 17%;" />
+    <engine:VisualElement name="up" style="flex-grow: 1; position: absolute; left: 33%; background-color: rgb(212, 212, 212); bottom: -35%; height: 35%; width: 30%;">
+        <engine:TextField label="#name" placeholder-text="filler text" hide-mobile-input="false" multiline="false" name="name" style="flex-direction: column;" />
+        <engine:TextField label="#des" placeholder-text="filler text" name="description" style="flex-direction: column;" />
+        <engine:Button name="dadso" style="position: absolute; right: 0; background-image: url(&quot;project://database/Assets/UIS/ghhgfhgfhgffgh.png?fileID=21300000&amp;guid=753ad664af5aedc40892dfc5faf2fb49&amp;type=3#ghhgfhgfhgffgh&quot;);" />
+    </engine:VisualElement>
+</engine:UXML>

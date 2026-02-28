@@ -85,7 +85,7 @@ public class PlanetGen : MonoBehaviour
 		else
 		{
 			Debug.LogWarning("Modo físico en uso, puede ser ineficiente. además está deprecado/obsoleto");
-			BuildPlanetPhysical(radius);
+			//BuildPlanetPhysical(radius);
 			Debug.LogWarning("Se generó el planeta ya puedes descansar pues la parte pesada ya pasó, ahora solo queda dibujar el wireframe de los chunks para verificar que está correcto.");
 			foreach (Transform chunk in transform)
 			{
@@ -247,8 +247,8 @@ public class PlanetGen : MonoBehaviour
 	int resY = cellsY + 1;
 	int resZ = cellsZ + 1;
 
-	// Grid muestreado (más pequeño)
-	AbstractGridPoint[,,] sampled = new AbstractGridPoint[resX, resY, resZ];
+		// Grid muestreado (más pequeño)
+		AbstractGridPoint[,,] sampled = new AbstractGridPoint[resX, resY, resZ];
 
 	// Rellenar grid muestreado en hilo principal (seguimos usando el mismo ruido)
 	for (int z = 0; z < resZ; z++)

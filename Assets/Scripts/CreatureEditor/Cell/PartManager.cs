@@ -41,7 +41,8 @@ public class PartManager : MonoBehaviour
 	private Label Lbl;
 	private Toggle DIM;
 	bool inited = false;
-
+	int MaleMouthCount = 0;
+	int FemaleMouthCount = 0;
 	// Variables para persistencia de datos UI
 	private GéneroBiológico savedActiveGendr;
 	public reproductionTypes savedRepType;
@@ -295,8 +296,23 @@ public class PartManager : MonoBehaviour
 
 	void addPart(string id = "-1")
 	{
-		var Part = Instantiate(Database.GetPartByID(id).prefab);
+		var PartData = Database.GetPartByID(id);
+		var Part = Instantiate(PartData.prefab);
 		var gz = Part.AddComponent<GizSelectable>();
+		if (PartData is BiologicalPart biol )
+		{
+			if (biol.function == BiologicalPartFunction.Mouth)
+			{
+				switch (ActiveGen)
+				{
+					case GéneroBiológico.Male:
+						MaleMouthCount++;
+						break;
+					default: FemaleMouthCount++
+							; break;
+				}
+			}
+		}
 		gz.IsMovable = true;
 		gz.IsRotatable = true;
 		if (ActiveGen == GéneroBiológico.Female || ActiveGen == GéneroBiológico.None)
@@ -334,6 +350,7 @@ public class PartManager : MonoBehaviour
 		bool A = (!SerializableTypes.Biology.SerializedPartData.IsValidMethodTypePair(RepTyp, method));
 		bool B = (!(IsDimorphic() && RepTyp != reproductionTypes.SingleCell) && DIM.value);
 		bool C = DIM.value && (RepTyp == reproductionTypes.SingleCell);
+		bool D = (FemaleMouthCount <= 0 || MaleMouthCount <= 0);
 		if (A && !B)
 			label.text = $"Metodo de reproduccion invalido {method} para {RepTyp}";
 		else if (A && B && (!C))
@@ -342,6 +359,8 @@ public class PartManager : MonoBehaviour
 			label.text = "falta un Genero";
 		else if (C)
 			label.text = "No puede haber dimorfismo si se reproduce de manera sin pareja";
+		else if (D)
+			label.text = "le falta boca a un genero";
 		else
 			label.text = "";
 		if (label.text == "")

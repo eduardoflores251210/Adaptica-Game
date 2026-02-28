@@ -40,6 +40,7 @@ public class StarVisualizer : MonoBehaviour
 
 	void Start()
 	{
+
 		if (Sphere == null)
 		{
 			GameObject tmp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -114,12 +115,28 @@ public class StarVisualizer : MonoBehaviour
 
 	public IEnumerator VisualizeStars(List<GalaxySector> sectors, GalaxyData data = null)
 	{
+		List<ParticleSystem.EmitParams> particleX = new  ();
+		List<ParticleSystem.EmitParams> particleO = new  ();
+		List<ParticleSystem.EmitParams> particleB = new  ();
+		List<ParticleSystem.EmitParams> particleA = new  ();
+		List<ParticleSystem.EmitParams> particleF = new  ();
+		List<ParticleSystem.EmitParams> particleG = new  ();
+		List<ParticleSystem.EmitParams> particleK = new  ();
+		List<ParticleSystem.EmitParams> particleM = new  ();
+		List<ParticleSystem.EmitParams> particleL = new  ();
+		List<ParticleSystem.EmitParams> particleT = new  ();
+		List<ParticleSystem.EmitParams> particleEB = new ();
+		List<ParticleSystem.EmitParams> particleEN = new ();
+		List<ParticleSystem.EmitParams> particleNS = new ();
 		Debug.Log("STart");
 		if (starParent == null) starParent = this.transform;
 		galaxy= data;
+		GameObject SectorGO = null;
 		foreach (var sector in sectors)
 		{
-			GameObject SectorGO = GameObject.CreatePrimitive(PrimitiveType.Plane);
+			if (IsDebug || !IsInMainMenu)
+			{ 
+			SectorGO = GameObject.CreatePrimitive(PrimitiveType.Plane);
 			SectorGO.name = ($"Sector_{sector.Position}");
 			SectorGO.transform.position = (((Vector3)sector.Position.To3DXZ()).Multiply3d(((Vector2)Generator.sectorSize).To3DXZ())) * GalaxyScale;
 			SectorGO.transform.localScale = Vector3.one;
@@ -130,10 +147,10 @@ public class StarVisualizer : MonoBehaviour
 			{
 				if (ChunckManager.Sectors == null)
 					ChunckManager.Sectors = new List<GameObject>();
-				else 
+				else
 					ChunckManager.Sectors.Add(SectorGO);
 			}
-
+			}
 			int Batch = 0;
 			System.Diagnostics.Stopwatch sw = null;
 			if (Use1FramesPerSecondMode) sw = System.Diagnostics.Stopwatch.StartNew();
@@ -141,7 +158,7 @@ public class StarVisualizer : MonoBehaviour
 			{
 				if(star == null) continue;
 				if (star.IsNull()) continue;
-				if (!IsInMainMenu)
+				if (!IsInMainMenu && SectorGO != null) 
 				{
 
 					GameObject starGO = new GameObject(star.id);
@@ -158,11 +175,57 @@ public class StarVisualizer : MonoBehaviour
 				// Partículas compartidas por tipo
 				if (Particles.ContainsKey(star.type))
 				{
-					ParticleSystem ps = Particles[star.type];
-					ParticleSystem.EmitParams emit = new ParticleSystem.EmitParams();
+
+					ParticleSystem.EmitParams emit = new();
 					emit.position = star.transform.Pos * GalaxyScale;
-					ps.Emit(emit, 1);
-				}else
+
+					switch (star.type)
+					{
+						case StarTypes.O:
+							particleO.Add(emit);
+							break;
+						case StarTypes.B:
+							particleB.Add(emit);
+							break;
+						case StarTypes.A:
+							particleA.Add(emit);
+							break;
+						case StarTypes.F:
+							particleF.Add(emit);
+							break;
+						case StarTypes.G:
+							particleG.Add(emit);
+							break;
+						case StarTypes.K:
+							particleK.Add(emit);
+							break;
+						case StarTypes.M:
+							particleM.Add(emit);
+							break;
+						case StarTypes.L:
+							particleL.Add(emit);
+							break;
+						case StarTypes.T:
+							particleT.Add(emit);
+							break;
+						case StarTypes.EB:
+							particleEB.Add(emit);
+							break;
+						case StarTypes.NS:
+							particleNS.Add(emit);
+							break;
+						case StarTypes.EN:
+							particleEN.Add(emit);
+							break;
+						case StarTypes.X:
+						default:
+							particleX.Add(emit);
+							break;
+					}
+
+
+				}
+				else
 				{
 
 				}
@@ -185,7 +248,7 @@ public class StarVisualizer : MonoBehaviour
 					yield return null;
 				}
 			}
-				
+
 			yield return null;
 			if (!HideRouguePlanets)
 			{
@@ -217,10 +280,9 @@ public class StarVisualizer : MonoBehaviour
 								// Partículas compartidas por tipo
 								if (Particles.ContainsKey(StarTypes.EN))
 								{
-									ParticleSystem ps = Particles[StarTypes.EN];
-									ParticleSystem.EmitParams emit = new ParticleSystem.EmitParams();
+									ParticleSystem.EmitParams emit = new();
 									emit.position = planet.transform.Pos * GalaxyScale;
-									ps.Emit(emit, 1);
+									particleEN.Add(emit);
 								}
 								bool T = false;
 								if (Use1FramesPerSecondMode)
@@ -245,7 +307,10 @@ public class StarVisualizer : MonoBehaviour
 					}
 				}
 			}
-			SectorGO.transform.parent = starParent;
+			if (IsDebug || !IsInMainMenu)
+			{
+				SectorGO.transform.parent = starParent;
+			}
 			if (ChunckManager != null)
 			{
 				SectorGO.SetActive(false);
@@ -257,8 +322,30 @@ public class StarVisualizer : MonoBehaviour
 			ps.Value.Pause();
 			var renderer = ps.Value.GetComponent<ParticleSystemRenderer>();
 			renderer.material = Mats[ps.Key];
+			List<ParticleSystem.EmitParams> L = ps.Key switch
+			{
+				StarTypes.X => particleX,
+				StarTypes.O => particleO,
+				StarTypes.B => particleB,
+				StarTypes.A => particleA,
+				StarTypes.F => particleF,
+				StarTypes.G => particleG,
+				StarTypes.K => particleK,
+				StarTypes.M => particleM,
+				StarTypes.L => particleL,
+				StarTypes.T => particleT,
+				StarTypes.EB => particleEB,
+				StarTypes.NS => particleNS,
+				StarTypes.EN => particleEN,
+				_ => new List<ParticleSystem.EmitParams>(),
+			};
+
+			foreach (var p in L)
+				ps.Value.Emit(p, 1);
+
 			if (ps.Key == StarTypes.X)
 			{
+				
 				renderer.material = BholMat;
 			}
 		}
