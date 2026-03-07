@@ -27,10 +27,21 @@ public class FlechaGizmo : MonoBehaviour
         dragAction = map.FindAction("Drag", true);
         pointerPositionAction = map.FindAction("PPos", true);
 
-        dragAction.started += ctx => { ComenzarArrastre(ctx.control.device); };
-        dragAction.canceled += ctx => TerminarArrastre();
+		dragAction.started += DragAction_started;
+		dragAction.canceled += DragAction_canceled;
     }
-    InputDevice Devi;
+
+	private void DragAction_canceled(InputAction.CallbackContext obj)
+	{
+		TerminarArrastre(); 
+	}
+
+	private void DragAction_started(InputAction.CallbackContext obj)
+	{
+		ComenzarArrastre(obj.control.device);
+	}
+
+	InputDevice Devi;
     private void ComenzarArrastre(InputDevice Dev)
     {
 
@@ -74,8 +85,12 @@ public class FlechaGizmo : MonoBehaviour
         dragAction.Disable();
         pointerPositionAction.Disable();
     }
-
-    private void Update()
+	private void OnDestroy()
+	{
+		dragAction.canceled -= DragAction_canceled;
+		dragAction.started -= DragAction_started;
+	}
+	private void Update()
     {
         if (!arrastrando) return;
 

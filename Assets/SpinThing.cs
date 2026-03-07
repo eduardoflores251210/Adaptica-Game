@@ -58,6 +58,7 @@ public class SpinThing : MonoBehaviour
 					lastCursorPos = cursorPos;
 					placer.CantMove = true;
 
+
 				}
 				else
 				{

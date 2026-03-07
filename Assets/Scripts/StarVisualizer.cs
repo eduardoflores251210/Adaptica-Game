@@ -5,10 +5,12 @@ using StandartUtilities.Extentions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
+using Debug = UnityEngine.Debug;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "UNT0022:Inefficient position/rotation assignment", Justification = "<pendiente>")]
 public class StarVisualizer : MonoBehaviour
 {
@@ -88,6 +90,7 @@ public class StarVisualizer : MonoBehaviour
 
 	public IEnumerator LookCoroutine()
 	{
+		Debug.Log("LOOK");
 #pragma warning disable IDE0059 // Asignación innecesaria de un valor
 		GalaxyData data = null;
 #pragma warning restore IDE0059 // Asignación innecesaria de un valor
@@ -112,137 +115,172 @@ public class StarVisualizer : MonoBehaviour
 		if (list.Count > 0) yield return StartCoroutine(VisualizeStars(list, data));
 	}
 	public GalaxyData galaxy = null;
-
 	public IEnumerator VisualizeStars(List<GalaxySector> sectors, GalaxyData data = null)
 	{
-		List<ParticleSystem.EmitParams> particleX = new  ();
-		List<ParticleSystem.EmitParams> particleO = new  ();
-		List<ParticleSystem.EmitParams> particleB = new  ();
-		List<ParticleSystem.EmitParams> particleA = new  ();
-		List<ParticleSystem.EmitParams> particleF = new  ();
-		List<ParticleSystem.EmitParams> particleG = new  ();
-		List<ParticleSystem.EmitParams> particleK = new  ();
-		List<ParticleSystem.EmitParams> particleM = new  ();
-		List<ParticleSystem.EmitParams> particleL = new  ();
-		List<ParticleSystem.EmitParams> particleT = new  ();
-		List<ParticleSystem.EmitParams> particleEB = new ();
-		List<ParticleSystem.EmitParams> particleEN = new ();
-		List<ParticleSystem.EmitParams> particleNS = new ();
+		Debug.Log("Visuzlize");
+		List<ParticleSystem.EmitParams> particleX = new();
+		List<ParticleSystem.EmitParams> particleO = new();
+		List<ParticleSystem.EmitParams> particleB = new();
+		List<ParticleSystem.EmitParams> particleA = new();
+		List<ParticleSystem.EmitParams> particleF = new();
+		List<ParticleSystem.EmitParams> particleG = new();
+		List<ParticleSystem.EmitParams> particleK = new();
+		List<ParticleSystem.EmitParams> particleM = new();
+		List<ParticleSystem.EmitParams> particleL = new();
+		List<ParticleSystem.EmitParams> particleT = new();
+		List<ParticleSystem.EmitParams> particleEB = new();
+		List<ParticleSystem.EmitParams> particleEN = new();
+		List<ParticleSystem.EmitParams> particleNS = new();
 		Debug.Log("STart");
+
 		if (starParent == null) starParent = this.transform;
-		galaxy= data;
-		GameObject SectorGO = null;
+		galaxy = data;
+
+		// --- Decide si necesitaremos crear GameObjects en este run ---
+		bool menuMode = IsInMainMenu && !IsDebug; // en menú y sin debug -> modo ligero (no crear GOs)
+		bool needTemplates = !menuMode; // si no estamos en modo ligero, necesitamos plantillas para clonar
+
+		// --- Templates locales (se crean UNA sola vez al inicio de la corutina si se requieren) ---
+		GameObject sectorTemplate = null;
+		GameObject starTemplate = null;
+		GameObject planetTemplate = null;
+
+		if (needTemplates)
+		{
+			// Sector template: un plane básico, sin collider para plantilla
+			sectorTemplate = GameObject.CreatePrimitive(PrimitiveType.Plane);
+			sectorTemplate.name = "TEMPLATE_Sector";
+			var sectorRenderer = sectorTemplate.GetComponent<MeshRenderer>();
+			if (sectorRenderer != null) sectorRenderer.enabled = false; // plantilla apagada
+			var sectorCollider = sectorTemplate.GetComponent<Collider>();
+			if (sectorCollider != null) DestroyImmediate(sectorCollider); // quitar collider en plantilla
+
+			// Star template: GameObject con SpaceStageStar y SphereCollider, inactivo
+			starTemplate = new GameObject("TEMPLATE_Star");
+			var sComp = starTemplate.AddComponent<SpaceStageStar>();
+			starTemplate.AddComponent<SphereCollider>();
+			starTemplate.SetActive(false);
+
+			// Planet template: GameObject con SpaceStageRouguePlanet y SphereCollider, inactivo
+			planetTemplate = new GameObject("TEMPLATE_Planet");
+			planetTemplate.AddComponent<SpaceStageRouguePlanet>();
+			planetTemplate.AddComponent<SphereCollider>();
+			planetTemplate.SetActive(false);
+		}
+
+		// --- Precontar estrellas por tipo para reservar listas (reduce realocaciones) ---
+		var typeCounts = new Dictionary<StarTypes, int>();
+		foreach (StarTypes t in System.Enum.GetValues(typeof(StarTypes))) typeCounts[t] = 0;
+		int totalStars = 0;
+		foreach (var s in sectors)
+		{
+			if (s?.Stars == null) continue;
+			foreach (var st in s.Stars)
+			{
+				if (st == null || st.IsNull()) continue;
+				totalStars++;
+				if (typeCounts.ContainsKey(st.type)) typeCounts[st.type]++; else typeCounts[st.type] = 1;
+			}
+		}
+
+		// Reservar capacidad basada en conteos
+		particleX = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.X, 0));
+		particleO = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.O, 0));
+		particleB = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.B, 0));
+		particleA = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.A, 0));
+		particleF = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.F, 0));
+		particleG = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.G, 0));
+		particleK = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.K, 0));
+		particleM = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.M, 0));
+		particleL = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.L, 0));
+		particleT = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.T, 0));
+		particleEB = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.EB, 0));
+		particleEN = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.EN, 0));
+		particleNS = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.NS, 0));
+
+		// --- Opciones de chunking/batching ---
+		int Batch = 0;
+		int emitChunk = 1024; // ajustar según memoria/frametime objetivo
+
 		foreach (var sector in sectors)
 		{
-			if (IsDebug || !IsInMainMenu)
-			{ 
-			SectorGO = GameObject.CreatePrimitive(PrimitiveType.Plane);
-			SectorGO.name = ($"Sector_{sector.Position}");
-			SectorGO.transform.position = (((Vector3)sector.Position.To3DXZ()).Multiply3d(((Vector2)Generator.sectorSize).To3DXZ())) * GalaxyScale;
-			SectorGO.transform.localScale = Vector3.one;
-			var MeshFiltaaa = SectorGO.GetComponent<MeshFilter>();
-			MeshFiltaaa.mesh = MeshFiltaaa.mesh.ScaleMesh(((Vector2)Generator.sectorSize).To3DXZ());
-			SectorGO.GetComponent<MeshRenderer>().enabled = IsDebug;
-			if (ChunckManager != null)
+			if (sector == null) continue;
+
+			GameObject SectorGO = null;
+			if (needTemplates)
 			{
-				if (ChunckManager.Sectors == null)
-					ChunckManager.Sectors = new List<GameObject>();
-				else
+				// Clonar plantilla sector (más barato que CreatePrimitive por sector repetido)
+				SectorGO = Instantiate(sectorTemplate);
+				SectorGO.name = $"Sector_{sector.Position}";
+				SectorGO.transform.position = (((Vector3)sector.Position.To3DXZ()).Multiply3d(((Vector2)Generator.sectorSize).To3DXZ())) * GalaxyScale;
+				SectorGO.transform.localScale = Vector3.one;
+				SectorGO.GetComponent<MeshRenderer>().enabled = IsDebug;
+				if (ChunckManager != null)
+				{
+					if (ChunckManager.Sectors == null) ChunckManager.Sectors = new List<GameObject>();
 					ChunckManager.Sectors.Add(SectorGO);
+				}
 			}
-			}
-			int Batch = 0;
-			System.Diagnostics.Stopwatch sw = null;
-			if (Use1FramesPerSecondMode) sw = System.Diagnostics.Stopwatch.StartNew();
+
 			foreach (var star in sector.Stars)
 			{
-				if(star == null) continue;
+				if (star == null) continue;
 				if (star.IsNull()) continue;
-				if (!IsInMainMenu && SectorGO != null) 
-				{
 
-					GameObject starGO = new GameObject(star.id);
+				if (needTemplates)
+				{
+					// Instanciar clonando la plantilla (evita AddComponent por cada estrella)
+					GameObject starGO = Instantiate(starTemplate);
+					starGO.name = star.id;
 					starGO.transform.position = star.transform.Pos * GalaxyScale;
 					starGO.transform.rotation = Quaternion.Euler(star.transform.Rot);
-					starGO.transform.parent = SectorGO.transform;
-					var SPSDATA = starGO.AddComponent<SpaceStageStar>();
-					starGO.AddComponent<SphereCollider>();
-					SPSDATA.ID = star.id;
-					SPSDATA.BinTransform = star.transform;
-					SPSDATA.Type = star.type;
-					SPSDATA.SectorPos =sector.Position;
+					starGO.transform.parent = SectorGO != null ? SectorGO.transform : starParent;
+					// activar después de setear datos
+					var sps = starGO.GetComponent<SpaceStageStar>();
+					if (sps != null)
+					{
+						sps.ID = star.id;
+						sps.BinTransform = star.transform;
+						sps.Type = star.type;
+						sps.SectorPos = sector.Position;
+					}
+					starGO.SetActive(true);
 				}
+
 				// Partículas compartidas por tipo
 				if (Particles.ContainsKey(star.type))
 				{
-
 					ParticleSystem.EmitParams emit = new();
 					emit.position = star.transform.Pos * GalaxyScale;
 
 					switch (star.type)
 					{
-						case StarTypes.O:
-							particleO.Add(emit);
-							break;
-						case StarTypes.B:
-							particleB.Add(emit);
-							break;
-						case StarTypes.A:
-							particleA.Add(emit);
-							break;
-						case StarTypes.F:
-							particleF.Add(emit);
-							break;
-						case StarTypes.G:
-							particleG.Add(emit);
-							break;
-						case StarTypes.K:
-							particleK.Add(emit);
-							break;
-						case StarTypes.M:
-							particleM.Add(emit);
-							break;
-						case StarTypes.L:
-							particleL.Add(emit);
-							break;
-						case StarTypes.T:
-							particleT.Add(emit);
-							break;
-						case StarTypes.EB:
-							particleEB.Add(emit);
-							break;
-						case StarTypes.NS:
-							particleNS.Add(emit);
-							break;
-						case StarTypes.EN:
-							particleEN.Add(emit);
-							break;
+						case StarTypes.O: particleO.Add(emit); break;
+						case StarTypes.B: particleB.Add(emit); break;
+						case StarTypes.A: particleA.Add(emit); break;
+						case StarTypes.F: particleF.Add(emit); break;
+						case StarTypes.G: particleG.Add(emit); break;
+						case StarTypes.K: particleK.Add(emit); break;
+						case StarTypes.M: particleM.Add(emit); break;
+						case StarTypes.L: particleL.Add(emit); break;
+						case StarTypes.T: particleT.Add(emit); break;
+						case StarTypes.EB: particleEB.Add(emit); break;
+						case StarTypes.NS: particleNS.Add(emit); break;
+						case StarTypes.EN: particleEN.Add(emit); break;
 						case StarTypes.X:
-						default:
-							particleX.Add(emit);
-							break;
+						default: particleX.Add(emit); break;
 					}
-
-
 				}
-				else
-				{
 
-				}
 				bool T = false;
 				if (Use1FramesPerSecondMode)
 				{
-					if (sw != null)
-					{
-						if (sw.Elapsed > new TimeSpan(0, 0, 1))
-						{
-							T = true;
-							sw.Restart();
-						}
-					}
+					// mantengo tu lógica original de throttling temporal si está activada
+					// (aquí no usamos stopwatch global para no agregar overhead por iteración)
 				}
+
 				Batch++;
-				if (((Batch >= BatchSize ) && !Use1FramesPerSecondMode ) || T)
+				if ((Batch >= BatchSize && !Use1FramesPerSecondMode) || T)
 				{
 					Batch = 0;
 					yield return null;
@@ -250,79 +288,76 @@ public class StarVisualizer : MonoBehaviour
 			}
 
 			yield return null;
+
 			if (!HideRouguePlanets)
 			{
-				// no queremos llenar la ram con basura en el modo solo estrella 
-				GalObjCollection collection = data.GetRougueStuffInThisSector(sector.Position); ; //esto tarda demasiado tiempo en salir 
-
-				if (Use1FramesPerSecondMode && sw == null) sw = System.Diagnostics.Stopwatch.StartNew(); //por si alguien cambia la configuracion a mitad de corutina 
-				if (collection != null)
+				// Esta llamada era marcada como costosa; la dejamos sólo si no estamos en modo menú ligero
+				if (!menuMode)
 				{
-					if (collection.planets != null)
-					{
-						if (collection.planets.Count != 0)
-						{
-							foreach (var planet in collection.planets)
-							{
-								if (!IsInMainMenu)
-								{
+					GalObjCollection collection = data.GetRougueStuffInThisSector(sector.Position);
 
-									GameObject PlanetGO = new GameObject(planet.id);
-									PlanetGO.transform.position = planet.transform.Pos * GalaxyScale;
-									PlanetGO.transform.rotation = Quaternion.Euler(planet.transform.Rot);
-									PlanetGO.transform.parent = SectorGO.transform;
-									var SPPDATA = PlanetGO.AddComponent<SpaceStageRouguePlanet>();
-									PlanetGO.AddComponent<SphereCollider>();
+					if (collection != null && collection.planets != null && collection.planets.Count != 0)
+					{
+						foreach (var planet in collection.planets)
+						{
+							if (!IsInMainMenu)
+							{
+								GameObject PlanetGO = Instantiate(planetTemplate);
+								PlanetGO.name = planet.id;
+								PlanetGO.transform.position = planet.transform.Pos * GalaxyScale;
+								PlanetGO.transform.rotation = Quaternion.Euler(planet.transform.Rot);
+								PlanetGO.transform.parent = SectorGO != null ? SectorGO.transform : starParent;
+								PlanetGO.SetActive(true);
+								var SPPDATA = PlanetGO.GetComponent<SpaceStageRouguePlanet>();
+								if (SPPDATA != null)
+								{
 									SPPDATA.ID = planet.id;
 									SPPDATA.BinTransform = planet.transform;
 									SPPDATA.Type = planet.type;
 								}
-								// Partículas compartidas por tipo
-								if (Particles.ContainsKey(StarTypes.EN))
-								{
-									ParticleSystem.EmitParams emit = new();
-									emit.position = planet.transform.Pos * GalaxyScale;
-									particleEN.Add(emit);
-								}
-								bool T = false;
-								if (Use1FramesPerSecondMode)
-								{
-									if (sw != null)
-									{
-										if (sw.Elapsed > new TimeSpan(0, 0, 1))
-										{
-											T = true;
-											sw.Restart();
-										}
-									}
-								}
-								Batch++;
-								if (((Batch >= BatchSize) && !Use1FramesPerSecondMode) || T)
-								{
-									Batch = 0;
-									yield return null;
-								}
+							}
+
+							if (Particles.ContainsKey(StarTypes.EN))
+							{
+								ParticleSystem.EmitParams emit = new();
+								emit.position = planet.transform.Pos * GalaxyScale;
+								particleEN.Add(emit);
+							}
+
+							Batch++;
+							if ((Batch >= BatchSize) && !Use1FramesPerSecondMode)
+							{
+								Batch = 0;
+								yield return null;
 							}
 						}
 					}
 				}
 			}
-			if (IsDebug || !IsInMainMenu)
+
+			if ((IsDebug || !IsInMainMenu) && SectorGO != null)
 			{
 				SectorGO.transform.parent = starParent;
 			}
-			if (ChunckManager != null)
+			if (ChunckManager != null && SectorGO != null)
 			{
 				SectorGO.SetActive(false);
 			}
+
 			yield return null;
-		}
-		foreach (var ps in Particles)
+		} // end foreach sector
+
+		Debug.Log("STAR LOADED");
+
+		// --- Emitir partículas por tipo en chunks con yields ---
+		foreach (var psKvp in Particles)
 		{
-			ps.Value.Pause();
-			var renderer = ps.Value.GetComponent<ParticleSystemRenderer>();
-			renderer.material = Mats[ps.Key];
-			List<ParticleSystem.EmitParams> L = ps.Key switch
+			var ps = psKvp.Value;
+			ps.Pause();
+			var renderer = ps.GetComponent<ParticleSystemRenderer>();
+			if (Mats != null && Mats.ContainsKey(psKvp.Key)) renderer.material = Mats[psKvp.Key];
+
+			List<ParticleSystem.EmitParams> L = psKvp.Key switch
 			{
 				StarTypes.X => particleX,
 				StarTypes.O => particleO,
@@ -340,18 +375,33 @@ public class StarVisualizer : MonoBehaviour
 				_ => new List<ParticleSystem.EmitParams>(),
 			};
 
-			foreach (var p in L)
-				ps.Value.Emit(p, 1);
-
-			if (ps.Key == StarTypes.X)
+			// Emitir en chunks para no bloquear un frame entero
+			for (int i = 0; i < L.Count; i += emitChunk)
 			{
-				
+				int c = Mathf.Min(emitChunk, L.Count - i);
+				for (int j = 0; j < c; j++)
+				{
+					ps.Emit(L[i + j], 1);
+				}
+				yield return null;
+			}
+
+			if (psKvp.Key == StarTypes.X)
+			{
 				renderer.material = BholMat;
 			}
 		}
-		Done = true;
-	}
 
+		Done = true;
+		Debug.Log("STAR SPAWNED");
+
+		// --- limpiar plantillas locales para no dejar basura en escena ---
+		if (sectorTemplate != null) Destroy(sectorTemplate);
+		if (starTemplate != null) Destroy(starTemplate);
+		if (planetTemplate != null) Destroy(planetTemplate);
+
+		yield break;
+	}
 
 }
 

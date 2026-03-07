@@ -6,6 +6,9 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
 using UnityEngine.UI;
 
+/// <summary>
+/// 
+/// </summary>
 public class CameraOrbitController : MonoBehaviour
 {
     [Header("Referencias")]

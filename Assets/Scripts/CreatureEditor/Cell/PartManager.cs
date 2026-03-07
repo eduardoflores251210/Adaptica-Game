@@ -350,7 +350,7 @@ public class PartManager : MonoBehaviour
 		bool A = (!SerializableTypes.Biology.SerializedPartData.IsValidMethodTypePair(RepTyp, method));
 		bool B = (!(IsDimorphic() && RepTyp != reproductionTypes.SingleCell) && DIM.value);
 		bool C = DIM.value && (RepTyp == reproductionTypes.SingleCell);
-		bool D = (FemaleMouthCount <= 0 || MaleMouthCount <= 0);
+		bool D = (FemaleMouthCount <= 0 ||( MaleMouthCount <= 0 && DIM.value));
 		if (A && !B)
 			label.text = $"Metodo de reproduccion invalido {method} para {RepTyp}";
 		else if (A && B && (!C))

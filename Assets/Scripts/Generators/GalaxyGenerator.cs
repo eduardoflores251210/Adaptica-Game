@@ -46,7 +46,7 @@ public class GalaxyGenerator : MonoBehaviour
 	[Tooltip("Ratio para el eje Z respecto a X: 1 -> círculo. <1 hace elipse achatada en Z, >1 estirada.")]
 	public float ellipseRatio = 1.0f;
 	[Tooltip("Cuánto penalizar posiciones fuera de la elipse (mayor = menos fuera).")]
-	public float ellipseEdgeFalloff = 6f;
+	public float ellipseEdgeFalloff = 100f;
 	[Tooltip("Máximo intentos de muestreo por estrella para respetar la elipse antes de proyectar.")]
 	public int starPlacementMaxTries = 8;
 

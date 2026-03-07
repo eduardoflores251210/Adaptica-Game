@@ -36,14 +36,15 @@ public class SectorTurnOnOffEr : MonoBehaviour
 			// --- distancia en XZ ---
 			Vector2 flat = new Vector2(toSector.x, toSector.z);
 			float distance = flat.magnitude;
-
+			float angle = Vector3.Angle(camForward, toSector);
+			
 			// --- producto punto también en XZ ---
 			Vector2 camF2 = new Vector2(camForward.x, camForward.z).normalized;
 			Vector2 toSector2 = flat.normalized;
 
-			bool inFront = Vector2.Dot(camF2, toSector2) > 0f;
+			bool inCone = angle <= (cam.fieldOfView / 2);
 
-			bool shouldBeActive = distance <= maxDistance && inFront;
+			bool shouldBeActive = distance <= maxDistance && inCone;
 
 			if (sector.activeSelf != shouldBeActive)
 				sector.SetActive(shouldBeActive);
