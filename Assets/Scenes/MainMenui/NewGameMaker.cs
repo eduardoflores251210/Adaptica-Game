@@ -7,12 +7,82 @@ using System.Linq;
 using UnityEngine;
 using SerializableTypes.Space; 
 using UnityEngine.UI;
+using System.IO;
 
 public class NewGameMaker : MonoBehaviour
 {
 	public GalaxyGenerator GalaxyGenerator;
 	public bool AllowStars = true;
 	public bool AllowRouguePlanetsMoons = false;
+
+	private void Start()
+	{
+		GalaxyGenerator.OnGalaxyGenerated += GeneratePlanetCache;
+		GetCache();
+	}
+
+	private void GeneratePlanetCache()
+	{
+		if (!(AllowStars && AllowRouguePlanetsMoons))
+		{
+			Debug.Log("¿??????????????????????????????????????????");
+			AllowStars = AllowRouguePlanetsMoons = true;//si no permites nada permites todo
+		}
+		if (GalaxyData.TryToLoadGalaxy(out var es))
+		{
+			// Filtrar planetas Terra y Jungle
+			List<PlanetData> f = es.LookForTypePlanet(PlanetTypes.Terra);
+			List<PlanetData> g = es.LookForTypePlanet(PlanetTypes.Jungle);
+			List<PlanetData> candidates = f.Concat(g).ToList();
+			PlanetCacheFile cacheFile = new PlanetCacheFile();
+			int i = 0;
+			foreach (var p in candidates.OrderBy(x => Random.value))
+			{
+				// Intentar encontrar un planeta válido según reglas
+
+				if (!AllowStars && p.ParentID.StartsWith("E"))
+					continue; // ignorar planetas con estrella
+
+				if (!AllowRouguePlanetsMoons && p.ParentID.StartsWith("P"))
+					continue; // ignorar planetas solitarios
+				if (p.IsSaveFile) { continue; }
+				var chosenPlanet = p;
+				if (Random.value < 0.5)
+				{
+					if (cacheFile.PlanetIds == null)
+						cacheFile.PlanetIds = new();
+					cacheFile.PlanetIds.Add(p.id);
+					if (cacheFile.ParrentTypes == null)
+						cacheFile.ParrentTypes = new();
+					cacheFile.ParrentTypes.Add( (p.type).ToString());
+					i++;
+				}
+				if (i >= 6)
+				break;
+
+			}
+			string path = Paths.NewGameCache;
+			string JSON = JsonUtility.ToJson(cacheFile);
+			File.WriteAllText(path, JSON);
+		}
+
+	}
+	public PlanetCacheFile GetCache()
+	{
+		if (!File.Exists(Paths.NewGameCache))
+			GeneratePlanetCache();
+
+		string path = Paths.NewGameCache;
+		string JSON = File.ReadAllText(path);
+		var Cachefile = JsonUtility.FromJson<PlanetCacheFile>(JSON);
+		if (Cachefile.PlanetIds == null)
+		{
+			GeneratePlanetCache();
+			JSON = File.ReadAllText(path);
+			Cachefile = JsonUtility.FromJson<PlanetCacheFile>(JSON);
+		}
+		return Cachefile;
+	}
 
 	// esto es publico por razones UGUI
 	public void NewCell() //MICROBIO PERO POR MALA MEMORIA SE LLAMA CELL COMO CELULA
@@ -32,12 +102,14 @@ public class NewGameMaker : MonoBehaviour
 		if (GalaxyData.TryToLoadGalaxy(out var es))
 		{
 			// Filtrar planetas Terra y Jungle
-			List<PlanetData> f = es.LookForTypePlanet(PlanetTypes.Terra);
-			List<PlanetData> g = es.LookForTypePlanet(PlanetTypes.Jungle);
-			List<PlanetData> candidates = f.Concat(g).ToList();
-
+			List<PlanetData> candidates = new()
+				;
+			var cache = GetCache();
+			foreach (var item in cache.PlanetIds)
+			{
+				candidates.Add(es.LoadPlanet(BodyID.FromString(item).GetID())	);
+			}
 			PlanetData chosenPlanet = null;
-
 			// Intentar encontrar un planeta válido según reglas
 			foreach (var p in candidates.OrderBy(x => Random.value)) // barajar aleatoriamente
 			{
@@ -46,7 +118,8 @@ public class NewGameMaker : MonoBehaviour
 
 				if (!AllowRouguePlanetsMoons && p.ParentID.StartsWith("P"))
 					continue; // ignorar planetas solitarios
-
+				if (p.IsSaveFile)
+					continue;
 				chosenPlanet = p;
 				break;
 			}
@@ -59,7 +132,9 @@ public class NewGameMaker : MonoBehaviour
 			}
 
 			string planetID = chosenPlanet.id;
-
+			PlanetData New = chosenPlanet;
+			New.IsSaveFile = true;
+			es.UpdatePlanet(BodyID.FromString(planetID).GetID(), planetData => { planetData = New; });
 			if (chosenPlanet.ParentID.StartsWith("E"))
 			{
 				StarData star = es.LookForStar(BodyID.FromString(chosenPlanet.ParentID).GetID());
@@ -127,9 +202,12 @@ public class NewGameMaker : MonoBehaviour
 
 }
 
-
-
-
+[Serializable]
+public struct PlanetCacheFile
+{
+	public List<string> PlanetIds;
+	public List<string> ParrentTypes;
+}
 
 
 

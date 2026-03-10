@@ -29,6 +29,7 @@ public class CameraOrbitController : MonoBehaviour
     public float CursorSpeed = 10f;      // Sensibilidad del cursor UI
 	public bool usandoMouse = false;
 	public bool DisableCursor = false;
+    public bool showCursorAviway = false;
 
 	[Header("Input")]
     public InputActionAsset inputActions;
@@ -196,6 +197,7 @@ public class CameraOrbitController : MonoBehaviour
             {
                 img.enabled = !usandoMouse;
             }
+
         }
 		// Cámara orbitando
 		Quaternion rotationQuat = Quaternion.Euler(rotation.y, rotation.x, 0);
@@ -215,8 +217,9 @@ public class CameraOrbitController : MonoBehaviour
         {
             Cursor.anchoredPosition = cursorPosition;
         }
-
-    }
+		if (showCursorAviway)
+			img.enabled = true;
+	}
 
     private void RotateCamera(Vector2 input)
     {

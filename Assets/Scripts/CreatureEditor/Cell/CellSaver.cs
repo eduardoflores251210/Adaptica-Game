@@ -192,5 +192,6 @@ public static class Paths
     public static string BackUPCreations = Path.Join(Application.persistentDataPath, "BackUps");
 	public static string BackUPCells = Path.Join(BackUPCreations, "Cells");
 	public static string BackUPCreatures = Path.Join(BackUPCreations, "Creatures");
+	public static string NewGameCache = Path.Join(Application.persistentDataPath, "CACHENS.json");
 
 }

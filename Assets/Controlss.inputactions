@@ -548,9 +548,9 @@
             "actions": [
                 {
                     "name": "Click A",
-                    "type": "Button",
+                    "type": "PassThrough",
                     "id": "33d92289-9de3-48f6-a56a-58182e85f284",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "DiscreteButton",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -581,6 +581,17 @@
                     "name": "",
                     "id": "6c19bf9e-f2a2-4738-8ee0-aaa61536866e",
                     "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Click A",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "22353a32-86b6-4328-a627-e3638a7f8a29",
+                    "path": "<Touchscreen>/touch*/Press",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

@@ -99,4 +99,11 @@ public class UILineElement : VisualElement
 
 		p.Stroke();
 	}
+	// Método público para establecer puntos desde código
+	public void SetPoints(List<Vector2> pts)
+	{
+		Points = new List<Vector2>(pts); // sustituye la lista interna
+		MarkDirtyRepaint(); // fuerza el redibujado
+	}
+
 }

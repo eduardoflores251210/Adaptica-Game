@@ -40,7 +40,7 @@ public class GalaxyGenerator : MonoBehaviour
 	[Tooltip ("de aucerdo con las observaciones reales 95% es la probabilidad que un objeto sea un planeta")]
 	public float Probability = 0.95f;
 	public List<PlanetData> planetDataList;
-
+	public event Action OnGalaxyGenerated;
 	// --- Parámetros para redondeo elíptico (ajustables) ---
 	[Header("Rounding / Shape")]
 	[Tooltip("Ratio para el eje Z respecto a X: 1 -> círculo. <1 hace elipse achatada en Z, >1 estirada.")]
@@ -52,21 +52,21 @@ public class GalaxyGenerator : MonoBehaviour
 
 	void Start()
 	{
-		int Seed()
-		{
-			Span<byte> b = stackalloc byte[4];
-			System.Security.Cryptography.RandomNumberGenerator.Fill(b);
-			return BitConverter.ToInt32(b);
-		}
+
 		Soap soap = new Soap();
-		int seed = Seed();
+		int seed = GetSeed();
 		Random = new Random(seed);
 		Debug.Log($"SEED {seed}"); 
 		DoesTheGalaxyExist = GalaxyExists();
 		CalculateTotalSectors();
 		//Debug.Log($"GalaxyGenerator init: totalSectoresX={totalSectoresX}, totalSectoresY={totalSectoresY}");
 	}
-
+	int GetSeed()
+	{
+		Span<byte> b = stackalloc byte[4];
+		System.Security.Cryptography.RandomNumberGenerator.Fill(b);
+		return BitConverter.ToInt32(b);
+	}
 	void Update()
 	{
 		if (!DoesTheGalaxyExist)
@@ -313,6 +313,7 @@ public class GalaxyGenerator : MonoBehaviour
 		{
 			yield return StartCoroutine(visualizer.LookCoroutine());
 		}
+		OnGalaxyGenerated?.Invoke();
 	}
 
 	private void EnsureDirectoriesAreReal()

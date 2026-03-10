@@ -27706,7 +27706,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Target: {fileID: 427197799}
   Camera: {fileID: 1498985387}
-  Cursor: {fileID: 0}
+  Cursor: {fileID: 1826541164}
   ZoomSpeed: 20
   ZoomLimits: {x: 2, y: 1000}
   Sensitivity: {x: 1, y: 1}
@@ -27716,6 +27716,7 @@ MonoBehaviour:
   CursorSpeed: 10
   usandoMouse: 0
   DisableCursor: 0
+  showCursorAviway: 0
   inputActions: {fileID: -944628639613478452, guid: c4765c325f0af464799a1a764737ea39, type: 3}
   currentZoom: 10
 --- !u!1 &1510794195
@@ -28835,6 +28836,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1809685727}
   m_CullTransparentMesh: 1
+--- !u!224 &1826541164 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 6209419677305636260, guid: 939a2b3b80a337147961da857378c78d, type: 3}
+  m_PrefabInstance: {fileID: 145422072}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1830867159
 GameObject:
   m_ObjectHideFlags: 0
