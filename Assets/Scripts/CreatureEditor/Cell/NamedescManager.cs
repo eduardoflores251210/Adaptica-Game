@@ -64,9 +64,9 @@ public class NamedescManager : MonoBehaviour
     void ValidateInput()
     {
         // Ejemplo simple: advertencia si alguno está vacío
-        if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Description))
+        if (string.IsNullOrWhiteSpace(Name))
         {
-            Warning.text = "Nombre y descripción no pueden estar vacíos.";
+            Warning.text = "Nombre no puede estar vacío.";
             Sig.SetEnabled(false);
         }
         else

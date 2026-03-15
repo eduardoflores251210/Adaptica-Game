@@ -146,6 +146,8 @@ public class CellController : MonoBehaviour
 
 	private void FixedUpdate()
 	{
+		PlayTime += Time.fixedDeltaTime;
+
 		var posY = transform.position;
 		posY.y = 0;
 		transform.position = posY;
@@ -239,7 +241,6 @@ public class CellController : MonoBehaviour
 		// Control manual
 		if (!isAI && MoveMicrobe != null && MoveMicrobe.IsPressed())
 		{
-			PlayTime += Time.fixedDeltaTime;
 			Vector2 direction = MoveMicrobe.ReadValue<Vector2>();
 			Vector3 movimiento = direction.To3DXZ() * (BaseSpeedMultiplier * SpeedMultiplier) * Time.fixedDeltaTime;
 

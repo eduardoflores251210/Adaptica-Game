@@ -1,20 +1,22 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UIS/Histyory.uss?fileID=7433441132597879392&amp;guid=83b7a4b0c4c72344d926d5eb99cb58e3&amp;type=3#Histyory" />
-    <engine:ScrollView name="CONTENT" mode="Horizontal" horizontal-scroller-visibility="Auto" nested-interaction-kind="Default" style="-unity-text-outline-color: rgb(0, 130, 255); height: 95%; width: auto; background-color: rgb(63, 147, 178); -unity-text-align: middle-center;">
-        <UILineElement thickness="3.33" points="(1,0), (50,10), (100,10), (245,20)" color="#00FFD0FF" focusable="false" />
-    </engine:ScrollView>
-    <engine:VisualElement style="flex-grow: 1; background-color: rgba(149, 149, 149, 0.76); width: 20%; height: 91%; flex-direction: column; right: 0; flex-shrink: 0; top: 0; position: absolute;">
-        <engine:VisualElement class="Card" style="background-color: rgb(255, 0, 0); border-left-color: rgb(113, 113, 113); border-right-color: rgb(113, 113, 113); border-top-color: rgb(113, 113, 113); border-bottom-color: rgb(113, 113, 113);">
-            <engine:Label text="PLACEHOLDER&#10;AUI VA EL ICONO&#10;De carnivoro/&#10;Agresivo/miitar/&#10;etc" style="color: rgb(255, 255, 255);" />
+    <engine:VisualElement style="flex-grow: 1; flex-direction: column;">
+        <engine:ScrollView name="CONTENT" mode="Horizontal" horizontal-scroller-visibility="Auto" nested-interaction-kind="Default" style="-unity-text-outline-color: rgb(0, 130, 255); height: 95%; width: 80%; background-color: rgb(63, 147, 178); -unity-text-align: middle-center;">
+            <UILineElement thickness="17.37" points="(1,0), (50,10), (100,10), (245,20)" color="#00FFD0FF" focusable="false" name="Timeline" auto-fit="true" style="flex-shrink: 0; flex-grow: 1; max-height: 100%; height: 100%; min-height: 100%; width: 25699px;" />
+        </engine:ScrollView>
+        <engine:VisualElement style="flex-grow: 1; background-color: rgb(149, 149, 149); width: 20%; height: 93%; flex-direction: column; right: 0; flex-shrink: 0; top: 0; position: absolute;">
+            <engine:VisualElement class="Card" style="background-color: rgb(255, 0, 0); border-left-color: rgb(113, 113, 113); border-right-color: rgb(113, 113, 113); border-top-color: rgb(113, 113, 113); border-bottom-color: rgb(113, 113, 113);">
+                <engine:Label text="PLACEHOLDER&#10;AUI VA EL ICONO&#10;De carnivoro/&#10;Agresivo/miitar/&#10;etc" style="color: rgb(255, 255, 255);" />
+            </engine:VisualElement>
+            <engine:VisualElement class="Card" style="flex-grow: 1; flex-shrink: 0; background-color: rgb(0, 255, 255);">
+                <engine:Label text="PLACEHOLDER&#10;AUI VA EL ICONO&#10;De Omnivoro/&#10;adaptable/&#10;Economico/&#10;etc" />
+            </engine:VisualElement>
+            <engine:VisualElement class="Card" style="background-color: rgb(0, 255, 0);">
+                <engine:Label text="PLACEHOLDER&#10;AUI VA EL ICONO&#10;De herbivoro/&#10;Amistoso/&#10;religoso/&#10;etc" />
+            </engine:VisualElement>
         </engine:VisualElement>
-        <engine:VisualElement class="Card" style="flex-grow: 1; flex-shrink: 0; background-color: rgb(0, 255, 255);">
-            <engine:Label text="PLACEHOLDER&#10;AUI VA EL ICONO&#10;De Omnivoro/&#10;adaptable/&#10;Economico/&#10;etc" />
+        <engine:VisualElement name="Taskbar" style="flex-grow: 1; width: 100%; flex-shrink: 0; background-color: rgb(0, 170, 255); align-items: flex-end;">
+            <engine:Button text="#exit_history" name="exit_history" />
         </engine:VisualElement>
-        <engine:VisualElement class="Card" style="background-color: rgb(0, 255, 0);">
-            <engine:Label text="PLACEHOLDER&#10;AUI VA EL ICONO&#10;De herbivoro/&#10;Amistoso/&#10;religoso/&#10;etc" />
-        </engine:VisualElement>
-    </engine:VisualElement>
-    <engine:VisualElement name="Taskbar" style="flex-grow: 1; width: 100%; flex-shrink: 0; background-color: rgb(0, 170, 255); align-items: flex-end;">
-        <engine:Button text="#exit_history" name="exit_history" />
     </engine:VisualElement>
 </engine:UXML>

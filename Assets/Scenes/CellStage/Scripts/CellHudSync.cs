@@ -13,11 +13,19 @@ public class CellHudSync : MonoBehaviour
 	{
 		ProgressBar95 = document.rootVisualElement.Q<ProgressBar>();
 		var a = document.rootVisualElement.Q<Button>("Settings");
+		var b = document.rootVisualElement.Q<Button>("Evolution");
 		a.clicked += delegate
 		{
 			if (PauseManager != null)
 			{
 				PauseManager.TogglePause();
+			}
+		};
+		b.clicked += delegate
+		{
+			if (PauseManager != null)
+			{
+				PauseManager.ToggleHistory();
 			}
 		};
 	}

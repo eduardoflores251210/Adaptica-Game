@@ -8,6 +8,7 @@ using UnityEngine;
 using SerializableTypes.Space; 
 using UnityEngine.UI;
 using System.IO;
+using UnityEditor.Localization.Plugins.XLIFF.V12;
 
 public class NewGameMaker : MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class NewGameMaker : MonoBehaviour
 	private void Start()
 	{
 		GalaxyGenerator.OnGalaxyGenerated += GeneratePlanetCache;
+		if (File.Exists(Paths.NewGameCache))
+			File.Delete(Paths.NewGameCache);
 		GetCache();
 	}
 
@@ -83,7 +86,12 @@ public class NewGameMaker : MonoBehaviour
 		}
 		return Cachefile;
 	}
-
+	public void OverWriteCache(PlanetCacheFile cacheFile)
+	{
+		string path = Paths.NewGameCache;
+		string JSON = JsonUtility.ToJson(cacheFile);
+		File.WriteAllText(path, JSON);
+	}
 	// esto es publico por razones UGUI
 	public void NewCell() //MICROBIO PERO POR MALA MEMORIA SE LLAMA CELL COMO CELULA
 	{
@@ -155,7 +163,13 @@ public class NewGameMaker : MonoBehaviour
 				ins.SendTypedPackage(gameObject.name, "Star", Planet, new string[1] { nameof(PlanetData) });
 				ins.SendTypedPackage<bool>(gameObject.name, "Star", true, new string[1] { nameof(Boolean) });
 			}
-
+			int pos = cache.PlanetIds.IndexOf(planetID);
+			if (pos != -1)
+			{
+				cache.ParrentTypes.RemoveAt(pos);
+				cache.PlanetIds.Remove(planetID);
+			}
+			OverWriteCache(cache);
 			UnityEngine.SceneManagement.SceneManager.LoadScene(3);
 		}
 	}

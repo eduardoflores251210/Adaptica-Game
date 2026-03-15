@@ -526,9 +526,9 @@ namespace SerializableTypes
 	}
 	public enum HistoryPaths
 	{
-		Friendly,
-		Neutral,
-		Agressive
+		Friendly =1,
+		Neutral =0,
+		Agressive = -1
 	}
 
 	/// <summary>

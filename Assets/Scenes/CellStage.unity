@@ -152,6 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Canvas: {fileID: 310753787}
+  iHistory: {fileID: 1444000948}
   actions: {fileID: -944628639613478452, guid: c4765c325f0af464799a1a764737ea39, type: 3}
   PauseAction:
     m_Name: Pause
@@ -163,6 +164,7 @@ MonoBehaviour:
     m_SingletonActionBindings: []
     m_Flags: 0
   IsPaused: 0
+  IsHistory: 0
   Player: {fileID: 1561327408}
 --- !u!114 &310753785
 MonoBehaviour:
@@ -1399,6 +1401,78 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1444000946
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1444000949}
+  - component: {fileID: 1444000948}
+  - component: {fileID: 1444000947}
+  m_Layer: 5
+  m_Name: iHis
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1444000947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1444000946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5338f8475983176468d27c6c544f788b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiDocument: {fileID: 1444000948}
+  elementName: Timeline
+  fitToWidth: 0
+  xSpacing: 20
+  xPadding: 6
+  yPadding: 5
+  minXSpacing: 2
+  autoScale: 1
+  verticalMultiplier: 2.74
+  updateEveryFrame: 1
+  POINTS_EXT: []
+--- !u!114 &1444000948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1444000946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PanelSettings: {fileID: 11400000, guid: ece605980c38f2f4dbe68803dd912153, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 05b3effd776f90340a2203508dd3ea87, type: 3}
+  m_SortingOrder: 5
+--- !u!4 &1444000949
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1444000946}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1557826978
 GameObject:
   m_ObjectHideFlags: 0
@@ -1599,6 +1673,7 @@ MonoBehaviour:
   StageProgress: 0
   CreatureDiet: 0
   CurrentGen: -1
+  PlayTime: 0
   viewRadius: 0
 --- !u!23 &1561327409
 MeshRenderer:
@@ -2367,3 +2442,4 @@ SceneRoots:
   - {fileID: 1320140277}
   - {fileID: 999764812}
   - {fileID: 310753788}
+  - {fileID: 1444000949}

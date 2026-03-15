@@ -1,4 +1,5 @@
-﻿using SerializableTypes;
+﻿using ActualUtils;
+using SerializableTypes;
 using SerializableTypes.Biology;
 using System.Collections;
 using System.Collections.Generic;
@@ -86,7 +87,17 @@ public class MouthComp : MonoBehaviour
 				cellController.CurrentEvoPoints++; //Definittivamente no son los puntos de ADN de spore pero con otro nombre definitivamente (Sarcasmo)
 				cellController.MaxEvoPointsGotStat++;
 				cellController.StageProgress += Mathf.Abs(Random.insideUnitCircle.x);
-
+				HistoryActions item = new HistoryActions();
+				item.Tipo = ActionType.Eat;
+				item.Path = GetCompatibleDiet(Food.tipo) switch
+				{
+					Diets.none => HistoryPaths.Neutral,
+					Diets.Omnivore => HistoryPaths.Neutral,
+					Diets.Carnivore => HistoryPaths.Agressive,
+					Diets.Herbivore => HistoryPaths.Friendly,
+					_ => 0
+				};
+				Saver.CurrentGame.Actions.Add(item);
 				Destroy(collision);
 			}
 		}
@@ -133,6 +144,36 @@ public class MouthComp : MonoBehaviour
 			return Omni.Contains(a);
 		}
 		return false;
+	}
+	public static Diets GetCompatibleDiet(TipoDeComida a)
+	{
+		
+		if (a == TipoDeComida.Ninguno) return Diets.none;
+		TipoDeComida[] herbivoro = new TipoDeComida[7]
+		{
+			TipoDeComida.Nectar,
+			TipoDeComida.Hongo,
+			TipoDeComida.Flor,
+			TipoDeComida.Fruto,
+			TipoDeComida.Hoja,
+			TipoDeComida.Alga,
+			TipoDeComida.Planta,
+		};
+		TipoDeComida[] Carnivoro = new TipoDeComida[2]
+		{
+			TipoDeComida.Carne,
+			TipoDeComida.Huevo
+		};
+		if (herbivoro.Contains(a))
+		{
+			return Diets.Herbivore;
+		}
+		if (Carnivoro.Contains(a))
+		{
+			return Diets.Carnivore;
+		}
+
+		return Diets.none;
 	}
 }
 

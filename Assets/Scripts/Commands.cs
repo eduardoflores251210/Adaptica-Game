@@ -3,6 +3,8 @@ using SerializableTypes;
 using SerializableTypes.Biology;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -356,6 +358,97 @@ creado por {Application.companyName}";
 			}
 			return false;
 		}
+	}
+	public static class MetaUtils
+	{
+
+		/// <summary>
+		/// Compara dos cadenas de versión.
+		/// Devuelve: -1 si version1 &lt; version2, 0 si iguales, 1 si version1 &gt; version2.
+		/// Soporta prefijos "Alpha", "Beta" (case-insensitive), y sufijos "RC ####" o "pre####" (con o sin espacio).
+		/// Orden (de menor a mayor): Alpha &lt; Beta &lt; Release. Dentro del mismo grupo: RC &lt; pre &lt; normal.
+		/// </summary>
+		public static int CompareVersions(string version1, string version2)
+		{
+			if (ReferenceEquals(version1, version2))
+				return 0;
+			if (version1 is null)
+				return -1;
+			if (version2 is null)
+				return 1;
+
+			string v1 = version1.Trim();
+			string v2 = version2.Trim();
+
+			// Estados principales: Alpha = 0, Beta = 1, Release/normal = 2
+			bool oneAlpha = v1.StartsWith("Alpha", System.StringComparison.OrdinalIgnoreCase);
+			bool twoAlpha = v2.StartsWith("Alpha", System.StringComparison.OrdinalIgnoreCase);
+			bool oneBeta = v1.StartsWith("Beta", System.StringComparison.OrdinalIgnoreCase);
+			bool twoBeta = v2.StartsWith("Beta", System.StringComparison.OrdinalIgnoreCase);
+
+			int oneState = oneAlpha ? 0 : (oneBeta ? 1 : 2);
+			int twoState = twoAlpha ? 0 : (twoBeta ? 1 : 2);
+
+			if (oneState != twoState)
+				return oneState > twoState ? 1 : -1;
+
+			// Mismo estado principal: ahora comparar sub-estados RC / pre / normal
+			var rcRegex = new Regex(@"RC\s*(\d+)$", RegexOptions.IgnoreCase);
+			var preRegex = new Regex(@"pre\s*(\d+)$", RegexOptions.IgnoreCase);
+
+			bool oneRC = rcRegex.IsMatch(v1);
+			bool twoRC = rcRegex.IsMatch(v2);
+			bool onePre = preRegex.IsMatch(v1);
+			bool twoPre = preRegex.IsMatch(v2);
+			bool oneNormal = !oneRC && !onePre;
+			bool twoNormal = !twoRC && !twoPre;
+
+			// Sub-estados: RC = 0, pre = 1, normal = 2
+			int oneSub = oneRC ? 0 : (onePre ? 1 : 2);
+			int twoSub = twoRC ? 0 : (twoPre ? 1 : 2);
+
+			if (oneSub != twoSub)
+				return oneSub > twoSub ? 1 : -1;
+
+			// Mismo sub-estado: comparar números
+			if (oneRC) // ambos RC
+			{
+				int num1 = int.Parse(rcRegex.Match(v1).Groups[1].Value);
+				int num2 = int.Parse(rcRegex.Match(v2).Groups[1].Value);
+				return num1.CompareTo(num2);
+			}
+
+			if (onePre) // ambos pre
+			{
+				int num1 = int.Parse(preRegex.Match(v1).Groups[1].Value);
+				int num2 = int.Parse(preRegex.Match(v2).Groups[1].Value);
+				return num1.CompareTo(num2);
+			}
+
+			// Ambos "normales": comparar versiones numéricas tipo 1.2.3
+			var verRegex = new Regex(@"\d+(?:\.\d+)*");
+			var m1 = verRegex.Match(v1);
+			var m2 = verRegex.Match(v2);
+
+			if (m1.Success && m2.Success)
+			{
+				var parts1 = m1.Value.Split('.').Select(s => int.Parse(s)).ToArray();
+				var parts2 = m2.Value.Split('.').Select(s => int.Parse(s)).ToArray();
+				int maxLen = System.Math.Max(parts1.Length, parts2.Length);
+				for (int i = 0; i < maxLen; i++)
+				{
+					int p1 = i < parts1.Length ? parts1[i] : 0;
+					int p2 = i < parts2.Length ? parts2[i] : 0;
+					if (p1 > p2) return 1;
+					if (p1 < p2) return -1;
+				}
+				return 0;
+			}
+
+			// Fallback: comparación de cadena (case-insensitive)
+			return string.Compare(v1, v2, System.StringComparison.OrdinalIgnoreCase);
+		}
+
 	}
 	enum minecraftGamemodes
 	{
