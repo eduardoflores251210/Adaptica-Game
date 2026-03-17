@@ -137,6 +137,7 @@ public class ConsoleManager : MonoBehaviour
 
 	void RegisterAllCommands()
 	{
+		Debug.Log("ADAPTICA v " + Application.version +" Phase: " + DevInfo.CurrentDevPhase );
 		commands.Clear();
 
 		var assemblies = AppDomain.CurrentDomain.GetAssemblies();

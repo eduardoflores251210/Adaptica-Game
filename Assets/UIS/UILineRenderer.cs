@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Globalization;
 
 /// <summary>
-/// Renderizador de líneas para UI Toolkit con auto-fit y alineamiento.
-/// Usa AutoFitToPoints = true para que el elemento ajuste su tamaño a los puntos
-/// y sea correctamente medido por un ScrollView.
+/// UILineElement v2 — profesional y sin corrupción de datos.
+/// - FitAndAlignPoints calcula tamaño y parámetros de transformación.
+/// - Draw aplica transformaciones al vuelo (no modifica Points).
+/// - Minimiza allocations para manejar timelines largos.
 /// </summary>
 public class UILineElement : VisualElement
 {
@@ -21,172 +22,92 @@ public class UILineElement : VisualElement
 
 	public new class UxmlTraits : VisualElement.UxmlTraits
 	{
-		UxmlFloatAttributeDescription thickness =
-			new() { name = "thickness", defaultValue = 2f };
-
-		UxmlColorAttributeDescription color =
-			new() { name = "color", defaultValue = Color.white };
-
-		UxmlStringAttributeDescription points =
-			new()
-			{
-				name = "points",
-				defaultValue = "(10,10),(200,100),(350,50)"
-			};
-
-		UxmlBoolAttributeDescription autoFit =
-			new() { name = "auto-fit", defaultValue = true };
-
-		UxmlFloatAttributeDescription padding =
-			new() { name = "padding", defaultValue = 6f };
-
-		UxmlFloatAttributeDescription targetWidth =
-			new() { name = "target-width", defaultValue = 0f };
-
-		UxmlFloatAttributeDescription targetHeight =
-			new() { name = "target-height", defaultValue = 0f };
-
-		UxmlStringAttributeDescription anchor =
-			new() { name = "anchor", defaultValue = "TopLeft" };
+		UxmlFloatAttributeDescription thickness = new() { name = "thickness", defaultValue = 2f };
+		UxmlColorAttributeDescription color = new() { name = "color", defaultValue = Color.white };
+		UxmlFloatAttributeDescription padding = new() { name = "padding", defaultValue = 6f };
+		UxmlFloatAttributeDescription targetWidth = new() { name = "target-width", defaultValue = 0f };
+		UxmlFloatAttributeDescription targetHeight = new() { name = "target-height", defaultValue = 0f };
+		UxmlStringAttributeDescription anchor = new() { name = "anchor", defaultValue = "TopLeft" };
 
 		public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
 		{
 			base.Init(ve, bag, cc);
-
 			var line = (UILineElement)ve;
-
 			line.Thickness = thickness.GetValueFromBag(bag, cc);
 			line.Color = color.GetValueFromBag(bag, cc);
-
-			var pointsString = points.GetValueFromBag(bag, cc);
-			line.SetPointsFromString(pointsString);
-
-			line.AutoFitToPoints = autoFit.GetValueFromBag(bag, cc);
 			line.Padding = padding.GetValueFromBag(bag, cc);
 			line.TargetWidth = targetWidth.GetValueFromBag(bag, cc);
 			line.TargetHeight = targetHeight.GetValueFromBag(bag, cc);
 
 			var anchorStr = anchor.GetValueFromBag(bag, cc);
-			if (System.Enum.TryParse<Anchor>(anchorStr, out var parsed))
-				line.ContentAnchor = parsed;
-			else
-				line.ContentAnchor = Anchor.TopLeft;
+			if (System.Enum.TryParse<Anchor>(anchorStr, out var parsed)) line.ContentAnchor = parsed;
+			else line.ContentAnchor = Anchor.TopLeft;
 		}
 	}
 
 	// Public API
 	public float Thickness = 2f;
 	public Color Color = Color.white;
-	public List<Vector2> Points = new();
+	public List<Vector2> Points { get; private set; } = new List<Vector2>();
 
-	// Auto-fit / alignment properties
-	public bool AutoFitToPoints = true;
 	public float Padding = 6f;
-	/// <summary>Si > 0, fuerza ese ancho en lugar de usar bounding box + padding</summary>
-	public float TargetWidth = 0f;
-	/// <summary>Si > 0, fuerza ese alto en lugar de usar bounding box + padding</summary>
-	public float TargetHeight = 0f;
+	public float TargetWidth = 0f;   // si >0 fija ancho
+	public float TargetHeight = 0f;  // si >0 fija alto
 	public Anchor ContentAnchor = Anchor.TopLeft;
+
+	// Internal layout/transform state (calculado por FitAndAlignPoints)
+	float m_minX, m_minY, m_bboxW, m_bboxH;
+	float m_scaleX = 1f, m_scaleY = 1f;
+	float m_extraX = 0f, m_extraY = 0f;
+	float m_offsetX = 0f, m_offsetY = 0f;
 
 	public UILineElement()
 	{
 		generateVisualContent += Draw;
-
-		// prevenir que el ScrollView lo encoja
 		style.flexShrink = 0;
-		// posición relativa por defecto (si estaba absoluto, ScrollView no lo medirá)
 		style.position = Position.Relative;
 	}
 
-	// 🔥 Parseo del string
-	public void SetPointsFromString(string value)
-	{
-		Points.Clear();
-
-		if (string.IsNullOrWhiteSpace(value))
-			return;
-
-		var entries = value.Split(')');
-
-		foreach (var entry in entries)
-		{
-			var clean = entry.Replace("(", "").Replace(",", " ").Trim();
-			if (string.IsNullOrEmpty(clean))
-				continue;
-
-			var parts = clean.Split(' ');
-			if (parts.Length < 2)
-				continue;
-
-			if (float.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out float x) &&
-				float.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float y))
-			{
-				Points.Add(new Vector2(x, y));
-			}
-		}
-
-		// Auto-fit al setear desde UXML o string
-		MaybeFitAndApply();
-	}
-
-	///<summary>
-	///Método público para establecer puntos desde código por  si estas loco o flojo y quieres un setter tonto
-	///</summary>
+	/// <summary>
+	/// Reemplaza puntos (copia). No modifica los puntos originales después.
+	/// </summary>
 	public void SetPoints(List<Vector2> pts)
 	{
-		Points = new List<Vector2>(pts); // sustituye la lista interna
+		if (pts == null)
+		{
+			Points.Clear();
+		}
+		else
+		{
+			// copia para evitar referencias externas modificando la lista internamente
+			Points.Clear();
+			Points.AddRange(pts);
+		}
+
+		// recalcular layout/transform si corresponde
 		MaybeFitAndApply();
 	}
-
-	void Draw(MeshGenerationContext ctx)
-	{
-		if (Points == null || Points.Count < 2)
-			return;
-
-		var p = ctx.painter2D;
-		p.strokeColor = Color;
-		p.lineWidth = Thickness;
-		p.lineJoin = LineJoin.Round;
-		p.lineCap = LineCap.Round;
-
-		p.BeginPath();
-		p.MoveTo(Points[0]);
-
-		for (int i = 1; i < Points.Count; i++)
-			p.LineTo(Points[i]);
-
-		p.Stroke();
-	}
-
-	// ----------------------
-	// Auto-fit / alignment
-	// ----------------------
 
 	void MaybeFitAndApply()
 	{
-		// Si no está activo el auto-fit, solo redibujar
-		if (!AutoFitToPoints)
-		{
-			MarkDirtyRepaint();
-			return;
-		}
-
+	
 		if (Points == null || Points.Count == 0)
 		{
 			MarkDirtyRepaint();
 			return;
 		}
 
+		// FitAndAlignPoints calcula size y parámetros de transformación,
+		// pero NO modifica Points.
 		FitAndAlignPoints(Padding, TargetWidth, TargetHeight, ContentAnchor);
 	}
 
 	/// <summary>
-	/// Calcula bounding box de Points, normaliza según padding y anchor, y actualiza style.width/height.
-	/// Si targetWidth/targetHeight > 0 se toman como tamaño final y se alinea el contenido dentro.
+	/// Calcula bounding box y parámetros de transformación. NO cambia Points.
 	/// </summary>
 	public void FitAndAlignPoints(float padding, float targetWidth, float targetHeight, Anchor anchor)
 	{
-		// Calcular bounding box original
+		// bounding box
 		float minX = float.MaxValue, minY = float.MaxValue;
 		float maxX = float.MinValue, maxY = float.MinValue;
 		foreach (var p in Points)
@@ -197,18 +118,18 @@ public class UILineElement : VisualElement
 			if (p.y > maxY) maxY = p.y;
 		}
 
+		// defensivo: si los puntos están todos en la misma coordenada
 		float bboxW = Mathf.Max(0.0001f, maxX - minX);
 		float bboxH = Mathf.Max(0.0001f, maxY - minY);
 
-		// Tamaño final del elemento
+		// tamaño final del elemento
 		float finalW = (targetWidth > 0f) ? targetWidth : (bboxW + padding * 2f);
 		float finalH = (targetHeight > 0f) ? targetHeight : (bboxH + padding * 2f);
 
-		// Si target es menor que bbox, lo sobreescribimos para que quepa
 		if (finalW < bboxW + 2f) finalW = bboxW + 2f;
 		if (finalH < bboxH + 2f) finalH = bboxH + 2f;
 
-		// FACTORES de anchor: 0 => left/top, 0.5 => center, 1 => right/bottom
+		// anchor factors
 		float ax = 0f, ay = 0f;
 		switch (anchor)
 		{
@@ -223,34 +144,85 @@ public class UILineElement : VisualElement
 			case Anchor.BottomRight: ax = 1f; ay = 1f; break;
 		}
 
-		// Espacio extra disponible entre finalSize y bbox
-		float extraX = finalW - (bboxW + 2f * padding);
-		float extraY = finalH - (bboxH + 2f * padding);
+		// Escalado para que el bbox encaje en finalW/finalH dentro del padding.
+		float availableW = Mathf.Max(0.0001f, finalW - 2f * padding);
+		float availableH = Mathf.Max(0.0001f, finalH - 2f * padding);
 
-		float offsetX = padding + extraX * ax - minX;
-		float offsetY = padding + extraY * ay - minY;
+		float scaleX = availableW / bboxW;
+		float scaleY = availableH / bboxH;
 
-		// Normalizar y desplazar puntos
-		var newPts = new List<Vector2>(Points.Count);
-		for (int i = 0; i < Points.Count; i++)
-		{
-			var p = Points[i];
-			newPts.Add(new Vector2(p.x + offsetX, p.y + offsetY));
-		}
+		// Decide si quieres escalar X e Y; aquí permitimos escalar ambas.
+		// Si prefieres mantener 1:1 podrías usar min(scaleX, scaleY) o 1f.
+		// Usaremos scaleX, scaleY para que ocupen todo el area.
+		float scaledBBoxW = bboxW * scaleX;
+		float scaledBBoxH = bboxH * scaleY;
 
-		Points = newPts;
+		// Extra espacio si finalW > scaledBBoxW + 2*padding (puede ocurrir si targetWidth fue mayor)
+		float extraX = finalW - (scaledBBoxW + 2f * padding);
+		float extraY = finalH - (scaledBBoxH + 2f * padding);
+
+		float offsetX = padding + extraX * ax; // desplazamiento por anchor
+		float offsetY = padding + extraY * ay;
+
+		// Guardar estado interno para Draw()
+		m_minX = minX;
+		m_minY = minY;
+		m_bboxW = bboxW;
+		m_bboxH = bboxH;
+		m_scaleX = scaleX;
+		m_scaleY = scaleY;
+		m_extraX = extraX;
+		m_extraY = extraY;
+		m_offsetX = offsetX;
+		m_offsetY = offsetY;
 
 		// Aplicar tamaño al elemento para que ScrollView lo mida
 		style.width = finalW;
 		style.height = finalH;
-
-		// Asegurar que no se encoja en layouts flexibles
 		style.flexShrink = 0;
 
-		// Finalmente, redibujar
 		MarkDirtyRepaint();
 	}
 
+	void Draw(MeshGenerationContext ctx)
+	{
+		if (Points == null || Points.Count < 2)
+			return;
 
+		// obtener painter2D
+		var p = ctx.painter2D;
+		p.strokeColor = Color;
+		p.lineWidth = Thickness;
+		p.lineJoin = LineJoin.Round;
+		p.lineCap = LineCap.Round;
 
+		// Mapear el primer punto transformándolo en pixel-space sin crear arrays
+		// transform function (inline, evita allocations)
+		float minX = m_minX;
+		float minY = m_minY;
+		float sX = m_scaleX;
+		float sY = m_scaleY;
+		float offX = m_offsetX;
+		float offY = m_offsetY;
+
+		// draw path
+		p.BeginPath();
+
+		// Primer punto
+		var p0 = Points[0];
+		float tx0 = (p0.x - minX) * sX + offX;
+		float ty0 = (p0.y - minY) * sY + offY;
+		p.MoveTo(new Vector2(tx0, ty0));
+
+		// Resto de puntos (sin allocations)
+		for (int i = 1; i < Points.Count; i++)
+		{
+			var q = Points[i];
+			float tx = (q.x - minX) * sX + offX;
+			float ty = (q.y - minY) * sY + offY;
+			p.LineTo(new Vector2(tx, ty));
+		}
+
+		p.Stroke();
+	}
 }

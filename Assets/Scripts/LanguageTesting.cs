@@ -862,8 +862,8 @@ namespace ModelosDeIdioma
 			esp.AgregarLexema("Estados", PartOfSpeech.Sustantivo, 600);
 			esp.AgregarLexema("agua", PartOfSpeech.Sustantivo, 700);
 			esp.AgregarLexema("baño", PartOfSpeech.Sustantivo, 800);
-			esp.AgregarLexema("Coca-cola", PartOfSpeech.Sustantivo, 600);
-			esp.AgregarLexema("Jumex", PartOfSpeech.Sustantivo, 600);
+			esp.AgregarLexema("Refresco de cola", PartOfSpeech.Sustantivo, 600);
+			esp.AgregarLexema("Jugo", PartOfSpeech.Sustantivo, 600);
 			esp.AgregarLexema("come", PartOfSpeech.Verbo, 300);
 			esp.AgregarLexema("anexa", PartOfSpeech.Verbo, 300);
 			esp.AgregarLexema("duerme", PartOfSpeech.Verbo, 200);
@@ -889,13 +889,6 @@ namespace ModelosDeIdioma
 			esp.AgregarLexema("ama", PartOfSpeech.Verbo, 300);
 			esp.AgregarLexema("paga", PartOfSpeech.Verbo, 300);
 			esp.AgregarLexema("obligatorio", PartOfSpeech.Adjetivo, 300);
-			esp.AgregarLexema("Brindleshireland's National Public Television", PartOfSpeech.Sustantivo, 300);
-			esp.AgregarLexema("Brindleshireland's National Public Radio", PartOfSpeech.Sustantivo, 300);
-			esp.AgregarLexema("British Broadcasting Corporation", PartOfSpeech.Sustantivo, 300);
-			esp.AgregarLexema("Television ", PartOfSpeech.Sustantivo, 500);
-			esp.AgregarLexema("BNPTV", PartOfSpeech.Sustantivo, 300);
-			esp.AgregarLexema("BNPR", PartOfSpeech.Sustantivo, 300);
-			esp.AgregarLexema("BBC", PartOfSpeech.Sustantivo, 300);
 			esp.AgregarLexema("TV", PartOfSpeech.Sustantivo, 600);
 			esp.AgregarLexema("Noticias", PartOfSpeech.Sustantivo, 1000);
 			esp.Ortografia.Order = WordsOrder.SVO;

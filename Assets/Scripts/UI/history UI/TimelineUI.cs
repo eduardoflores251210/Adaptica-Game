@@ -2,7 +2,7 @@ using ActualUtils;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
-
+//ignora todo lo que dice de UI toolkit eso es obsoleto ahora usamos LineRenderer
 /// <summary>
 /// TimelineUI: genera puntos para un UILineElement basándose en Saver.CurrentGame.Actions
 /// Versión corregida: normaliza el rango, aplica intensidad, y ajusta minWidth para ScrollView.
@@ -11,7 +11,7 @@ public class TimelineUI : MonoBehaviour
 {
 	[Header("Referencias UI")]
 	public UIDocument uiDocument;
-	public string elementName = "timelineLine"; // name en UI Builder
+	public string elementName = "Scrooler"; // name en UI Builder
 
 	[Header("Layout / mapeo")]
 	public bool fitToWidth = true;
@@ -32,7 +32,8 @@ public class TimelineUI : MonoBehaviour
 
 	// Caches
 	private VisualElement root;
-	private UILineElement lineElement;
+	public PhisicalTimeline lineElement;
+	private Scroller Scroll;
 
 	void Start()
 	{
@@ -51,13 +52,15 @@ public class TimelineUI : MonoBehaviour
 			return;
 		}
 
-		lineElement = root.Q<UILineElement>(elementName);
-		if (lineElement == null)
+		Scroll = root.Q<Scroller>(elementName);
+		if (Scroll == null)
 		{
-			Debug.LogError($"[TimelineUI] No se encontró UILineElement con name='{elementName}'.");
+			Debug.LogError($"[TimelineUI] No se encontró Sroll con name='{elementName}'.");
 			// no destruyo para permitir agregar en runtime, pero salgo.
 			return;
 		}
+		Scroll.lowValue = 0;
+		Scroll.highValue = 100;
 
 		// Primera actualización (si el layout no está listo, la función lo manejará)
 		ManualUpdateTimeline();
@@ -77,8 +80,15 @@ public class TimelineUI : MonoBehaviour
 
 		if (lineElement == null)
 		{
-			lineElement = root.Q<UILineElement>(elementName);
 			if (lineElement == null)
+			{
+				// si no está, no hacemos nada
+				return;
+			}
+		}
+		if (Scroll == null)
+		{
+			if (Scroll == null)
 			{
 				// si no está, no hacemos nada
 				return;
@@ -93,7 +103,6 @@ public class TimelineUI : MonoBehaviour
 		{
 			// Nada que mostrar
 			lineElement.Points.Clear();
-			lineElement.MarkDirtyRepaint();
 			return;
 		}
 
@@ -132,7 +141,6 @@ public class TimelineUI : MonoBehaviour
 		if (rawValues.Count == 0)
 		{
 			lineElement.Points.Clear();
-			lineElement.MarkDirtyRepaint();
 			return;
 		}
 
@@ -147,15 +155,10 @@ public class TimelineUI : MonoBehaviour
 		}
 
 		// --- Obtener tamaño del elemento ---
-		float width = lineElement.layout.width;
-		float height = lineElement.layout.height;
+		float width = lineElement.Alocated_Width;
+		float height = lineElement.Alocated_Heigth;
 
-		// Si layout aún no calculado, intentamos resolvedStyle
-		if (width <= 0f || height <= 0f)
-		{
-			width = lineElement.resolvedStyle.width;
-			height = lineElement.resolvedStyle.height;
-		}
+
 
 		// Si aún no hay tamaño razonable, devolvemos (esperamos a la próxima pasada)
 		// Evita forzar tamaños por defecto que ocultan problemas de layout.
@@ -239,17 +242,9 @@ public class TimelineUI : MonoBehaviour
 			pts.Add(new Vector2(x, y));
 		}
 
-		// Forzar minWidth para ScrollView (último punto + padding)
-		if (pts.Count > 0)
-		{
-			float requiredWidth = pts[^1].x + xPadding;
-			lineElement.style.width = requiredWidth;
-			lineElement.style.minHeight = Mathf.Max(5f, usableHeight * 0.1f);
-		}
-
 		// Aplicar puntos al elemento
 		POINTS_EXT = pts; // exposicion debug
 		lineElement.SetPoints(pts);
-		lineElement.MarkDirtyRepaint();
+		lineElement.Pos0_100 = Scroll.value;
 	}
 }
