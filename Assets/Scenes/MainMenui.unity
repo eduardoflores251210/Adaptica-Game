@@ -39197,7 +39197,7 @@ RectTransform:
   m_GameObject: {fileID: 2030201383}
   m_LocalRotation: {x: -0, y: -0, z: 0.28464007, w: 0.9586345}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9762902, y: 0.9762902, z: 0.9762902}
+  m_LocalScale: {x: 0.90075314, y: 0.90075314, z: 0.90075314}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1336602438}
@@ -39220,10 +39220,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PulseSpeed: 8.13
-  PulseAmplitude: 0.05
+  PulseAmplitude: 0.1
   ChangeTimeInMinutes: 0.5
-  timer: 16.039667
+  timer: 3.6979113
   text: {fileID: 2030201386}
+  isDebug: 1
 --- !u!114 &2030201386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39244,10 +39245,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Physics powered by spaghetti
+  m_text: 'Warning: Game may stare back'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: c927886eebb247a47906aac653ad0b85, type: 2}
-  m_sharedMaterial: {fileID: -4311610417880198931, guid: c927886eebb247a47906aac653ad0b85, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1f251fab3f3063343aa12b35ff14bc77, type: 2}
+  m_sharedMaterial: {fileID: -4311610417880198931, guid: 1f251fab3f3063343aa12b35ff14bc77, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
