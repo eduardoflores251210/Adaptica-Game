@@ -88,7 +88,7 @@ public class SplashText : MonoBehaviour
 		"Caution: May cause spontaneous evolution",
 		"I am still a work in progress",
 		$"{DevInfo.CurrentDevPhase} testing since forever",
-		"Optimized for potato PCs",
+		"Not optimized for potato PCs",
 		"Guaranteed to confuse your parents",
 		"Satisfying your inner biologist since 2026",
 		"Supports up to 9001 microbes simultaneously",
@@ -176,6 +176,14 @@ public class SplashText : MonoBehaviour
 		"<color=#FF00FF>Magenta</color>",
 		"<color=#FFFF00>Yellow</color>",
 		"<color=#FFFFFF>White</color>",
+		"<color=#000000>BLACK</color>",
+		"<color=#FF0000>R</color><color=#00FF00>G</color><color=#0000FF>B</color>",
+		"<color=#00FFFF>C</color><color=#FF00FF>M</color><color=#FFFF00>Y</color>",
+		"<color=#00FFFF>C</color><color=#FF00FF>M</color><color=#FFFF00>Y</color><color=#000000>K</color>",
+		"Supercalifragilisticexpialidocious",
+		"suoicod­ilaipxe­citsiligarf­ilac­repuS",
+		"Supercalifragilisticoespialidoso",
+		"osodilaipxeocitsiligarfilacrepuS"
 	};
 	Idioma esp;
 	void Start()
@@ -220,8 +228,14 @@ public class SplashText : MonoBehaviour
 
 
 		text.text = Lines[UnityEngine.Random.Range(0, Lines.Count)];
+		if (isDebug)
+		{
+			Debug.Log(StdUtils.General.ListToString(Lines));
+		}
 	}
 	Idioma eng;
+	public bool isDebug;
+
 	void configurarIdioma()
 	{
 		esp = new Idioma("Español juguetón");

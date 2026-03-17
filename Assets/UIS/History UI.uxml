@@ -2,7 +2,7 @@
     <Style src="project://database/Assets/UIS/Histyory.uss?fileID=7433441132597879392&amp;guid=83b7a4b0c4c72344d926d5eb99cb58e3&amp;type=3#Histyory" />
     <engine:VisualElement style="flex-grow: 1; flex-direction: column;">
         <engine:VisualElement name="img" style="flex-grow: 1; flex-shrink: 0; width: 80%; height: 86%; background-image: url(&quot;project://database/Assets/Video/HisUITEXT.renderTexture?fileID=8400000&amp;guid=0b7a7cffa378d4b4082a1c1b74a80b0e&amp;type=2#HisUITEXT&quot;); background-color: rgb(63, 147, 178);" />
-        <engine:Scroller high-value="100" direction="Horizontal" value="42" name="Scrool" style="height: auto; width: 80%;" />
+        <engine:Scroller high-value="100" direction="Horizontal" value="0" name="Scrool" style="height: auto; width: 80%;" />
         <engine:VisualElement style="flex-grow: 1; background-color: rgb(149, 149, 149); width: 20%; height: 95%; flex-direction: column; right: 0; flex-shrink: 0; top: 0; position: absolute;">
             <engine:VisualElement class="Card" style="background-color: rgb(255, 0, 0); border-left-color: rgb(113, 113, 113); border-right-color: rgb(113, 113, 113); border-top-color: rgb(113, 113, 113); border-bottom-color: rgb(113, 113, 113);">
                 <engine:Label text="PLACEHOLDER&#10;AUI VA EL ICONO&#10;De carnivoro/&#10;Agresivo/miitar/&#10;etc" style="color: rgb(255, 255, 255);" />

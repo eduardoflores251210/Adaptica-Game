@@ -1434,12 +1434,12 @@ MonoBehaviour:
   uiDocument: {fileID: 1444000948}
   elementName: Scrool
   fitToWidth: 0
-  xSpacing: 20
-  xPadding: 6
-  yPadding: 5
-  minXSpacing: 2
+  xSpacing: 0.5
+  xPadding: 0
+  yPadding: 0
+  minXSpacing: 0.2
   autoScale: 1
-  verticalMultiplier: 2.74
+  verticalMultiplier: 1
   updateEveryFrame: 1
   POINTS_EXT: []
   lineElement: {fileID: 1722113754}

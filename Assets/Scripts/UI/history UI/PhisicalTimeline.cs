@@ -17,6 +17,12 @@ public class PhisicalTimeline : MonoBehaviour
 	[Header("OPCIONAL")]
 	public Camera MiCamera;
 	public float Pos0_100;
+	public float CameraYPading = 5f;
+
+	public float CameraZPading = 4.7f;
+
+	public float startPadding = 0b101;
+
 	private void Update()
 	{
 		
@@ -33,8 +39,8 @@ public class PhisicalTimeline : MonoBehaviour
 	{
 		if (MiCamera == null)
 			return;
-		float x = Mathf.Lerp(0, Alocated_Width, Pos0_100 / 100);
-		MiCamera.transform.position = lineRenderer.transform.position + new Vector3(x, 0, 0);
+		float x = Mathf.Lerp(startPadding, Alocated_Width, Pos0_100 / 100);
+		MiCamera.transform.position = lineRenderer.transform.position + new Vector3(x, CameraYPading, CameraZPading);
 	}
 	public void SetPoints(List<Vector2> points)
 	{
@@ -48,6 +54,7 @@ public class PhisicalTimeline : MonoBehaviour
 		PointsOld = Points;
 		float max = Points.Max(xa => xa.x) + padding;
 		Alocated_Width = max;
+		lineRenderer.positionCount = points.Count;
 	}
 	public void SetPoints(Vector2[] points) => SetPoints(points.ToList());
 }

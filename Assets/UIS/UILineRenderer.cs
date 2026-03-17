@@ -2,6 +2,7 @@
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using System.Globalization;
+using System;
 
 /// <summary>
 /// UILineElement v2 — profesional y sin corrupción de datos.
@@ -9,6 +10,7 @@ using System.Globalization;
 /// - Draw aplica transformaciones al vuelo (no modifica Points).
 /// - Minimiza allocations para manejar timelines largos.
 /// </summary>
+[Obsolete]
 public class UILineElement : VisualElement
 {
 	public enum Anchor
