@@ -67,8 +67,6 @@ public class SplashText : MonoBehaviour
 		"404 SPLASH NOT FOUND",
 		"Also Try BABA is YOU",
 		$"Made by [REPLACE IN RUNTIME]",
-
-		// Nuevos
 		"Evolved from nothing",
 		"Now with 100% more chaos",
 		"Not responsible for mutation side effects",
