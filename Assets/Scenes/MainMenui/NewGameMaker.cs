@@ -8,7 +8,6 @@ using UnityEngine;
 using SerializableTypes.Space; 
 using UnityEngine.UI;
 using System.IO;
-using UnityEditor.Localization.Plugins.XLIFF.V12;
 
 public class NewGameMaker : MonoBehaviour
 {

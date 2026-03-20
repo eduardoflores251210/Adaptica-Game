@@ -1,8 +1,10 @@
 ﻿using ModelosDeIdioma;
+using NUnit.Framework;
 using StandartUtilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using UnityEngine;
 [ExecuteAlways]
 public class SplashText : MonoBehaviour
@@ -13,6 +15,9 @@ public class SplashText : MonoBehaviour
 
 	public float timer = 0f;
 	public TMPro.TMP_Text text;
+	[Header("DEBUG")]
+	public bool Override = false;
+	public int idx = 0;
 
 	public static List<string> Lines = new List<string>()
 	{
@@ -81,6 +86,7 @@ public class SplashText : MonoBehaviour
 		"Now compatible with your fridge",
 		"Ultra immersive experience: eyes optional",
 		"Powered by coffee",
+		"Powered by cocoa",
 		"Powered by Tea",
 		"Powered by Juice",
 		"Powered by Milk",
@@ -151,7 +157,7 @@ public class SplashText : MonoBehaviour
 		"Now with optional disappointment",
 		"Supports teleporting microbes",
 		"Your coffee cup is jealous",
-		"With Less Sodium",
+		"Reduced in Sodium",
 		"Warning: Game may stare back",
 		"Now in ultra-super-mega resolution",
 		"FULL of NullReferenceException",
@@ -173,6 +179,7 @@ public class SplashText : MonoBehaviour
 		"Warning: May cause nostalgia for triangles",
 		"Simulates microbe existential crisis",
 		"Now with optional coffee breaks",
+		"Now with optional cocoa breaks",
 		"Mostly Rogue Planets",
 		"As seen on TV",
 		"Guaranteed to confuse historians",
@@ -217,6 +224,81 @@ public class SplashText : MonoBehaviour
 		"osodilaipxeocitsiligarfilacrepuS",
 		"NOW With a Not Scrapped Plant Editor", //spore elimino el suyo
 		"Dun dun Next station Pantitlan",
+		//v3.0
+		"Este juego NO es un verbo. No intentes twilightearlo, ni adapticarlo, ni pantitlanearlo.",
+		"Now With Less cubes",
+		"Keep clicking. The flour isn't going to sift itself.",
+		"That delta is full of runes",
+		"Button mashing is a valid baking technique.",
+		"0% Raytracing, 100% Hope",
+		"CAKE.CAKE.CAKE.CAKE.CAKE.CAKE.CAKE.",
+		"IS THAT A SPHERE",
+		"Your mouse switch has a lifespan. Use it on the CAKE button.",
+		"The mitochondrion is the powerhouse of the crash",
+		"Only the determined shall taste the Strawberry Patch v2.0.",
+		"Confirmed: The cake is still a lie, but the microbes are real",
+		"Warning: Sudden spikes of philosophy detected",
+		"Legend says the recipe is guarded by a thousand clicks.",
+		"The cake IS NOT A LIE",
+		"The settings cake is <color=#FF0000>red</color>",
+		"Now with 0% artificial colors and 100% strawberry DNA",
+		"Strawberry jam is the new red coloring",
+		"Now with organic textures (Strawberry flavor)",
+		"IS THAT A SEED? (No, it's a pixel)",
+		"The cake in the settings is 100% biodegradable",
+		"Check the recipe: No artificial bugs added",
+		"Now with yeast: Because we hate flat designs",
+		"Our cake has more volume than an the Fruit Company Hardware",
+		"Yeast included: Evolution isn't just for microbes",
+		"The settings cake: Now 100% more fluffy than the Fruit Company Hardware's dreams",
+		"Warning: Excessive yeast may cause the UI to expand",
+		"Powered by Theobromine: Because caffeine is too mainstream.",
+		"Now with 100% more C8H8N4O2 (That's chocolate for you, mortals).",
+		"The dev is currently synthesizing dopamine via dark chocolate.",
+		"Warning: High levels of Theobromine detected in the source code.",
+		"Chocolate: The only fuel compatible with 2026 evolution.",
+		"Our microbes don't like coffee, they prefer a fine Ganache.",
+		"Theobromine + Strawberry Jam = The ultimate dev build.",
+		"Error 0xCHOCO: Not enough cocoa in the system.",
+		"Mitosis: Because copy-paste is a biological right.",
+		"Natural selection at 60 FPS.",
+		"DNA: The original spaghetti code.",
+		"Survival of the fittest (and the least buggy).",
+		"Evolution is just a series of hotfixes.",
+		"Our microbes have more personality than your ex.",
+		"Now with 4D hyper-triangles (Patent pending).",
+		"Optimized for quantum potatoes.",
+		"Fixed a bug where the universe deleted itself.",
+		"Gravity is just a suggestion in version 2026.",
+		"If the game stays open for 7 years, it might evolve into a spreadsheet.",
+		"This splash text is currently being garbage collected.",
+		"Circles are just triangles with social anxiety.",
+		"Geometry is hard, let's go eat... nothing. Let's go Evolve.",
+		"A sphere is just a 1-sided polygon if you squint hard enough.",
+		"Edges are overrated. Points are the future.",
+		"Made with 99% Theobromine 0% caffeine and 1% documentation.",
+		"The code is staring back at me. Send help.",
+		"NOOO LUCY WHY DID YOU MADE A GIANT LOAF", //referencia a  I love lucy
+		"If you find a bug, call it a 'feature-rich mutation'.",
+		"Don't blink. The microbes might migrate to your desktop.",
+		"This loading bar is purely decorative.",
+		"It's not a crash, it's a spontaneous reboot of reality.",
+		"NOW With less angry cyborg small aliens",//Grox de spore
+		"May The Magic Friendship Save You", //MLP
+		"No more Carrots Following you", //pikmin
+		"SNAILS EVERYWERE NOOOO",
+		"You Can't LEAVE the tower",//tangled
+		"No Dungeons, PLEASE!",
+		"Adaptica!!",
+		"/a/ /d/ /a/ /p/ /t/ /i/ /k/ /a/", //si, ALFABETO FONETICO INTERNACIONAL
+		"こんにちは、日本",
+		"你好，中國",
+		"Bonjour la France",
+		"Hallo Deutschland und Österreich!!",
+		"Hier ist das erste fernsehn mit der ADAPTICA",
+		"I like Metric.",
+		"I like Imperial.",
+		"e<sup>iπ</sup>"
 	};
 	Idioma esp;
 	void Start()
@@ -392,6 +474,16 @@ public class SplashText : MonoBehaviour
 		{
 			text.text = Lines[UnityEngine.Random.Range(0, Lines.Count)]; timer= 0; 
 			Debug.Log("NEW MSG " + text.text);
+		}
+
+		if (Override)
+		{
+			if (idx > Lines.Count)
+			{
+				idx = Lines.Count-1;
+			}
+			text.text = Lines[idx]; timer = 0;
+
 		}
 	}
 }

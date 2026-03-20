@@ -15,7 +15,7 @@ namespace Kamgam.UIToolkitTextAutoSize
     public class Installer
     {
         public const string AssetName = "UI Toolkit Text Auto Size";
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.1";
         public const string ManualUrl = "https://kamgam.com/unity/UIToolkitTextAutoSizeManual.pdf";
         
         private static string _assetRootPathDefault = "Assets/Kamgam/UIToolkitTextAutoSize/";

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UIElements;
-
+[Obsolete]
 public class PhaseManager : MonoBehaviour
 {
     public EditPhases CurrentPhase;

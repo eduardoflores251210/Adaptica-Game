@@ -26,7 +26,7 @@ namespace AdapticaDebugStuff
 				string VVV = $@"Adaptica {Application.version}
 compilado para {Application.platform}
 creado por {Application.companyName}";
-
+				
 				Debug.Log(VVV);
 			}
 			[ConsoleCommand("pos")]
