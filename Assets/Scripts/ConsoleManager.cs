@@ -112,6 +112,13 @@ public class ConsoleManager : MonoBehaviour
 		if (consoleUI.activeSelf)
 			inputField.ActivateInputField();
 	}
+	public void ForceOn()
+	{
+
+		consoleUI.SetActive(true);
+		if (consoleUI.activeSelf)
+			inputField.ActivateInputField();
+	}
 
 	public void ExecuteInput()
 	{

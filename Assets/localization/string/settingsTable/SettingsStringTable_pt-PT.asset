@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: SettingsStringTable_pt-PT
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: pt-PT
+  m_SharedData: {fileID: 11400000, guid: 04515583f27920c45a5dcadf3c71793a, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 178381385728
+    m_Localized: "/*\r\n // [INTERNAL_RECIPE]\r\n // \"O bolo AINDA N\xC3O \xC9 UMA
+      MENTIRA\"\r\n // \"O bolo de configura\xE7\xF5es ainda \xE9 vermelho\" (Edi\xE7\xE3o
+      Sabor Morango v2.0 - Build Est\xE1vel)\r\n\r\n\r\n * Notas do Patch:\r\n *
+      - Corrigido o bug de confus\xE3o com fermento (agora usando Fermento Qu\xEDmico
+      corretamente)\r\n * - Adicionada manteiga para melhorar a textura (sem mais
+      DLC seco)\r\n * - Rebalanceada a f\xEDsica da geleia de morango\r\n * - Pipeline
+      de renderiza\xE7\xE3o da umidade aprimorado\r\n\r\n\r\n *300g Farinha(Alto
+      n\xFAmero de pol\xEDgonos, agora devidamente hidratada)\r\n *150g A\xE7\xFAcar(Para
+      o doce sabor da vit\xF3ria)\r\n *3 Ovos(Ainda n\xE3o s\xE3o para chocar. Por
+      favor, pare de tentar.)\r\n *100g Manteiga OU 80ml \xD3leo(Finalmente, um desempenho
+      suave)\r\n *100\u2013150g Geleia de Morango(O INGREDIENTE VERMELHO - agora
+      balanceado, n\xE3o est\xE1 overpower)\r\n *100ml Leite(Alimentado pelo Calcium
+      Engine v1.0)\r\n *15g Fermento Qu\xEDmico(N\xC3O \xE9 fermento biol\xF3gico.
+      Isto n\xE3o \xE9 um simulador de fermenta\xE7\xE3o. mas se voc\xEA tentar usar,
+      voc\xEA mede, n\xE3o n\xF3s)\r\n\r\n // L\xF3gica:\r\n // Adicionamos gordura
+      para prevenir o bug do \"bolo bioma deserto\".\r\n // Quantidade de geleia
+      reduzida para evitar o speedrun \"centro cru any%\".\r\n // Estabilidade melhorada.
+      Nada de nonsense de early access.\r\n\r\n // Instru\xE7\xF5es:\r\n // 1. Bata
+      manteiga + a\xE7\xFAcar at\xE9 ficar fofo (aumente as configura\xE7\xF5es de
+      volume).\r\n // 2. Adicione os ovos um por um (n\xE3o d\xEA rage quit se parecer
+      estranho).\r\n // 3. Misture o leite e a geleia de morango (ative o shader
+      vermelho).\r\n // 4. Adicione farinha + fermento (peneirados, sem glitches
+      de textura).\r\n // 5. Misture at\xE9 a massa atingir um framerate est\xE1vel
+      (sem overclock).\r\n //\r\n // DLC Opcional:\r\n // - Fa\xE7a redemoinhos de
+      geleia por cima para melhor renderiza\xE7\xE3o est\xE9tica.\r\n // - Ou injete
+      geleia depois de assar para uma camada secreta de loot.\r\n //\r\n // Asse
+      a 180\xB0C por ~30\u201340 minutos at\xE9 dourar.\r\n // Teste do palito: se
+      sair limpo, voc\xEA venceu.\r\n //\r\n // AVISO:\r\n // N\xC3O use sua GPU
+      como forno.\r\n // Thermal throttling n\xE3o \xE9 uma t\xE9cnica culin\xE1ria.\r\n
+      // N\xF3s tentamos. O bolo ficou com gosto de atualiza\xE7\xF5es de driver
+      e tristeza.\r\n*/"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 165933769027584
+    m_Localized: Volume Mestre
+    m_Metadata:
+      m_Items: []
+  - m_Id: 166681881866240
+    m_Localized: Volume dos efeitos sonoros
+    m_Metadata:
+      m_Items: []
+  - m_Id: 167023155605504
+    m_Localized: "Volume da m\xFAsica"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 180898752098304
+    m_Localized: "resolu\xE7\xE3o"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181732873334784
+    m_Localized: linguagem
+    m_Metadata:
+      m_Items: []
+  - m_Id: 182115863621632
+    m_Localized: Tela cheia
+    m_Metadata:
+      m_Items: []
+  - m_Id: 223661350711296
+    m_Localized: Parar!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 248903985000448
+    m_Localized: "Pare de carregar no bot\xE3o!!"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

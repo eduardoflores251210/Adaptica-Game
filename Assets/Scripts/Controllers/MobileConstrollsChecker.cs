@@ -18,16 +18,13 @@ public class MobileConstrollsChecker : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
 	{
-		var map = inputActions.FindActionMap("GC");
-		map.Enable();
-        Check = map.FindAction("Click", true); //no no es tartamudeo
-        Check.performed += ctx =>
+		foreach( var de in InputSystem.devices)
         {
-            if (ctx.control.device is Touchscreen)
+            if (de is Touchscreen)
                 DOITANIWAYS = true;
 			else 
 				DOITANIWAYS = false;
-        };
+        }
 	}
 
 	// Update is called once per frame

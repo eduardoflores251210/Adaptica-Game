@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: SettingsStringTable_en
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 04515583f27920c45a5dcadf3c71793a, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 178381385728
+    m_Localized: "\t\t\t/*\r\n\t\t\t// [INTERNAL_RECIPE]\r\n\t\t\t// \"The cake IS
+      STILL NOT A LIE\"\r\n\t\t\t// \"The settings cake is still red\" (Strawberry
+      Flavor Edition v2.0 - Stable Build)\r\n\r\n\r\n\_\t\t\t * Patch Notes:\r\n\_\t\t\t
+      * - Fixed yeast confusion bug (now using Baking Powder correctly)\r\n\_\t\t\t
+      * - Added butter for improved texture (no more dry DLC)\r\n\_\t\t\t * - Rebalanced
+      strawberry jam physics\r\n\_\t\t\t * - Improved moistness rendering pipeline\r\n\_\r\n\r\n\t\t\t*300g
+      Flour(High-polygon count, now properly hydrated)\r\n\t\t\t*150g Sugar(For the
+      sweet taste of victory)\r\n\t\t\t*3 Eggs(Still not for hatching.Please stop
+      trying.)\r\n\t\t\t*100g Butter OR 80ml Oil(Finally, some smooth performance)\r\n\t\t\t*100\u2013150g
+      Strawberry Jam(THE RED INGREDIENT - now balanced, not overpowered)\r\n\t\t\t*
+      100ml Milk(Powered by Calcium Engine v1.0)\r\n\t\t\t*15g Baking Powder(NOT
+      yeast.This is not a fermentation simulator. but if you try to use it You measure
+      not us)\r\n\r\n\t\t\t// Logic:\r\n\t\t\t// We added fat to prevent the \"desert
+      biome cake\" bug.\r\n\t\t\t// Jam quantity reduced to avoid \"raw center any%
+      speedrun\".\r\n\t\t\t// Stability improved. No early access nonsense.\r\n\r\n\t\t\t//
+      Instructions:\r\n\t\t\t// 1. Cream butter + sugar until fluffy (increase volume
+      settings).\r\n\t\t\t// 2. Add eggs one by one (do not rage-quit if it looks
+      weird).\r\n\t\t\t// 3. Mix in milk and strawberry jam (activate red shader).\r\n\t\t\t//
+      4. Add flour + baking powder (sifted, no texture glitches).\r\n\t\t\t// 5.
+      Mix until batter reaches stable framerate (no overclocking).\r\n\t\t\t//\r\n\t\t\t//
+      Optional DLC:\r\n\t\t\t// - Swirl extra jam on top for aesthetic rendering.\r\n\t\t\t//
+      - Or inject jam post-bake for a hidden loot layer.\r\n\t\t\t//\r\n\t\t\t//
+      Bake at 180\xB0C for ~30\u201340 minutes until golden-brown.\r\n\t\t\t// Toothpick
+      test: if it comes out clean, you win.\r\n\t\t\t//\r\n\t\t\t// WARNING:\r\n\t\t\t//
+      Do NOT use your GPU as an oven.\r\n\t\t\t// Thermal throttling is not a cooking
+      technique.\r\n\t\t\t// We tried. The cake tasted like driver updates and sadness.\r\n\t\t\t*/"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 165933769027584
+    m_Localized: Master Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 166681881866240
+    m_Localized: SFX Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 167023155605504
+    m_Localized: Music Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 180898752098304
+    m_Localized: Screen Resolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181732873334784
+    m_Localized: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 182115863621632
+    m_Localized: Fullscreen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 223661350711296
+    m_Localized: STOP IT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 248903985000448
+    m_Localized: STOP CLICKING
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

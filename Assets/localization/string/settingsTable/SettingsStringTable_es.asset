@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: SettingsStringTable_es
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: es
+  m_SharedData: {fileID: 11400000, guid: 04515583f27920c45a5dcadf3c71793a, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 178381385728
+    m_Localized: "/*\r\n// [INTERNAL_RECIPE]\r\n // \"El pastel SIGUE SIN SER UNA
+      MENTIRA\"\r\n // \"El pastel de configuraci\xF3n sigue siendo rojo\" (Edici\xF3n
+      Sabor Fresa v2.0 - Build Estable)\r\n\r\n\r\n * Notas del Parche:\r\n * - Corregido
+      el bug de confusi\xF3n con la levadura (ahora usando Polvo de Hornear correctamente)\r\n
+      * - A\xF1adida mantequilla para mejorar la textura (no m\xE1s DLC seco)\r\n
+      * - Rebalanceada la f\xEDsica de la mermelada de fresa\r\n * - Mejorado el
+      pipeline de renderizado de la humedad\r\n\r\n\r\n *300g Harina(Alto conteo
+      de pol\xEDgonos, ahora correctamente hidratada)\r\n *150g Az\xFAcar(Para el
+      dulce sabor de la victoria)\r\n *3 Huevos(Siguen sin ser para incubar. Por
+      favor deja de intentarlo.)\r\n *100g Mantequilla O 80ml Aceite(Por fin, un
+      rendimiento suave)\r\n *100\u2013150g Mermelada de Fresa(EL INGREDIENTE ROJO
+      - ahora balanceado, no est\xE1 roto)\r\n *100ml Leche(Impulsada por Calcium
+      Engine v1.0)\r\n *15g Polvo de Hornear(NO es levadura. Esto no es un simulador
+      de fermentaci\xF3n. pero si intentas usarla, t\xFA mides, no nosotros)\r\n\r\n
+      // L\xF3gica:\r\n // A\xF1adimos grasa para prevenir el bug del \"pastel bioma
+      desierto\".\r\n // Cantidad de mermelada reducida para evitar el speedrun \"centro
+      crudo any%\".\r\n // Estabilidad mejorada. Nada de tonter\xEDas de early access.\r\n\r\n
+      // Instrucciones:\r\n // 1. Bate mantequilla + az\xFAcar hasta que est\xE9
+      esponjoso (sube los ajustes de volumen).\r\n // 2. A\xF1ade los huevos uno
+      por uno (no rage-quitees si se ve raro).\r\n // 3. Mezcla la leche y la mermelada
+      de fresa (activa el shader rojo).\r\n // 4. A\xF1ade harina + polvo de hornear
+      (tamizados, sin glitches de textura).\r\n // 5. Mezcla hasta que la masa alcance
+      un framerate estable (sin overclock).\r\n //\r\n // DLC Opcional:\r\n // -
+      Haz remolinos de mermelada encima para mejor renderizado est\xE9tico.\r\n //
+      - O inyecta mermelada despu\xE9s de hornear para una capa de bot\xEDn secreta.\r\n
+      //\r\n // Hornea a 180\xB0C durante ~30\u201340 minutos hasta que est\xE9 dorado.\r\n
+      // Prueba del palillo: si sale limpio, ganaste.\r\n //\r\n // ADVERTENCIA:\r\n
+      // NO uses tu GPU como horno.\r\n // El thermal throttling no es una t\xE9cnica
+      de cocina.\r\n // Lo intentamos. El pastel sab\xEDa a actualizaciones de drivers
+      y tristeza.\r\n*/"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 165933769027584
+    m_Localized: Volumen Maestro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 166681881866240
+    m_Localized: Volumen de Efectos de sonido
+    m_Metadata:
+      m_Items: []
+  - m_Id: 167023155605504
+    m_Localized: Volumen de la musica
+    m_Metadata:
+      m_Items: []
+  - m_Id: 180898752098304
+    m_Localized: "Resoluci\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181732873334784
+    m_Localized: Idioma
+    m_Metadata:
+      m_Items: []
+  - m_Id: 182115863621632
+    m_Localized: Pantalla completa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 223661350711296
+    m_Localized: DETENTE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 248903985000448
+    m_Localized: que dejes de pulsar !!
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

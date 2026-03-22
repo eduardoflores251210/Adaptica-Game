@@ -1,10 +1,7 @@
 ﻿using ModelosDeIdioma;
-using NUnit.Framework;
 using StandartUtilities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using UnityEngine;
 [ExecuteAlways]
 public class SplashText : MonoBehaviour
@@ -290,15 +287,17 @@ public class SplashText : MonoBehaviour
 		"You Can't LEAVE the tower",//tangled
 		"No Dungeons, PLEASE!",
 		"Adaptica!!",
+		"Keep clicking. The flour isn't going to sift itself.",
 		"/a/ /d/ /a/ /p/ /t/ /i/ /k/ /a/", //si, ALFABETO FONETICO INTERNACIONAL
 		"こんにちは、日本",
 		"你好，中國",
 		"Bonjour la France",
 		"Hallo Deutschland und Österreich!!",
-		"Hier ist das erste fernsehn mit der ADAPTICA",
+		"Hier ist das erste unity fernsehn mit der ADAPTICA", //referencia a "hier ist das erste deutsche Fernsehen mit der Tagesschau "
 		"I like Metric.",
 		"I like Imperial.",
-		"e<sup>iπ</sup>"
+		"e<sup>iπ</sup>",
+		"Rwdyxed im Typos",//"reduced" in typos
 	};
 	Idioma esp;
 	void Start()

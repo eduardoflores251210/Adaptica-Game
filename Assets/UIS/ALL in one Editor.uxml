@@ -3,7 +3,12 @@
         <engine:Foldout text="#l" style="flex-grow: 0; flex-shrink: 0; height: 100%; background-color: rgb(46, 92, 123);">
             <engine:ScrollView style="background-color: rgb(128, 128, 128); height: 100%; align-self: flex-start; flex-grow: 1; flex-shrink: 0;">
                 <engine:TabView>
-                    <engine:Tab label="Cuerpo" name="BOD" />
+                    <engine:Tab label="Cuerpo" name="BOD">
+                        <engine:Button text="AdSegment" name="ADS" />
+                        <engine:Button text="Delete selected" name="DELS" />
+                        <engine:Label text="SegmentRadii" name="RegR" />
+                        <engine:Slider value="42" high-value="100" name="SegR" />
+                    </engine:Tab>
                     <engine:Tab label="Partes" name="Part">
                         <engine:TabView>
                             <engine:Tab label="#e" />
@@ -30,10 +35,10 @@
             <engine:Button style="background-image: url(&quot;project://database/Assets/UIS/esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs.png?fileID=21300000&amp;guid=285cbd1f0d868be46b77dfb66ad0cfd3&amp;type=3#esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs&quot;);" />
         </engine:VisualElement>
     </engine:VisualElement>
-    <engine:Button text="Button" name="Button" style="position: absolute; top: auto; bottom: 0; left: 43%; right: auto; width: 17%;" />
+    <engine:Button text="Button" name="ButtonName" style="position: absolute; top: auto; bottom: 0; left: 43%; right: auto; width: 17%;" />
     <engine:VisualElement name="up" style="flex-grow: 1; position: absolute; left: 33%; background-color: rgb(212, 212, 212); bottom: -35%; height: 35%; width: 30%;">
-        <engine:TextField label="#name" placeholder-text="filler text" hide-mobile-input="false" multiline="false" name="name" style="flex-direction: column;" />
-        <engine:TextField label="#des" placeholder-text="filler text" name="description" style="flex-direction: column;" />
+        <engine:TextField label="#name" placeholder-text="filler text" hide-mobile-input="false" multiline="false" name="Nam" style="flex-direction: column;" />
+        <engine:TextField label="#des" placeholder-text="filler text" name="Desc" style="flex-direction: column;" />
         <engine:Button name="dadso" style="position: absolute; right: 0; background-image: url(&quot;project://database/Assets/UIS/ghhgfhgfhgffgh.png?fileID=21300000&amp;guid=753ad664af5aedc40892dfc5faf2fb49&amp;type=3#ghhgfhgfhgffgh&quot;);" />
     </engine:VisualElement>
 </engine:UXML>
