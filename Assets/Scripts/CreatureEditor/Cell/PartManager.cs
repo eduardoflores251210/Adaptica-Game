@@ -1,21 +1,22 @@
 using ActualUtils;
 using SerializableTypes;
 using SerializableTypes.Biology;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class PartManager : MonoBehaviour
 {
-	public PhaseManager PhaseManager;
+	public CompleteCellEditorUiManger PhaseManager;
 	public List<GameObject> MaleParts = new();
 	public GameObject MalePartsHolder;
 	public List<GameObject> FemaleParts = new();
 	public GameObject FemalePartsHolder;
 	public PartsDatabase Database;
 	public GéneroBiológico ActiveGen = GéneroBiológico.Female;
+	public ReproductionMethod ReproductionMethod;
+	public reproductionTypes ReproductionType;
 	public UIDocument iDoc;
 	public Material MaleMat;
 	public Material FemaleMat;
@@ -25,213 +26,233 @@ public class PartManager : MonoBehaviour
 	public Color MaleColor;
 	public Color FemaleColor;
 	public Material BodyEditMat;
-	private Button Addeye;
-	private Button MH;
-	private Button MC;
-	private Button MO;
-	private Button Spike;
-	private Button GenToggleButton; // Botón para cambiar Genero
-	public Sprite MaleSprite;       // Sprite para Genero masculino
-	public Sprite FemaleSprite;     // Sprite para Genero femenino
+
+	public string PartTabName;
+	public string WaponsTabName;
+	public string MouyhsTabName;
+	public string EyesTabName;
+
+	public Sprite MaleSprite;
+	public Sprite FemaleSprite;
+
 	private EnumField RepTypeEnum;
 	private EnumField RepMethodEnum;
 	private RadioButtonGroup radio;
 	private Button Next;
 	private Button AppPaint;
-	private Label Lbl;
+
 	private Toggle DIM;
-	bool inited = false;
+	private Button GenToggleButton;
+
+	public bool inited = false;
+	public bool runtimeButtonsBuilt = false;
+
 	int MaleMouthCount = 0;
 	int FemaleMouthCount = 0;
-	// Variables para persistencia de datos UI
-	private GéneroBiológico savedActiveGendr;
-	public reproductionTypes savedRepType;
-	public ReproductionMethod savedRepMethod;
-	public int savedtool;
-	private bool savedDIM;
-	private Color savedMaleColor;
-	private Color savedFemaleColor;
+
+
+	// Contenedores de pestañas
+	private VisualElement partTabContainer;
+	private VisualElement weaponsTabContainer;
+	private VisualElement mouthsTabContainer;
+	private VisualElement eyesTabContainer;
 
 	void Start()
 	{
-		Debug.LogWarning("ADVERTENCIA ESTO NO ESTA COMPLETO AUN FALTA EL CODIGO PARA MANEJAR BIEN LAS PROXIMAS PARTES AÑADIDAS");
-		// Inicializamos los valores guardados con los actuales
-		savedActiveGendr = ActiveGen;
-		savedRepType = reproductionTypes.SingleCell; // o algún valor por defecto válido
-		savedRepMethod = ReproductionMethod.Mitosis; 
-		savedDIM = false;
-		savedMaleColor = MaleColor;
-		savedFemaleColor = FemaleColor;
 		PlayerManager.RegisterEditor(this, Editors.Microbe);
 	}
-	public void LoadMicrobe( MicrobeData microbe)
+	public void LoadMicrobe(MicrobeData microbe)
 	{
-		savedActiveGendr = GéneroBiológico.Female;
-		savedRepMethod = microbe.RepMeth;
-		savedFemaleColor= microbe.FemaleColor;
-		savedMaleColor= microbe.MaleColor;
 		ActiveGen = GéneroBiológico.Female;
+		RepMethodEnum.value = microbe.RepMeth;
+		MaleColor = microbe.MaleColor;
+		FemaleColor = microbe.FemaleColor;
+
 		foreach (var PF in microbe.PartsF)
-		{
 			addPart(PF.Id);
-		}
+
 		if (microbe.PartsM != null)
 		{
 			ActiveGen = GéneroBiológico.Male;
-			foreach(var PF in microbe.PartsM)
-				{ addPart(PF.Id); }
+			foreach (var PF in microbe.PartsM)
+				addPart(PF.Id);
+
 			ActiveGen = GéneroBiológico.Female;
 		}
 	}
 
 	void Update()
 	{
-		if (PhaseManager.CurrentPhase == EditPhases.BodyEdit)
+		if ((PhaseManager.currentCat & CurrentCategory.Body) == CurrentCategory.Body)
 		{
 			CreatureRenderer.material = BodyEditMat;
+			return;
 		}
-		if (PhaseManager.CurrentPhase == EditPhases.PartEditAndBodyColouring)
+
+		if (!inited)
 		{
-			if (!inited)
-			{
-				if (!iDoc.isActiveAndEnabled)
-				{
-					return;
-				}
-
-				var root = iDoc.rootVisualElement;
-
-				Addeye = root.Q<Button>("eye");
-				MC = root.Q<Button>("MouthC");
-				MH = root.Q<Button>("MouthH");
-				MO = root.Q<Button>("MouthO");
-				Spike = root.Q<Button>("Spike");
-				GenToggleButton = root.Q<Button>("SRX"); // nombre del botón en UI
-				RepMethodEnum = root.Q<EnumField>("MTD");
-				RepTypeEnum = root.Q<EnumField>("ASE");
-				Lbl = root.Q<Label>("WARNING");
-				DIM = root.Q<Toggle>("DIM");
-				Next = root.Q<Button>("Sig");
-				AppPaint = root.Q<Button>("ApplyPaint");
-				var EyePart = Database.GetPartByID("-1");
-				Addeye.tooltip = EyePart.description;
-				Debug.Log(Addeye.tooltip);
-				Addeye.style.backgroundImage  = Background.FromSprite(EyePart.icon);
-				radio = root.Q<RadioButtonGroup>("SlctT");
-				
-				// Restaurar valores guardados
-				ActiveGen = savedActiveGendr;
-				RepTypeEnum.value = savedRepType;
-				RepMethodEnum.value = savedRepMethod;
-				DIM.value = savedDIM;
-				MaleColor = savedMaleColor;
-				FemaleColor = savedFemaleColor;
-				radio.value = savedtool;
-
-				Preview.SetColor(ActiveGen == GéneroBiológico.Female ? FemaleColor : MaleColor);
-
-				// Suscribirse a eventos después de restaurar valores para evitar disparar eventos al setear
-				Addeye.clicked += Addeye_clicked;
-				MC.clicked += MC_clicked;
-				MH.clicked += MH_clicked;
-				MO.clicked += MO_clicked;
-				Spike.clicked += Spike_clicked;
-				GenToggleButton.clicked += ToggleGender;
-				RepTypeEnum.RegisterValueChangedCallback(evt =>
-				{
-					savedRepType = (reproductionTypes)evt.newValue;
-					ShowWarning(Lbl);
-				});
-				RepMethodEnum.RegisterValueChangedCallback(evt =>
-				{
-					savedRepMethod = (ReproductionMethod)evt.newValue;
-					ShowWarning(Lbl);
-				});
-				DIM.RegisterValueChangedCallback(evt =>
-				{
-					savedDIM = evt.newValue;
-					ShowWarning(Lbl);
-					UpdateGenderButtonState();
-				});
-				radio.RegisterValueChangedCallback(evt =>
-				{
-					savedtool = evt.newValue;
-					if (gizmoManager.objetoActivo != null)
-					{
-						var obj = gizmoManager.objetoActivo.gameObject;
-						if (obj.TryGetComponent<PartComp>(out _))
-						{
-							if (obj.TryGetComponent<GizSelectable>(out var gg))
-							{
-								switch (evt.newValue)
-								{
-									case 0:
-										gg.IsMovable = true; 
-										gg.IsRotatable = false;
-										gg.IsScalable = false;
-										break;
-									case 1:
-										gg.IsRotatable = true;
-										gg.IsMovable = false;
-										gg.IsScalable = false;
-										break;
-									case 2:
-										gg.IsScalable = true;
-										gg.IsMovable = false;
-										gg.IsRotatable = false;
-										break;
-								}
-							}
-						}
-					}
-				});
-				AppPaint.clicked += AppPaint_clicked;
-
-				UpdateGenderButtonSprite();
-				UpdateHolderActiveState();
-				ShowWarning(Lbl);
-
-				inited = true;
-			}
-			else
-			{
-				ShowWarning(Lbl);
-				if (ActiveGen == GéneroBiológico.Female || ActiveGen == GéneroBiológico.None)
-				{
-					CreatureRenderer.material = FemaleMat;
-				}
-				else
-				{
-					CreatureRenderer.material = MaleMat;
-				}
-			}
-
+			TryInitUI();
+			return;
 		}
+
+		ShowWarning(Next);
+
+		if (ActiveGen == GéneroBiológico.Female || ActiveGen == GéneroBiológico.None)
+			CreatureRenderer.material = FemaleMat;
 		else
+			CreatureRenderer.material = MaleMat;
+	}
+
+	private void TryInitUI()
+	{
+		if (!iDoc || !iDoc.isActiveAndEnabled)
+			return;
+
+		var root = iDoc.rootVisualElement;
+
+		RepMethodEnum = root.Q<EnumField>("MTD");
+		RepTypeEnum = root.Q<EnumField>("ASE");
+		DIM = root.Q<Toggle>("DIM");
+		Next = root.Q<Button>("Sig");
+		AppPaint = root.Q<Button>("ApplyPaint");
+		radio = root.Q<RadioButtonGroup>("SlctT");
+		GenToggleButton = root.Q<Button>("SRX");
+
+		partTabContainer = root.Q<VisualElement>(PartTabName);
+		weaponsTabContainer = partTabContainer?.Q<VisualElement>(WaponsTabName);
+		mouthsTabContainer = partTabContainer?.Q<VisualElement>(MouyhsTabName);
+		eyesTabContainer = partTabContainer?.Q<VisualElement>(EyesTabName);
+
+		BuildRuntimePartButtons();
+
+		Preview.SetColor(ActiveGen == GéneroBiológico.Female ? FemaleColor : MaleColor);
+
+		GenToggleButton.clicked += ToggleGender;
+		AppPaint.clicked += AppPaint_clicked;
+
+		RepTypeEnum.RegisterValueChangedCallback(a =>
 		{
-			inited = false;
+			ReproductionType = (reproductionTypes)a.newValue;
+			ShowWarning(Next);
+			UpdateGenderButtonState();
+		});
+
+		RepMethodEnum.RegisterValueChangedCallback(a =>
+		{
+			ReproductionMethod = (ReproductionMethod)a.newValue;
+			ShowWarning(Next);
+		});
+
+		DIM.RegisterValueChangedCallback(_ =>
+		{
+			ShowWarning(Next);
+			UpdateGenderButtonState();
+		});
+
+		radio.RegisterValueChangedCallback(evt =>
+		{
+			if (gizmoManager.objetoActivo != null)
+			{
+				var obj = gizmoManager.objetoActivo.gameObject;
+				if (obj.TryGetComponent<PartComp>(out _) && obj.TryGetComponent<GizSelectable>(out var gg))
+				{
+					switch (evt.newValue)
+					{
+						case 0:
+							gg.IsMovable = true;
+							gg.IsRotatable = false;
+							gg.IsScalable = false;
+							break;
+						case 1:
+							gg.IsRotatable = true;
+							gg.IsMovable = false;
+							gg.IsScalable = false;
+							break;
+						case 2:
+							gg.IsScalable = true;
+							gg.IsMovable = false;
+							gg.IsRotatable = false;
+							break;
+					}
+				}
+			}
+		});
+
+		UpdateGenderButtonSprite();
+		UpdateGenderButtonState();
+		UpdateHolderActiveState();
+		ShowWarning(Next);
+
+		try
+		{
+			SpaceUtils.AddTooltipManipulators(iDoc);
+		}
+		catch
+		{
+			if (Application.isEditor)
+				Debug.Log("Error añadiendo tooltips");
 		}
 
+		inited = true;
 	}
 
-	private void Spike_clicked()
+	private void BuildRuntimePartButtons()
 	{
-		addPart("3");
+		if (runtimeButtonsBuilt || Database == null || Database.allParts == null)
+			return;
+
+		foreach (var part in Database.allParts)
+		{
+			if (part == null)
+				continue;
+
+			// Si quieres mostrar SOLO partes de criatura, deja esto.
+			if (part.categories == null || !part.categories.Contains(PartCategories.Cell))
+				continue;
+
+			var container = GetContainerForPart(part);
+			if (container == null)
+				continue;
+
+			var button = new Button(() => addPart(part.partID))
+			{
+				text = part.partID,
+				tooltip = part.description
+			};
+
+			if (part.icon != null)
+				button.style.backgroundImage = Background.FromSprite(part.icon);
+
+			button.style.width = 64;
+			button.style.height = 64;
+			button.style.marginLeft = 4;
+			button.style.marginRight = 4;
+			button.style.marginTop = 4;
+			button.style.marginBottom = 4;
+			button.style.unityTextAlign = TextAnchor.LowerCenter;
+			button.style.whiteSpace = WhiteSpace.Normal;
+
+			container.Add(button);
+		}
+
+		runtimeButtonsBuilt = true;
 	}
 
-	private void MO_clicked()
+	private VisualElement GetContainerForPart(BasePart part)
 	{
-		addPart("2");
-	}
+		if (part.categories == null)
+			return partTabContainer;
 
-	private void MH_clicked()
-	{
-		addPart("1");
-	}
+		if (part.categories.Contains(PartCategories.Eyes) && eyesTabContainer != null)
+			return eyesTabContainer;
 
-	private void MC_clicked()
-	{
-		addPart("0");
+		if (part.categories.Contains(PartCategories.Mouths) && mouthsTabContainer != null)
+			return mouthsTabContainer;
+
+		if (part.categories.Contains(PartCategories.Weapons) && weaponsTabContainer != null)
+			return weaponsTabContainer;
+
+		return partTabContainer;
 	}
 
 	private void AppPaint_clicked()
@@ -240,19 +261,12 @@ public class PartManager : MonoBehaviour
 		{
 			FemaleColor = Preview.GetColor(0.5f);
 			FemaleMat.color = FemaleColor;
-			savedFemaleColor = FemaleColor;
 		}
 		else
 		{
 			MaleColor = Preview.GetColor(0.5f);
 			MaleMat.color = MaleColor;
-			savedMaleColor = MaleColor;
 		}
-	}
-
-	private void Addeye_clicked()
-	{
-		addPart();
 	}
 
 	private void ToggleGender()
@@ -260,46 +274,40 @@ public class PartManager : MonoBehaviour
 		if (ActiveGen == GéneroBiológico.Female || ActiveGen == GéneroBiológico.None)
 		{
 			ActiveGen = GéneroBiológico.Male;
-			Preview.SetColor(savedMaleColor);
+			Preview.SetColor(MaleColor);
 		}
 		else
 		{
 			ActiveGen = GéneroBiológico.Female;
-			Preview.SetColor(savedFemaleColor);
+			Preview.SetColor(FemaleColor);
 		}
 
-		savedActiveGendr = ActiveGen;
 		UpdateHolderActiveState();
 		UpdateGenderButtonSprite();
 	}
 
 	void UpdateGenderButtonSprite()
 	{
-		Sprite sprite = null;
-		if (ActiveGen == GéneroBiológico.Female)
-		{
-			sprite = FemaleSprite;
-		}
-		else
-		{
-			sprite = MaleSprite;
-		}
+		Sprite sprite = ActiveGen == GéneroBiológico.Female ? FemaleSprite : MaleSprite;
 		GenToggleButton.style.backgroundImage = Background.FromSprite(sprite);
 	}
 
 	void UpdateGenderButtonState()
 	{
-		// Activar o desactivar botón según condiciones
-		bool disableGenToggle = savedDIM && savedRepType == reproductionTypes.SingleCell;
+		bool disableGenToggle = DIM.value && (reproductionTypes)RepTypeEnum.value == reproductionTypes.SingleCell;
 		GenToggleButton.SetEnabled(!disableGenToggle);
 	}
 
 	void addPart(string id = "-1")
 	{
 		var PartData = Database.GetPartByID(id);
+		if (PartData == null || PartData.prefab == null)
+			return;
+
 		var Part = Instantiate(PartData.prefab);
 		var gz = Part.AddComponent<GizSelectable>();
-		if (PartData is BiologicalPart biol )
+
+		if (PartData is BiologicalPart biol)
 		{
 			if (biol.function == BiologicalPartFunction.Mouth)
 			{
@@ -308,13 +316,16 @@ public class PartManager : MonoBehaviour
 					case GéneroBiológico.Male:
 						MaleMouthCount++;
 						break;
-					default: FemaleMouthCount++
-							; break;
+					default:
+						FemaleMouthCount++;
+						break;
 				}
 			}
 		}
+
 		gz.IsMovable = true;
 		gz.IsRotatable = true;
+
 		if (ActiveGen == GéneroBiológico.Female || ActiveGen == GéneroBiológico.None)
 		{
 			Part.transform.parent = FemalePartsHolder.transform;
@@ -335,39 +346,44 @@ public class PartManager : MonoBehaviour
 
 	public bool IsDimorphic()
 	{
-		if ((MaleParts == null || MaleParts.Count == 0))
+		if (MaleParts == null || MaleParts.Count == 0)
 			return false;
 		if (FemaleParts == null || FemaleParts.Count == 0)
 			return false;
 		return true;
 	}
 
-	void ShowWarning(Label label)
+	void ShowWarning(Button label)
 	{
 		label.SetEnabled(true);
+
 		ReproductionMethod method = (ReproductionMethod)RepMethodEnum.value;
 		reproductionTypes RepTyp = (reproductionTypes)RepTypeEnum.value;
+
 		bool A = (!SerializableTypes.Biology.SerializedPartData.IsValidMethodTypePair(RepTyp, method));
 		bool B = (!(IsDimorphic() && RepTyp != reproductionTypes.SingleCell) && DIM.value);
 		bool C = DIM.value && (RepTyp == reproductionTypes.SingleCell);
-		bool D = (FemaleMouthCount <= 0 ||( MaleMouthCount <= 0 && DIM.value));
+		bool D = (FemaleMouthCount <= 0 || (MaleMouthCount <= 0 && DIM.value));
+
 		if (A && !B)
-			label.text = $"Metodo de reproduccion invalido {method} para {RepTyp}";
+			label.tooltip = $"Metodo de reproduccion invalido {method} para {RepTyp}";
 		else if (A && B && (!C))
-			label.text = $"Metodo de reproduccion invalido {method} para {RepTyp} Y falta un Genero";
+			label.tooltip = $"Metodo de reproduccion invalido {method} para {RepTyp} Y falta un Genero";
 		else if (!A && B & (!C))
-			label.text = "falta un Genero";
+			label.tooltip = "falta un Genero";
 		else if (C)
-			label.text = "No puede haber dimorfismo si se reproduce de manera sin pareja";
+			label.tooltip = "No puede haber dimorfismo si se reproduce de manera sin pareja";
 		else if (D)
-			label.text = "le falta boca a un genero";
+			label.tooltip = "le falta boca a un genero";
 		else
-			label.text = "";
-		if (label.text == "")
-			label.SetEnabled( false);
+			label.tooltip = "";
+		label.SetEnabled(label.tooltip == "");
+
+
 		GenToggleButton.SetEnabled(!(C || !DIM.value));
-		Next.SetEnabled(label.text == "");
+		
 	}
+
 	public void OnDestroy()
 	{
 		if (this == PlayerManager.Player)

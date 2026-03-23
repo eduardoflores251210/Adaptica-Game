@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 public class NamedescManager : MonoBehaviour
 {
-    public PhaseManager phaseManager;
+    public CompleteCellEditorUiManger phaseManager;
     public UIDocument Document;
     public string Name;         // Persistencia nombre
     public string Description;  // Persistencia descripción
@@ -13,12 +13,12 @@ public class NamedescManager : MonoBehaviour
     private bool initialized = false;
     private TextField Nam; // campo nombre
     private TextField Desc; // campo descripción
-    private Label Warning; // etiqueta de advertencia
+    //private Label Warning; // etiqueta de advertencia
     private Button Sig;    // botón siguiente
 
     void Update()
     {
-        if (phaseManager.CurrentPhase == EditPhases.NamingAndSaving)
+        if (true)
         {
             if (!initialized)
             {
@@ -28,7 +28,7 @@ public class NamedescManager : MonoBehaviour
 
                 Nam = root.Q<TextField>("Nam");
                 Desc = root.Q<TextField>("Desc");
-                Warning = root.Q<Label>("WARNING");
+                //Warning = root.Q<Label>("WARNING");
                 Sig = root.Q<Button>("Sig");
 
                 // Restaurar texto guardado
@@ -66,12 +66,15 @@ public class NamedescManager : MonoBehaviour
         // Ejemplo simple: advertencia si alguno está vacío
         if (string.IsNullOrWhiteSpace(Name))
         {
-            Warning.text = "Nombre no puede estar vacío.";
-            Sig.SetEnabled(false);
+            //Warning.text = "Nombre no puede estar vacío.";
+            Sig.tooltip = "Nombre no puede estar vacío.";
+
+			Sig.SetEnabled(false);
         }
         else
         {
-            Warning.text = "";
+            //Warning.text = "";
+            Sig.tooltip = "";
             Sig.SetEnabled(true);
         }
     }

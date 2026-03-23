@@ -15,7 +15,7 @@ public class CellSaver : MonoBehaviour
 {
 	public NamedescManager namedescManager;
 	public PartManager partmanager;
-	public PhaseManager phasemanager;
+	public CompleteCellEditorUiManger phasemanager;
 	public SegmentManager segmentmanager;
 
 	/// <summary>
@@ -51,7 +51,7 @@ public class CellSaver : MonoBehaviour
 				Mp.Add(m.GetComponent<PartComp>());
 			}
 		}
-		MicrobeData microbe = SerializeMicrobe(segmentmanager.Segments, Fp, Mp, namedescManager.Name, namedescManager.Description, partmanager.MaleColor, partmanager.FemaleColor, partmanager.IsDimorphic(), phasemanager.Mesh, partmanager.savedRepType, partmanager.savedRepMethod);
+		MicrobeData microbe = SerializeMicrobe(segmentmanager.Segments, Fp, Mp, namedescManager.Name, namedescManager.Description, partmanager.MaleColor, partmanager.FemaleColor, partmanager.IsDimorphic(), phasemanager.Mesh, partmanager.ReproductionType, partmanager.ReproductionMethod);
 		microbe.CenterMicrobe();// centramos la celula antes de guardarla
 								//err Microbio no celula SIEMPRE me confundo de termino
 		string json = JsonUtility.ToJson(microbe, prettyPrint: true);
