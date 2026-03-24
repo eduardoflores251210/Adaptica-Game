@@ -14,6 +14,9 @@ public class Cursor : MonoBehaviour
 	public GizmoManager Mgr;
 	public InputActionAsset inputActions;
 
+	public event Action ClickA;
+	public event Action ClickB;
+
 	private InputAction LClick;
 	private InputAction RClick;
 
@@ -52,11 +55,13 @@ void OnDisable()
 		{
 			Mgr.objetoActivo = null;
 		}
+		ClickA?.Invoke();
 	}
 
 	void OnClickB()
 	{
 		// vacio temproalmente
+		ClickB?.Invoke();
 	}
 
 	GameObject RaycastClick(Boolean IsLClick)

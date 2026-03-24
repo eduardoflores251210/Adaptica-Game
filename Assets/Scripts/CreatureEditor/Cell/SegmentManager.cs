@@ -72,6 +72,7 @@ public class SegmentManager : MonoBehaviour
     private void RemoveSegment()
     {
         Segments.Remove(Selected);
+        if (Selected != null) 
         Destroy(Selected.gameObject);
     }
 

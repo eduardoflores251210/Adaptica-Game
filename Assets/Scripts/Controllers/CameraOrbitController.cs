@@ -190,6 +190,14 @@ public class CameraOrbitController : MonoBehaviour
             {
                 Eñe.enabled = false;
             }
+            if (Cursor.TryGetComponent<CursorClicker>(out var Eñee))
+            {
+                Eñee.enabled = false;
+            }
+            if (Cursor.TryGetComponent<CursorPositioner>(out var Eñeee))
+            {
+                Eñeee.enabled = false;
+            }
         }
         Image img = null;
         if (Cursor != null) {
@@ -197,8 +205,15 @@ public class CameraOrbitController : MonoBehaviour
             {
                 img.enabled = !usandoMouse;
             }
-
-        }
+			if (Cursor.TryGetComponent<CursorClicker>(out var Eñee))
+			{
+				Eñee.enabled = !usandoMouse;
+			}
+			if (Cursor.TryGetComponent<CursorPositioner>(out var Eñeee))
+			{
+				Eñeee.enabled = !usandoMouse;
+			}
+		}
 		// Cámara orbitando
 		Quaternion rotationQuat = Quaternion.Euler(rotation.y, rotation.x, 0);
         Vector3 direction = rotationQuat * Vector3.back * currentZoom;

@@ -1,6 +1,6 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <engine:VisualElement style="flex-grow: 1; flex-direction: row; width: auto; height: auto; justify-content: space-between; flex-shrink: 0;">
-        <engine:Foldout text="#l" style="flex-grow: 0; flex-shrink: 0; height: 100%; background-color: rgb(46, 92, 123);">
+        <engine:Foldout text="#l" name="FOLDA" style="flex-grow: 0; flex-shrink: 0; height: 100%; background-color: rgb(46, 92, 123); right: 0;">
             <engine:ScrollView style="background-color: rgb(128, 128, 128); height: 100%; align-self: flex-start; flex-grow: 1; flex-shrink: 0;">
                 <engine:TabView name="BP">
                     <engine:Tab label="Cuerpo" name="BOD">
@@ -19,7 +19,7 @@
                 </engine:TabView>
             </engine:ScrollView>
         </engine:Foldout>
-        <engine:Foldout text="#r" style="background-color: rgb(180, 89, 89);">
+        <engine:Foldout text="#r" name="FOLDB" style="background-color: rgb(180, 89, 89); left: 0;">
             <engine:ScrollView style="background-color: rgb(128, 128, 128); height: 100%; align-self: flex-end; justify-content: flex-start; flex-shrink: 0;">
                 <engine:TabView name="PB">
                     <engine:Tab label="Pintura" name="pin">
@@ -58,7 +58,7 @@
         <engine:TextField label="#des" placeholder-text="filler text" name="Desc" style="flex-direction: column;" />
         <engine:Button name="dadso" style="position: absolute; right: 0; background-image: url(&quot;project://database/Assets/UIS/ghhgfhgfhgffgh.png?fileID=21300000&amp;guid=753ad664af5aedc40892dfc5faf2fb49&amp;type=3#ghhgfhgfhgffgh&quot;);" />
     </engine:VisualElement>
+    <engine:Button name="BDPT" style="position: absolute; left: 36%; top: 0; bottom: auto; background-image: url(&quot;project://database/Assets/Textures/CIRCULO.png?fileID=2800000&amp;guid=39185288d1e258842aff2b02df554b2b&amp;type=3#CIRCULO&quot;); width: 5%; height: 8%;" />
     <engine:Button style="position: absolute; left: 46%; top: 0; bottom: auto; background-image: url(&quot;project://database/Assets/Textures/CIRCULO.png?fileID=2800000&amp;guid=39185288d1e258842aff2b02df554b2b&amp;type=3#CIRCULO&quot;); width: 4%; height: 7%;" />
-    <engine:Button style="position: absolute; left: auto; top: 0; bottom: auto; background-image: url(&quot;project://database/Assets/Textures/CIRCULO.png?fileID=2800000&amp;guid=39185288d1e258842aff2b02df554b2b&amp;type=3#CIRCULO&quot;); width: 5%; height: 8%; right: 40%;" />
-    <engine:Button style="position: absolute; left: 36%; top: 0; bottom: auto; background-image: url(&quot;project://database/Assets/Textures/CIRCULO.png?fileID=2800000&amp;guid=39185288d1e258842aff2b02df554b2b&amp;type=3#CIRCULO&quot;); width: 5%; height: 8%;" />
+    <engine:Button name="PTBH" style="position: absolute; left: auto; top: 0; bottom: auto; background-image: url(&quot;project://database/Assets/Textures/CIRCULO.png?fileID=2800000&amp;guid=39185288d1e258842aff2b02df554b2b&amp;type=3#CIRCULO&quot;); width: 5%; height: 8%; right: 40%;" />
 </engine:UXML>
