@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
+using StandartUtilities.Extentions;
 
 public class ObjectPlacer : MonoBehaviour
 {
@@ -29,6 +30,7 @@ public class ObjectPlacer : MonoBehaviour
 
 	// internals
 	private GameObject pressStartedOver = null;
+	[SerializeField]
 	private bool pressCanCount = false;
 	private bool listVisible = false;
 	private bool lastCantMove = false;
@@ -63,10 +65,14 @@ public class ObjectPlacer : MonoBehaviour
 	void OnApplicationFocus(bool hasFocus) { if (!hasFocus) CancelCurrentPress(); }
 	void OnApplicationPause(bool paused) { if (paused) CancelCurrentPress(); }
 
+	[SerializeField]
+	bool AP = false;
 	// ------------------------------------------------------------------
 	void Update()
 	{
+		
 		EnsureActionsEnabled();
+		AP = ClickAction.IsPressed();
 
 		// Si CantMove cambió, limpia estados
 		if (CantMove != lastCantMove)
@@ -95,6 +101,10 @@ public class ObjectPlacer : MonoBehaviour
 
 		// ignora inicios de press sobre UI
 		bool pointerOverUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+		if (pointerOverUI)
+		{
+			
+		}
 
 		// Cuando empieza la pulsación: marcas dónde empezó
 		if (ClickAction.WasPressedThisFrame())
@@ -324,7 +334,7 @@ public class ObjectPlacer : MonoBehaviour
 						shouldBeActive ? i3DElement.offsetPos : Vector3.zero,
 						shouldBeActive ? Quaternion.Euler(i3DElement.offsetRot) : Quaternion.identity
 					);
-					obj.transform.localScale = shouldBeActive ? i3DElement.offsetSiz : Vector3.one;
+					obj.transform.localScale = shouldBeActive ? i3DElement.offsetSiz.Divide3d( obj.transform.parent.localScale) : Vector3.one;
 				}
 			}
 		}

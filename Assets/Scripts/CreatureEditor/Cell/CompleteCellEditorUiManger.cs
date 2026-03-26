@@ -2,13 +2,14 @@ using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
-
+[Icon("Assets/Textures/CIRCULO 1.png")]
 public class CompleteCellEditorUiManger : MonoBehaviour
 {
 	public UIDocument iDocument; 
 	public CurrentCategory currentCat;
 	public bool PanelBEnabled = true;
 	public bool PanelAEnabled = true;
+	public bool PanelCEnabled = true;
 
 	public MetaballManager metaball;
 	public CellSaver saver;
@@ -19,6 +20,8 @@ public class CompleteCellEditorUiManger : MonoBehaviour
 	private Button Body;
 	Foldout FoldA;
 	Foldout FoldB;
+	Button NameButton;
+	VisualElement BGNAME;
 	public bool MoveNOW = false;
 	public void Start()
 	{
@@ -29,41 +32,57 @@ public class CompleteCellEditorUiManger : MonoBehaviour
 		Body = root.Q<Button>("BDPT");
 		FoldA = root.Q<Foldout>("FOLDA");
 		FoldB = root.Q<Foldout>("FOLDB");
+		NameButton = root.Q<Button>("ButtonName");
+		BGNAME = root.Q("up");
 		if (Paint == null)
 		{
 			Debug.Log("button PTHB missing ");
-		}else
+		} else
 		{
-			Paint.clicked += delegate 
-			{ 
-				PanelBEnabled = !PanelBEnabled; 
+			Paint.clicked += delegate
+			{
+				PanelBEnabled = !PanelBEnabled;
 				if (PanelBEnabled)
 				{
 					PanelAEnabled = !PanelBEnabled;
-					MoveNOW = true;
 				}
+				MoveNOW = true;
+
 			};
 		}
-		if (Body  == null)
+		if (Body == null)
 		{
 			Debug.Log("button BDPT missing");
 		}
 		else
 		{
-			Body.clicked += delegate 
+			Body.clicked += delegate
 			{
 				PanelAEnabled = !PanelAEnabled;
 				if (PanelAEnabled)
 				{
 					PanelBEnabled = !PanelAEnabled;
-					MoveNOW = true;
 				}
+				MoveNOW = true;
+
 			};
 		}
 
+		if (NameButton == null)
+		{
+			Debug.Log("ButtonName is null");
+		} 
+		else
+		{
+			NameButton.clicked += delegate
+			{
+				PanelCEnabled = !PanelCEnabled;
+				MoveNOW = true;;
+			};
 
+		}
 	}
-	private void Save()
+	internal void Save()
 	{
 		saver.Save();
 	}
@@ -89,7 +108,8 @@ public class CompleteCellEditorUiManger : MonoBehaviour
 					aCat |= CurrentCategory.Parts;
 					metaball.enabled = false;
 				}
-				Debug.Log("pb "+ PartsAndBody.activeTab.name.ToString());
+				
+				//Debug.Log("pb "+ PartsAndBody.activeTab.name.ToString());
 				NewCat |= aCat;
 			}
 		}
@@ -113,20 +133,31 @@ public class CompleteCellEditorUiManger : MonoBehaviour
 
 				}
 				NewCat |= bCat;
-				Debug.Log( "ph " + PaintAndBehabiour.activeTab.name.ToString());
+				//Debug.Log( "ph " + PaintAndBehabiour.activeTab.name.ToString());
 
 			}
 		}
+		if (PanelCEnabled)
+		{
+			NewCat |= CurrentCategory.Naming;
+		}
 		currentCat= NewCat;
-
+		if (currentCat == CurrentCategory.None || currentCat == CurrentCategory.Naming)//si es Nada o solo naming se desactiva
+		{
+			metaball.enabled = false;
+		}
 
 		if (MoveNOW)
 		{
 			float percentA = PanelAEnabled ? 0f : 100f;  // se va a la derecha
 			float percentB = PanelBEnabled ? 0f : 100f;  // se va a la izquierda
+			float percentC = PanelCEnabled ? 0f : 35f;
+			float percentCInv = PanelCEnabled ? -35f : 0f;
 
 			FoldA.style.left = Length.Percent(percentA);
 			FoldB.style.left = Length.Percent(-percentB);
+			NameButton.style.bottom = Length.Percent(percentC);
+			BGNAME.style.bottom = Length.Percent(percentCInv);
 			MoveNOW = false;	
 		}
 	}

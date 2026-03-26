@@ -9,7 +9,7 @@ public class NamedescManager : MonoBehaviour
     public UIDocument Document;
     public string Name;         // Persistencia nombre
     public string Description;  // Persistencia descripción
-
+    public bool ISVALID = false;
     private bool initialized = false;
     private TextField Nam; // campo nombre
     private TextField Desc; // campo descripción
@@ -61,27 +61,35 @@ public class NamedescManager : MonoBehaviour
         }
     }
 
-    void ValidateInput()
+    public string ValidateInput()
     {
+        string add = "";
         // Ejemplo simple: advertencia si alguno está vacío
         if (string.IsNullOrWhiteSpace(Name))
         {
+            add = "Nombre no puede estar vacío.";
             //Warning.text = "Nombre no puede estar vacío.";
-            Sig.tooltip = "Nombre no puede estar vacío.";
+            if (Sig == null)
+                return add;
+            if (Sig.tooltip == null)
+                Sig.tooltip = "";
+			Sig.tooltip += add;
 
-			Sig.SetEnabled(false);
+            ISVALID = false;
         }
         else
         {
             //Warning.text = "";
-            Sig.tooltip = "";
-            Sig.SetEnabled(true);
+            Sig.tooltip += "";
+            ISVALID = true;
         }
+        return add;
     }
 
     void OnNextClicked()
     {
         // Aquí podrías avanzar a la siguiente fase
-        Debug.Log($"Siguiente con nombre: {Name} y descripción: {Description}");
+        Debug.Log($"Guardar con nombre: {Name} y descripción: {Description}");
+        phaseManager.Save();
     }
 }

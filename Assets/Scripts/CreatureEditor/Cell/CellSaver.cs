@@ -10,7 +10,8 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-																																												
+
+[Icon("Assets/Textures/UI/Editor/SaveMicrobeICON.png")]
 public class CellSaver : MonoBehaviour
 {
 	public NamedescManager namedescManager;

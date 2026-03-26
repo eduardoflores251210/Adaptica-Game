@@ -7,8 +7,11 @@ using UnityEngine.InputSystem.Utilities;
 using UnityEngine.UI;
 
 /// <summary>
-/// 
+/// El script que se usa mas es 
+/// una camara en orbita
+/// y a veces la entrada a los dispositivos
 /// </summary>
+[Icon("Assets/Textures/UI/Editor/CamOrbICON.png")]
 public class CameraOrbitController : MonoBehaviour
 {
     [Header("Referencias")]

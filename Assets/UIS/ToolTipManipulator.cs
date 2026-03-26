@@ -5,6 +5,7 @@ public class ToolTipManipulator : Manipulator
 {
 
 	private VisualElement element;
+	private Label label;
 	private const float Padding = 8f;
 	private const float Gap = 6f;
 
@@ -30,7 +31,7 @@ public class ToolTipManipulator : Manipulator
 			element.style.visibility = Visibility.Hidden;
 			element.pickingMode = PickingMode.Ignore;
 
-			var label = new Label(target.tooltip);
+			label = new Label(target.tooltip);
 			label.style.color = Color.white;
 			element.Add(label);
 
@@ -45,6 +46,7 @@ public class ToolTipManipulator : Manipulator
 		}
 
 		element.style.visibility = Visibility.Visible;
+		label.text = target.tooltip;
 		UpdateTooltipPosition();
 		element.BringToFront();
 	}

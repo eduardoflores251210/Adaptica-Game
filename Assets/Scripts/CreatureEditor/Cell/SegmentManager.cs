@@ -93,6 +93,7 @@ public class SegmentManager : MonoBehaviour
     private void AddSegment()
     {
         var f= Instantiate(MetaballPrefab);
+        
         Segments.Add(f.GetComponent<Metaball>());
     }
     Metaball OldSelected;

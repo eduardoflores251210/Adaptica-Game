@@ -83,17 +83,20 @@ public class PartManager : MonoBehaviour
 
 	void Update()
 	{
-		if ((PhaseManager.currentCat & CurrentCategory.Body) == CurrentCategory.Body)
-		{
-			CreatureRenderer.material = BodyEditMat;
-			return;
-		}
-
 		if (!inited)
 		{
 			TryInitUI();
 			return;
 		}
+		if ((PhaseManager.currentCat & CurrentCategory.Body) == CurrentCategory.Body)
+		{
+			CreatureRenderer.material = BodyEditMat;
+			if (inited)
+			ShowWarning(Next);
+			return;
+		}
+
+
 
 		ShowWarning(Next);
 
@@ -149,34 +152,7 @@ public class PartManager : MonoBehaviour
 			UpdateGenderButtonState();
 		});
 
-		radio.RegisterValueChangedCallback(evt =>
-		{
-			if (gizmoManager.objetoActivo != null)
-			{
-				var obj = gizmoManager.objetoActivo.gameObject;
-				if (obj.TryGetComponent<PartComp>(out _) && obj.TryGetComponent<GizSelectable>(out var gg))
-				{
-					switch (evt.newValue)
-					{
-						case 0:
-							gg.IsMovable = true;
-							gg.IsRotatable = false;
-							gg.IsScalable = false;
-							break;
-						case 1:
-							gg.IsRotatable = true;
-							gg.IsMovable = false;
-							gg.IsScalable = false;
-							break;
-						case 2:
-							gg.IsScalable = true;
-							gg.IsMovable = false;
-							gg.IsRotatable = false;
-							break;
-					}
-				}
-			}
-		});
+
 
 		UpdateGenderButtonSprite();
 		UpdateGenderButtonState();
@@ -305,7 +281,7 @@ public class PartManager : MonoBehaviour
 			return;
 
 		var Part = Instantiate(PartData.prefab);
-		var gz = Part.AddComponent<GizSelectable>();
+		var gz = Part.AddComponent<SnapOffset>();
 
 		if (PartData is BiologicalPart biol)
 		{
@@ -322,9 +298,8 @@ public class PartManager : MonoBehaviour
 				}
 			}
 		}
+		
 
-		gz.IsMovable = true;
-		gz.IsRotatable = true;
 
 		if (ActiveGen == GéneroBiológico.Female || ActiveGen == GéneroBiológico.None)
 		{
@@ -377,6 +352,8 @@ public class PartManager : MonoBehaviour
 			label.tooltip = "le falta boca a un genero";
 		else
 			label.tooltip = "";
+
+		PhaseManager.saver.namedescManager.ValidateInput();
 		label.SetEnabled(label.tooltip == "");
 
 

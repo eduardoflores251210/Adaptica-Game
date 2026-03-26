@@ -29,15 +29,16 @@ public class Cursor : MonoBehaviour
 		la_camara = Camera.main;
 	}
 
- void OnEnable()
-	{		inputActions.FindActionMap("Cursor", true).Enable();
+	void OnEnable()
+	{
+		inputActions.FindActionMap("Cursor", true).Enable();
 		LClick = inputActions.FindAction("Click A");
 		RClick = inputActions.FindAction("Click B");
 		LClick.performed += ctx => { OnClickA(); };
 		RClick.performed += ctx => { OnClickB(); };
 	}
 
-void OnDisable()
+	void OnDisable()
 	{
 
 		inputActions.FindActionMap("Cursor", true).Disable();
@@ -47,11 +48,12 @@ void OnDisable()
 	{
 		if (Mgr == null) { return; }
 		GameObject clickedObject = RaycastClick(true);
-
+		
 		if (clickedObject != null && Mgr != null)
 		{
 			Mgr.objetoActivo = clickedObject.transform;
-		} else if (clickedObject == null)
+		}
+		else if (clickedObject == null)
 		{
 			Mgr.objetoActivo = null;
 		}
@@ -71,8 +73,8 @@ void OnDisable()
 
 		// Crear un rayo desde la cámara usando esa posición
 		Ray ray = la_camara.ScreenPointToRay(sdfsdfsdfsdf);
-		
-		
+
+
 		if (IsLClick)
 		{
 			if (Mgr == null) return null;
@@ -88,7 +90,7 @@ void OnDisable()
 				return hitInfo.collider.gameObject;
 			}
 
-			
+
 		}
 
 		return null;
@@ -97,6 +99,6 @@ void OnDisable()
 
 
 
-   
+
 
 }
