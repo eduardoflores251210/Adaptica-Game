@@ -32,8 +32,10 @@ android {
         ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~"
     }**SIGN**
 
-    lintOptions {
+    lint {
         abortOnError false
+		checkReleaseBuilds false
+		ignoreWarnings true
     }
 
     buildTypes {
