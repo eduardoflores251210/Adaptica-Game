@@ -88,6 +88,7 @@ public class CompleteCellEditorUiManger : MonoBehaviour
 	}
 	private void Update()
 	{
+		Mesh = metaball.mesh;
 		CurrentCategory NewCat = CurrentCategory.None;
 		if (PartsAndBody != null)
 		{
@@ -170,6 +171,7 @@ public enum CurrentCategory
 	None = 0,
 	Body = 1,
 	Parts =2,
+	
 	Paint  = 4,
 	Behabiour =8, 
 	Naming     =16

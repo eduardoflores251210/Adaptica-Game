@@ -4,8 +4,8 @@
             <engine:ScrollView style="background-color: rgb(128, 128, 128); height: 100%; align-self: flex-start; flex-grow: 1; flex-shrink: 0;">
                 <engine:TabView name="BP">
                     <engine:Tab label="Cuerpo" name="BOD">
-                        <engine:Button text="AdSegment" name="Crr" />
-                        <engine:Button text="Delete selected" name="Brr" />
+                        <engine:Button text="#AdSegment" name="Crr" />
+                        <engine:Button text="#Delete selected" name="Brr" />
                         <engine:Label text="SegmentRadii" name="RegR" />
                         <engine:Slider value="42" high-value="6" name="rad" />
                     </engine:Tab>
@@ -22,17 +22,17 @@
         <engine:Foldout text="#r" name="FOLDB" style="background-color: rgb(180, 89, 89); left: 0;">
             <engine:ScrollView style="background-color: rgb(128, 128, 128); height: 100%; align-self: flex-end; justify-content: flex-start; flex-shrink: 0;">
                 <engine:TabView name="PB">
-                    <engine:Tab label="Pintura" name="pin">
-                        <engine:Label text="Tono" />
+                    <engine:Tab label="#Pintura" name="pin">
+                        <engine:Label text="#Tono" />
                         <engine:SliderInt value="42" high-value="255" name="H" />
-                        <engine:Label text="Saturación" />
+                        <engine:Label text="#Saturación" />
                         <engine:SliderInt value="197" high-value="255" name="S" />
                         <engine:Label text="Valor" />
                         <engine:SliderInt value="110" high-value="255" name="V" />
-                        <engine:Button text="Previsualización" name="Prev" style="background-color: rgb(255, 255, 255);" />
+                        <engine:Button text="#Previsualización" name="Prev" style="background-color: rgb(255, 255, 255);" />
                         <engine:Button text="Aplicar" name="ApplyPaint" selectable="true" />
                     </engine:Tab>
-                    <engine:Tab label="Comportamiento" name="Beh">
+                    <engine:Tab label="Comportamiento" name="Beh" focusable="false">
                         <engine:Label text="Reproduccion" />
                         <engine:Label text="&#x9;Tipo" />
                         <engine:EnumField type="SerializableTypes.Biology.reproductionTypes, Assembly-CSharp" name="MTD" />

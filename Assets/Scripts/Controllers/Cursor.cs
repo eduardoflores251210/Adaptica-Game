@@ -46,16 +46,19 @@ public class Cursor : MonoBehaviour
 
 	void OnClickA()
 	{
-		if (Mgr == null) { return; }
-		GameObject clickedObject = RaycastClick(true);
-		
-		if (clickedObject != null && Mgr != null)
+		if (Mgr == null) { }
+		else
 		{
-			Mgr.objetoActivo = clickedObject.transform;
-		}
-		else if (clickedObject == null)
-		{
-			Mgr.objetoActivo = null;
+			GameObject clickedObject = RaycastClick(true);
+
+			if (clickedObject != null && Mgr != null)
+			{
+				Mgr.objetoActivo = clickedObject.transform;
+			}
+			else if (clickedObject == null)
+			{
+				Mgr.objetoActivo = null;
+			}
 		}
 		ClickA?.Invoke();
 	}
@@ -92,6 +95,30 @@ public class Cursor : MonoBehaviour
 
 
 		}
+
+		return null;
+	}
+	public GameObject GetObjInCursor()
+	{
+		// Obtener la posición en Mundo del cursor UI
+		Vector2 sdfsdfsdfsdf = ((RectTransform)transform).position;
+
+		// Crear un rayo desde la cámara usando esa posición
+		Ray ray = la_camara.ScreenPointToRay(sdfsdfsdfsdf);
+
+
+
+
+
+		// Ejecutar raycast 3D
+		if (Physics.Raycast(ray, out RaycastHit hitInfo))
+		{
+
+			return hitInfo.collider.gameObject;
+		}
+
+
+
 
 		return null;
 	}

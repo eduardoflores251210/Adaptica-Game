@@ -23,7 +23,8 @@ MonoBehaviour:
   m_StringDatabase:
     rid: 1206876135016366449
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 609069605791989760
   m_ProjectLocaleIdentifier:
     m_Code: es-MX
   m_PreloadBehavior: 1
@@ -33,6 +34,18 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 609069605791989760
+      type: {class: AppInfo, ns: UnityEngine.Localization.Platform.Android, asm: Unity.Localization}
+      data:
+        m_DisplayName:
+          m_TableReference:
+            m_TableCollectionName: GUID:7249be8fa53451c4e9505c65064e0bf6
+          m_TableEntryReference:
+            m_KeyId: 107086853435392
+            m_Key: 
+          m_FallbackState: 0
+          m_WaitForCompletion: 0
+          m_LocalVariables: []
     - rid: 1206876135016366444
       type: {class: CommandLineLocaleSelector, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
       data:

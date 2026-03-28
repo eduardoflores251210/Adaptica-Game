@@ -1530,6 +1530,7 @@ GameObject:
   - component: {fileID: 929951249}
   - component: {fileID: 929951248}
   - component: {fileID: 929951250}
+  - component: {fileID: 929951251}
   m_Layer: 5
   m_Name: NUI
   m_TagString: Untagged
@@ -1589,6 +1590,21 @@ MonoBehaviour:
   saver: {fileID: 963194231}
   Mesh: {fileID: 0}
   MoveNOW: 1
+--- !u!114 &929951251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 929951247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b6c37dc4bae8f945947e40378e85b25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  table:
+    m_TableReference:
+      m_TableCollectionName: GUID:7249be8fa53451c4e9505c65064e0bf6
 --- !u!1 &938797820
 GameObject:
   m_ObjectHideFlags: 0
@@ -1720,6 +1736,7 @@ GameObject:
   - component: {fileID: 963194231}
   - component: {fileID: 963194232}
   - component: {fileID: 963194233}
+  - component: {fileID: 963194234}
   m_Layer: 0
   m_Name: Main Camera CS
   m_TagString: MainCamera
@@ -1915,6 +1932,20 @@ MonoBehaviour:
   pressTime: 0
   pressCanCount: 0
   AP: 0
+--- !u!114 &963194234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b8a65691682eca439462ac18bfebed5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cursor: {fileID: 8597960605041524080}
+  CameraCtrl: {fileID: 963194230}
 --- !u!1001 &966751854
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3517,6 +3548,7 @@ MonoBehaviour:
   Document: {fileID: 929951248}
   Name: 
   Description: 
+  ISVALID: 0
 --- !u!64 &1771608712
 MeshCollider:
   m_ObjectHideFlags: 0

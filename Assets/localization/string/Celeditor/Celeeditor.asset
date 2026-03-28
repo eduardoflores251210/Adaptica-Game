@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5be51871efa6c3e4eae1703925c8f5ac, type: 3}
+  m_Name: Celeeditor
+  m_EditorClassIdentifier: 
+  m_SharedTableData: {fileID: 11400000, guid: 7249be8fa53451c4e9505c65064e0bf6, type: 2}
+  m_Tables:
+  - {fileID: 11400000, guid: d3df6fde0290fce419eada806041fcee, type: 2}
+  - {fileID: 11400000, guid: e7af642307ce82941919536f495505ae, type: 2}
+  - {fileID: 11400000, guid: 1e2d53df52b9bfe488dab4d9b3eaf0bf, type: 2}
+  - {fileID: 11400000, guid: d762d25e21026d8458bef8296f7ef075, type: 2}
+  - {fileID: 11400000, guid: 61a934a503d40c342b9ac73bdf37dc46, type: 2}
+  - {fileID: 11400000, guid: a70c77b0f945fd6428d0f358c6515c78, type: 2}
+  - {fileID: 11400000, guid: 8bb11a92951e6eb438800a16c96e6805, type: 2}
+  - {fileID: 11400000, guid: 838d3cbd5707be54c9dc6d6c2d2de22a, type: 2}
+  - {fileID: 11400000, guid: d4dcf50c684bd9d40ba4c7e150d0491b, type: 2}
+  m_Extensions: []
+  m_Group: String Table
+  references:
+    version: 2
+    RefIds: []
