@@ -1,0 +1,64 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:VisualElement picking-mode="Ignore" style="flex-grow: 1; flex-direction: row; width: auto; height: auto; justify-content: space-between; flex-shrink: 0;">
+        <engine:Foldout text="#l" name="FOLDA" style="flex-grow: 0; flex-shrink: 0; height: 100%; background-color: rgb(46, 92, 123); right: 0;">
+            <engine:ScrollView style="background-color: rgb(128, 128, 128); height: 100%; align-self: flex-start; flex-grow: 1; flex-shrink: 0;">
+                <engine:TabView name="BP">
+                    <engine:Tab label="Cuerpo" name="BOD">
+                        <engine:Button text="#AdSegment" name="Crr" />
+                        <engine:Button text="#Delete selected" name="Brr" />
+                        <engine:Label text="SegmentRadii" name="RegR" />
+                        <engine:Slider value="42" high-value="6" name="rad" />
+                    </engine:Tab>
+                    <engine:Tab label="Partes" name="Part">
+                        <engine:TabView>
+                            <engine:Tab label="#e" name="Eyes" />
+                            <engine:Tab label="#m" name="Mouths" />
+                            <engine:Tab label="#w" name="Weapons" />
+                        </engine:TabView>
+                    </engine:Tab>
+                </engine:TabView>
+            </engine:ScrollView>
+        </engine:Foldout>
+        <engine:Foldout text="#r" name="FOLDB" style="background-color: rgb(180, 89, 89); left: 0;">
+            <engine:ScrollView style="background-color: rgb(128, 128, 128); height: 100%; align-self: flex-end; justify-content: flex-start; flex-shrink: 0;">
+                <engine:TabView name="PB">
+                    <engine:Tab label="#Pintura" name="pin">
+                        <engine:Label text="#Tono" />
+                        <engine:SliderInt value="42" high-value="255" name="H" />
+                        <engine:Label text="#Saturación" />
+                        <engine:SliderInt value="197" high-value="255" name="S" />
+                        <engine:Label text="Valor" />
+                        <engine:SliderInt value="110" high-value="255" name="V" />
+                        <engine:Button text="#Previsualización" name="Prev" style="background-color: rgb(255, 255, 255);" />
+                        <engine:Button text="Aplicar" name="ApplyPaint" selectable="true" />
+                    </engine:Tab>
+                    <engine:Tab label="Comportamiento" name="Beh" focusable="false">
+                        <engine:Label text="Reproduccion" />
+                        <engine:Label text="&#x9;Tipo" />
+                        <engine:EnumField type="SerializableTypes.Biology.reproductionTypes, Assembly-CSharp" name="MTD" />
+                        <engine:Label text="&#x9;Metodo" />
+                        <engine:EnumField type="UnityEngine.TextAlignment, UnityEngine.TextRenderingModule" include-obsolete-values="false" name="ASE" />
+                        <engine:Toggle label="Hay Dimorfismo?" name="DIM" />
+                        <engine:Button name="SRX" />
+                    </engine:Tab>
+                </engine:TabView>
+            </engine:ScrollView>
+        </engine:Foldout>
+    </engine:VisualElement>
+    <engine:VisualElement style="flex-grow: 0; height: 7%; flex-direction: row; align-items: auto; align-self: auto; justify-content: space-between; -unity-text-outline-color: rgba(0, 188, 255, 0.94); background-color: rgb(53, 139, 229);">
+        <engine:Button enable-rich-text="false" emoji-fallback-support="false" select-word-by-double-click="false" style="align-self: flex-start; background-image: url(&quot;project://database/Assets/UIS/GEARS%20fsdihusdfhuisdfuihfsd0001.png?fileID=21300000&amp;guid=e468ecad4c6e5f845ba57e7012d9bc91&amp;type=3#GEARS fsdihusdfhuisdfuihfsd0001&quot;); flex-grow: 0; -unity-background-scale-mode: scale-to-fit; flex-basis: auto; height: 90%;" />
+        <engine:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: flex-end;">
+            <engine:Button enable-rich-text="false" emoji-fallback-support="false" name="Exit" style="align-self: flex-end; justify-content: flex-end; align-items: center; background-image: url(&quot;project://database/Assets/UIS/---esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs.png?fileID=21300000&amp;guid=ca932e011acd5c34ab8e3df9c4818680&amp;type=3#---esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs&quot;);" />
+            <engine:Button tooltip="Tool" name="Sig" style="background-image: url(&quot;project://database/Assets/UIS/esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs.png?fileID=21300000&amp;guid=285cbd1f0d868be46b77dfb66ad0cfd3&amp;type=3#esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs&quot;);" />
+        </engine:VisualElement>
+    </engine:VisualElement>
+    <engine:Button text="Button" name="ButtonName" style="position: absolute; top: auto; bottom: 0; left: 40%; right: auto; width: 17%;" />
+    <engine:VisualElement name="up" style="flex-grow: 1; position: absolute; left: 33%; background-color: rgb(212, 212, 212); bottom: -35%; height: 35%; width: 30%;">
+        <engine:TextField label="#name" placeholder-text="filler text" hide-mobile-input="false" multiline="false" name="Nam" style="flex-direction: column;" />
+        <engine:TextField label="#des" placeholder-text="filler text" name="Desc" style="flex-direction: column;" />
+        <engine:Button name="dadso" style="position: absolute; right: 0; background-image: url(&quot;project://database/Assets/UIS/ghhgfhgfhgffgh.png?fileID=21300000&amp;guid=753ad664af5aedc40892dfc5faf2fb49&amp;type=3#ghhgfhgfhgffgh&quot;);" />
+    </engine:VisualElement>
+    <engine:Button name="BDPT" style="position: absolute; left: 36%; top: 0; bottom: auto; background-image: url(&quot;project://database/Assets/Textures/CIRCULO.png?fileID=2800000&amp;guid=39185288d1e258842aff2b02df554b2b&amp;type=3#CIRCULO&quot;); width: 5%; height: 8%;" />
+    <engine:Button name="TestMODE" style="position: absolute; left: 46%; top: 0; bottom: auto; background-image: url(&quot;project://database/Assets/Textures/CIRCULO.png?fileID=2800000&amp;guid=39185288d1e258842aff2b02df554b2b&amp;type=3#CIRCULO&quot;); width: 4%; height: 7%;" />
+    <engine:Button name="PTBH" style="position: absolute; left: auto; top: 0; bottom: auto; background-image: url(&quot;project://database/Assets/Textures/CIRCULO.png?fileID=2800000&amp;guid=39185288d1e258842aff2b02df554b2b&amp;type=3#CIRCULO&quot;); width: 5%; height: 8%; right: 40%;" />
+</engine:UXML>

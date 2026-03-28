@@ -1219,6 +1219,7 @@ MonoBehaviour:
   CursorSpeed: 10
   usandoMouse: 0
   DisableCursor: 0
+  showCursorAviway: 0
   inputActions: {fileID: -944628639613478452, guid: c4765c325f0af464799a1a764737ea39, type: 3}
   currentZoom: 10
 --- !u!114 &2019509539
@@ -1240,7 +1241,7 @@ MonoBehaviour:
   CantMove: 0
   inputActions: {fileID: -944628639613478452, guid: c4765c325f0af464799a1a764737ea39, type: 3}
   selectedObject: {fileID: 0}
-  Creature: {fileID: 8749178920301296177}
+  Creature: {fileID: 1378887520}
   isMoving: 0
   objectList:
   - {fileID: 1670135599}

@@ -84,6 +84,7 @@ public class PhaseManager : MonoBehaviour
         saver.Save();
     }
 }
+[Obsolete]
 public enum EditPhases
 {
     BodyEdit,

@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Celeeditor_en
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 7249be8fa53451c4e9505c65064e0bf6, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 116699951104
+    m_Localized: ' '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 60139761664
+    m_Localized: ' '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357352337408
+    m_Localized: delete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 826137112576
+    m_Localized: Eyes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 922006319104
+    m_Localized: Mouths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 966071676928
+    m_Localized: Weapons
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1031804809216
+    m_Localized: Preview
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1201598623744
+    m_Localized: name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1270410375168
+    m_Localized: description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1611226935296
+    m_Localized: Add segment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1958607581184
+    m_Localized: Paint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2015532675072
+    m_Localized: Behabiour
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2227554742272
+    m_Localized: Hue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2268793139200
+    m_Localized: Saturaction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107086853435392
+    m_Localized: Adaptica
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

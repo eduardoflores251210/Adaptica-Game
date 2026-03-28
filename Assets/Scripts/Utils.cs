@@ -15,14 +15,15 @@ using System.Security.Cryptography;
 using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 using Mesh = StandartUtilities.StdUtils.Serializable.Mesh; //ignorar este remanete 
 using Random = UnityEngine.Random;
 using Transform = StandartUtilities.StdUtils.Serializable.Transform; //basicamente son 3 vector 3 Pos Rot y Scale
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 using Vector4 = UnityEngine.Vector4;
-using UnityEngine.AddressableAssets;
 
 
 public static class SpaceUtils
@@ -133,7 +134,23 @@ public static class SpaceUtils
 		}
 
 	}
+	public static void AddTooltipManipulators(UIDocument uiDocument)
+	{
+		if (uiDocument == null || uiDocument.rootVisualElement == null)
+			return;
 
+		System.Action<VisualElement> walk = null;
+		walk = (ve) =>
+		{
+			if (!string.IsNullOrEmpty(ve.tooltip))
+				ve.AddManipulator(new ToolTipManipulator());
+
+			foreach (var child in ve.Children())
+				walk(child);
+		};
+
+		walk(uiDocument.rootVisualElement);
+	}
 
 	public static class UnitConversion
 	{

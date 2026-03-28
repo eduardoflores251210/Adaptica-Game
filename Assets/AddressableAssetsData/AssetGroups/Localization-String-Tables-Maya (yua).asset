@@ -29,6 +29,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-yua
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d4dcf50c684bd9d40ba4c7e150d0491b
+    m_Address: Celeeditor_yua
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-yua
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: 05fce118ac6bef54bb05ee692e43fed6, type: 2}
   m_SchemaSet:

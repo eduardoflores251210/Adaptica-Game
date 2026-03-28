@@ -14,6 +14,9 @@ public class Cursor : MonoBehaviour
 	public GizmoManager Mgr;
 	public InputActionAsset inputActions;
 
+	public event Action ClickA;
+	public event Action ClickB;
+
 	private InputAction LClick;
 	private InputAction RClick;
 
@@ -26,15 +29,16 @@ public class Cursor : MonoBehaviour
 		la_camara = Camera.main;
 	}
 
- void OnEnable()
-	{		inputActions.FindActionMap("Cursor", true).Enable();
+	void OnEnable()
+	{
+		inputActions.FindActionMap("Cursor", true).Enable();
 		LClick = inputActions.FindAction("Click A");
 		RClick = inputActions.FindAction("Click B");
 		LClick.performed += ctx => { OnClickA(); };
 		RClick.performed += ctx => { OnClickB(); };
 	}
 
-void OnDisable()
+	void OnDisable()
 	{
 
 		inputActions.FindActionMap("Cursor", true).Disable();
@@ -42,21 +46,27 @@ void OnDisable()
 
 	void OnClickA()
 	{
-		if (Mgr == null) { return; }
-		GameObject clickedObject = RaycastClick(true);
+		if (Mgr == null) { }
+		else
+		{
+			GameObject clickedObject = RaycastClick(true);
 
-		if (clickedObject != null && Mgr != null)
-		{
-			Mgr.objetoActivo = clickedObject.transform;
-		} else if (clickedObject == null)
-		{
-			Mgr.objetoActivo = null;
+			if (clickedObject != null && Mgr != null)
+			{
+				Mgr.objetoActivo = clickedObject.transform;
+			}
+			else if (clickedObject == null)
+			{
+				Mgr.objetoActivo = null;
+			}
 		}
+		ClickA?.Invoke();
 	}
 
 	void OnClickB()
 	{
 		// vacio temproalmente
+		ClickB?.Invoke();
 	}
 
 	GameObject RaycastClick(Boolean IsLClick)
@@ -66,8 +76,8 @@ void OnDisable()
 
 		// Crear un rayo desde la cámara usando esa posición
 		Ray ray = la_camara.ScreenPointToRay(sdfsdfsdfsdf);
-		
-		
+
+
 		if (IsLClick)
 		{
 			if (Mgr == null) return null;
@@ -83,8 +93,32 @@ void OnDisable()
 				return hitInfo.collider.gameObject;
 			}
 
-			
+
 		}
+
+		return null;
+	}
+	public GameObject GetObjInCursor()
+	{
+		// Obtener la posición en Mundo del cursor UI
+		Vector2 sdfsdfsdfsdf = ((RectTransform)transform).position;
+
+		// Crear un rayo desde la cámara usando esa posición
+		Ray ray = la_camara.ScreenPointToRay(sdfsdfsdfsdf);
+
+
+
+
+
+		// Ejecutar raycast 3D
+		if (Physics.Raycast(ray, out RaycastHit hitInfo))
+		{
+
+			return hitInfo.collider.gameObject;
+		}
+
+
+
 
 		return null;
 	}
@@ -92,6 +126,6 @@ void OnDisable()
 
 
 
-   
+
 
 }

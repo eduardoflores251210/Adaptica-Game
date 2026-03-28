@@ -4,22 +4,22 @@ using UnityEngine.UIElements;
 public class ColorPreview : MonoBehaviour
 {
     public UIDocument uiDocument;
-    public string ElementName, RSlider, GSlider, BSlider;
+    public string ElementName, HSlider, SSlider, VSlider;
     private void Update()
     {
         var root = uiDocument.rootVisualElement;
         if (root != null )
         {
-            var rr  = root.Q<SliderInt>(RSlider);
-            var gg  = root.Q<SliderInt>(GSlider);
-            var bb  = root.Q<SliderInt>(BSlider);
-            byte Rval = (byte)rr.value;
-            byte Gval = (byte)gg.value;
-            byte Bval = (byte)bb.value;
-            ChangeBackgroundColor(ElementName, Rval, Gval, Bval);
+            var hh  = root.Q<SliderInt>(HSlider);
+            var ss  = root.Q<SliderInt>(SSlider);
+            var vv  = root.Q<SliderInt>(VSlider);
+            byte Hval = (byte)hh.value;
+            byte Sval = (byte)ss.value;
+            byte Vval = (byte)vv.value;
+            ChangeBackgroundColor(ElementName, Hval, Sval, Vval);
         }
     }
-    public void ChangeBackgroundColor(string elementName, byte r, byte g, byte b)
+    public void ChangeBackgroundColor(string elementName, byte h, byte s, byte v)
     {
         if (uiDocument == null)
         {
@@ -37,7 +37,7 @@ public class ColorPreview : MonoBehaviour
             return;
         }
 
-        Color newColor = new Color(r / 255f, g / 255f, b / 255f);
+        Color newColor = Color.HSVToRGB(h / 255f, s / 255f, v / 255f);
 
         targetElement.style.backgroundColor = new StyleColor(newColor);
 
@@ -48,13 +48,13 @@ public class ColorPreview : MonoBehaviour
         var root = uiDocument.rootVisualElement;
         if (root != null)
         {
-            var rr = root.Q<SliderInt>(RSlider);
-            var gg = root.Q<SliderInt>(GSlider);
-            var bb = root.Q<SliderInt>(BSlider);
-            byte Rval = (byte)rr.value;
-            byte Gval = (byte)gg.value;
-            byte Bval = (byte)bb.value;
-            return InternalGetColor(Rval, Gval, Bval);
+            var hh = root.Q<SliderInt>(HSlider);
+            var ss = root.Q<SliderInt>(SSlider);
+            var vv = root.Q<SliderInt>(VSlider);
+            byte Hval = (byte)hh.value;
+            byte Sval = (byte)ss.value;
+            byte Bval = (byte)vv.value;
+            return InternalGetColor(Hval, Sval, Bval);
         }
         else return Color.black;
     }
@@ -74,15 +74,15 @@ public class ColorPreview : MonoBehaviour
         R = (byte)(rf * 255);
         G = (byte)(gf * 255);
         B = (byte)(bf * 255);
-        var rr = root.Q<SliderInt>(RSlider);
-        var gg = root.Q<SliderInt>(GSlider);
-        var bb = root.Q<SliderInt>(BSlider);
-        rr.value = R;
-        gg.value = G;
-        bb.value = B;
+        var hh = root.Q<SliderInt>(HSlider);
+        var ss = root.Q<SliderInt>(SSlider);
+        var vv = root.Q<SliderInt>(VSlider);
+        hh.value = R;
+        ss.value = G;
+        vv.value = B;
     }
-    private Color InternalGetColor(byte r, byte g, byte b)
+    private Color InternalGetColor(byte h, byte s, byte v)
     {
-        return  new Color(r / 255f, g / 255f, b / 255f);
+        return Color.HSVToRGB(h / 255f, s / 255f, v / 255f);
     }
 }

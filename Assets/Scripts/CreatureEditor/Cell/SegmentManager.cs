@@ -9,7 +9,7 @@ using static UnityEngine.Rendering.DebugManager;
 public class SegmentManager : MonoBehaviour
 {
     [Header("Referencias")]
-    public PhaseManager PhaseManager;
+    public CompleteCellEditorUiManger PhaseManager;
     public UIDocument iDoc; //suena a Apple
     //iDocument
     public GameObject MetaballPrefab;
@@ -43,8 +43,8 @@ public class SegmentManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        iDoc = PhaseManager.iDocuments[0];
-        var root = iDoc.rootVisualElement;
+        iDoc = PhaseManager.iDocument;
+        var root = iDoc.rootVisualElement;  
         Add = root.Q<Button>("Crr");
         Remove = root.Q<Button>("Brr");
         Rad = root.Q<Slider>("rad");
@@ -72,6 +72,7 @@ public class SegmentManager : MonoBehaviour
     private void RemoveSegment()
     {
         Segments.Remove(Selected);
+        if (Selected != null) 
         Destroy(Selected.gameObject);
     }
 
@@ -86,20 +87,21 @@ public class SegmentManager : MonoBehaviour
 		Debug.Log(
 			IsInUI
 			? "🧩 UI MODE: tocando botones como persona civilizada"
-			: "🔧 GIZMO MODE: moviendo METABOAS"
+			: "🔧 GIZMO MODE: moviendo METABOLAS"
 		);
 	}
     private void AddSegment()
     {
         var f= Instantiate(MetaballPrefab);
+        
         Segments.Add(f.GetComponent<Metaball>());
     }
     Metaball OldSelected;
     // Update is called once per frame
     void Update()
     {
-        if (PhaseManager.CurrentPhase == EditPhases.BodyEdit)
-        {
+        if ((PhaseManager.currentCat & CurrentCategory.Body) == CurrentCategory.Body)
+		{
             if (GizmoManager.objetoActivo == null)
             {
                 Selected = null;
@@ -120,7 +122,7 @@ public class SegmentManager : MonoBehaviour
         {
             if (metab.TryGetComponent<GizSelectable>(out var ar))
             {
-                ar.IsMovable = (PhaseManager.CurrentPhase == EditPhases.BodyEdit);
+                ar.IsMovable = ((PhaseManager.currentCat & CurrentCategory.Body) == CurrentCategory.Body);
             }
         }
         OldSelected = Selected;
