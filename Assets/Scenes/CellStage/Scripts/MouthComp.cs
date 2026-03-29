@@ -87,17 +87,22 @@ public class MouthComp : MonoBehaviour
 				cellController.CurrentEvoPoints++; //Definittivamente no son los puntos de ADN de spore pero con otro nombre definitivamente (Sarcasmo)
 				cellController.MaxEvoPointsGotStat++;
 				cellController.StageProgress += Mathf.Abs(Random.insideUnitCircle.x);
-				HistoryActions item = new HistoryActions();
-				item.Tipo = ActionType.Eat;
-				item.Path = GetCompatibleDiet(Food.tipo) switch
+				if (cellController.isAI)
+				{ }
+				else
 				{
-					Diets.none => HistoryPaths.Neutral,
-					Diets.Omnivore => HistoryPaths.Neutral,
-					Diets.Carnivore => HistoryPaths.Agressive,
-					Diets.Herbivore => HistoryPaths.Friendly,
-					_ => 0
-				};
-				Saver.CurrentGame.Actions.Add(item);
+					HistoryActions item = new HistoryActions();
+					item.Tipo = ActionType.Eat;
+					item.Path = GetCompatibleDiet(Food.tipo) switch
+					{
+						Diets.none => HistoryPaths.Neutral,
+						Diets.Omnivore => HistoryPaths.Neutral,
+						Diets.Carnivore => HistoryPaths.Agressive,
+						Diets.Herbivore => HistoryPaths.Friendly,
+						_ => 0
+					};
+					Saver.CurrentGame.Actions.Add(item);
+				}
 				Destroy(collision);
 			}
 		}

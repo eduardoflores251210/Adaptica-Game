@@ -16,7 +16,35 @@ MonoBehaviour:
   m_TableCollectionNameGuidString: 214dfcbc18678c64e831d9f1156b877b
   m_Entries:
   - m_Id: 37364690944
-    m_Key: '#exit_history'
+    m_Key: exit_history
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20106292733145088
+    m_Key: Nuevo Juego
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20106377911070720
+    m_Key: Nueva Celula
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20106522274820096
+    m_Key: Cargar Juego
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20106660913344512
+    m_Key: Opciones
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20111584036384768
+    m_Key: ENDCELL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20111921778520064
+    m_Key: ENDCELLMSG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20114859716505600
+    m_Key: credits
     m_Metadata:
       m_Items: []
   m_Metadata:

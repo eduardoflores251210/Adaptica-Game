@@ -450,7 +450,7 @@ creado por {Application.companyName}";
 		}
 
 	}
-	enum minecraftGamemodes
+	enum minecraftGamemodes//solo para el comando de huevo de pascua /gamemodes
 	{
 		survival = 0,
 		creative = 1,

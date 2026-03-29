@@ -162,7 +162,17 @@ public class CompleteCellEditorUiManger : MonoBehaviour
 			MoveNOW = false;	
 		}
 	}
-
+	public void TemporalirySetAnState(CurrentCategory TEMPCAT, float seconds)
+	{
+		StartCoroutine(TemporalirySetAnStateCoroutine(TEMPCAT, seconds));
+	}
+	private System.Collections.IEnumerator TemporalirySetAnStateCoroutine(CurrentCategory TEMPCAT, float seconds)
+	{
+		var Previous = currentCat;
+		currentCat = TEMPCAT;
+		yield return new WaitForSeconds(seconds);
+		currentCat = Previous;
+	}
 
 }
 [Flags]

@@ -17,6 +17,7 @@ using Vector4 = UnityEngine.Vector4;
 //ni me molestare en explicar estos usings si quieres ver la descripcion revisa SerializanleBiology y SerializablePlanets
 
 //esto es un Namespace de pruebas por que queria añadir idiomas al juego estaba en utils.cs antes A y no esto es obsoleto por que ya no añadire idiomas... Asi que ahora lo uso como generador de frases graciosas como Montaña come Río
+//al final si lo use para generar frases chistosas porque me dio pereza añadir mas splashTexts
 namespace ModelosDeIdioma
 {
 	[Serializable]

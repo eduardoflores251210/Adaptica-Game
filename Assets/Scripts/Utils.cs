@@ -382,7 +382,7 @@ namespace SerializableTypes
 		public float Progress;
 		public float PlayerHealth;
 		public GéneroBiológico Gender;
-
+		public bool Finished;
 		public CellGameData(float dNA_Amount, float maxDNA_Got, float progress, float playerHealth, GéneroBiológico gender)
 		{
 			DNA_Amount = dNA_Amount;
@@ -390,6 +390,7 @@ namespace SerializableTypes
 			Progress = progress;
 			PlayerHealth = playerHealth;
 			Gender = gender;
+			Finished = false;
 		}
 
 		public bool Equals(CellGameData other)
@@ -413,7 +414,7 @@ namespace SerializableTypes
 		}
 		public override string ToString()
 		{
-			return $"DNA {DNA_Amount}, progresss {Progress}, HP {PlayerHealth}, Gender {Gender}";
+			return $"DNA {DNA_Amount}, progresss {Progress}, HP {PlayerHealth}, Gender {Gender}, Done {Finished}";
 		}
 	}
 	[Serializable]
@@ -1264,6 +1265,23 @@ namespace SerializableTypes
 				SceneManager.LoadScene(1); // Microbe Editor
 			}
 		}
+
+		[ConsoleCommand(Name ="!editarmic")]
+		public static void EditMicrobeCommand()
+		{
+			//asume que estas en el estadio celula 
+			if (Saver.HasLoadedAnySave())
+			{
+				Debug.Log("ENTRANDO AL EDITOR, ADVERTENCIA ESTO NO ESTA PROVADO ASI QUE PODRIA CORROMPER TU HERMOSA CREACIÓN");
+				EditMicrobe();
+			}else
+			{
+				Debug.Log("ENTORNO INVALIDO");
+
+			}
+
+		}
+
 		public static void EditMicrobe()
 		{
 			if (!Saver.HasLoadedAnySave())
@@ -1273,7 +1291,7 @@ namespace SerializableTypes
 				LoadWithLoadingScreen.LoadScene(1, Stages.Microbe); // Microbe Editor
 				return;
 			}
-			if (Saver.TryToLoadLastMicrobeRevision(Saver.CurrentGame.CreatureName, out var data))
+			if (Saver.TryToLoadLastMicrobeRevision(Saver.CurrentSaveName, out var data)) //por error usaba el nombre de microbio no del archivo de guardado(eso es SHA) el nombre del microbio es lo que sea que escribio el Jugador;
 			{
 				CrossScenePackageSender Mailman = CrossScenePackageSender.Instance;//No  puedo cambiar esos nombres de destinatario de MC yMain Camera CS por que el cartero No tiene codigo postal solo nombre de destinatario :(
 				Mailman.SendTypedPackage("EnterEdit", "CellSaver", true, new string[2] { nameof(Boolean), "LodStg" }); //avisarle a cellsaver QUE AL GUARDAR ENTRAREMOS AL ESTADIO CELULA DIGO MICROBIO SIN CREAR NUEVA PARTIDA
@@ -1364,6 +1382,19 @@ namespace SerializableTypes
 					break;
 				default:
 					break;
+			}
+		}
+
+		[ConsoleCommand(Name = "entereditor")] //esto no es debug solo es para que los creadores de contenido puedan entrar al editor sin necesidad de cargar una partida o algo asi, es un comando para facilitar la creación de contenido
+		public static void EnterEditorCommand(int editor)
+		{
+			if (Enum.IsDefined(typeof(Editors), editor))
+			{
+				EnterEditor((Editors)editor);
+			}
+			else
+			{
+				Debug.LogError($"Editor con ID {editor} no existe.");
 			}
 		}
 
@@ -2423,9 +2454,20 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 
 	/// <summary>
 	/// Atributo para comandos de la consola debug/cheats
-	/// XD
+	/// XDdddd
+	/// 
+	/// SIMBOLOGIA DE LOS COMANDOS DE LA CONSOLA:
+	/// ! -comando debug o de una funcion en pruebas ej
+	///		!editmic - abre el editor de micrboios desde el juego en el futuro cuando esta funcion sea estable se eliminara el ! y quedara solo EditMic o el comando desaparecera y el boton del menu se encargara de abrir el editor pero por ahora esta asi para evitar que alguien use un comando que no esta
+	///		!loadpt -carga la generacion test de planeta es MUY debug
+	/// si no hay ! o es truco o es un comando normal que no es ni truco ni debug, por ejemplo:
+	///		fbxexport -exportaria o (a lo mejor jamas llegue) el modelo del jugador en formato fbx para usarlo en otros programas de modelado o lo que sea, este comando no es ni truco ni debug es solo una utilidad que podria ser util para los jugadores pero no es algo que se quiera que se use sin saber lo que hace por eso no es un comando normal sin simbolos ni nada
+	///		help - muestra una lista de comandos disponibles y su descripcion, este comando es un comando normal que no es ni truco ni debug por que no hace nada malo ni es algo que se quiera ocultar a los jugadores pero tampoco es algo que se quiera que se use sin saber lo que hace por eso no es un comando normal sin simbolos ni nada
+	///		
+	///  no mayusculas solo minusculas por favor, gracias por su coomprension :D
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method)]
+
 	public class ConsoleCommandAttribute : Attribute
 	{
 		public string Name;

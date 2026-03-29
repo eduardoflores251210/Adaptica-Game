@@ -931,6 +931,7 @@ public class PlanetGen : MonoBehaviour
 		Debug.Log("¡Planeta reseteado! (Como la economía de mi país, pero este sí funciona).");
 	}
 	[ConsoleCommand("!loadpt", true, IsEgg = true)] //es un truco asi que el primer tru y IsEgg para que e comando de ayuda no lo muestrte
+	//correcion es el cargador de la escena de generacion de planeta
 	public static void ldPT()
 	{
 		LoadWithLoadingScreen.LoadScene(7, Stages.Creature);

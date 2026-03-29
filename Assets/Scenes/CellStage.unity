@@ -119,6 +119,70 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &261346979
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 261346982}
+  - component: {fileID: 261346981}
+  - component: {fileID: 261346980}
+  m_Layer: 5
+  m_Name: iFinish
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &261346980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 261346979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b6c37dc4bae8f945947e40378e85b25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  table:
+    m_TableReference:
+      m_TableCollectionName: GUID:214dfcbc18678c64e831d9f1156b877b
+--- !u!114 &261346981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 261346979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PanelSettings: {fileID: 11400000, guid: ece605980c38f2f4dbe68803dd912153, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: e5b3e335df8cc124fac88621f2b9cea8, type: 3}
+  m_SortingOrder: 6
+--- !u!4 &261346982
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 261346979}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &310753783
 GameObject:
   m_ObjectHideFlags: 0
@@ -153,6 +217,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Canvas: {fileID: 310753787}
   iHistory: {fileID: 1444000948}
+  iFinish: {fileID: 261346981}
   actions: {fileID: -944628639613478452, guid: c4765c325f0af464799a1a764737ea39, type: 3}
   PauseAction:
     m_Name: Pause
@@ -165,6 +230,7 @@ MonoBehaviour:
     m_Flags: 0
   IsPaused: 0
   IsHistory: 0
+  IsFinished: 0
   Player: {fileID: 1561327408}
 --- !u!114 &310753785
 MonoBehaviour:
@@ -992,6 +1058,7 @@ MonoBehaviour:
   document: {fileID: 999764811}
   Player: {fileID: 1561327408}
   PauseManager: {fileID: 310753784}
+  MaxPoints: 150
 --- !u!114 &999764814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1897,7 +1964,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: History
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2590644632700649158, guid: cea4b8ba9b2660848b95aa5b5f1ec538, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -2513,3 +2581,4 @@ SceneRoots:
   - {fileID: 310753788}
   - {fileID: 1444000949}
   - {fileID: 1722113753}
+  - {fileID: 261346982}

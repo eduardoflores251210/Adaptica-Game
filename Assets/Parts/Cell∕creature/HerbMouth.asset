@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partID: 1
   displayName: Boca Hervivora
-  description: 
+  description: boca herbivora para comer algas
   icon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
   prefab: {fileID: 8610448829386464437, guid: 861e15a2e2164d64eb148a12c9ccc1a8, type: 3}
   categories: 0000000003000000

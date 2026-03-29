@@ -1,7 +1,5 @@
 using ActualUtils;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -10,171 +8,320 @@ public class PauseMenuManager : MonoBehaviour
 {
 	public Canvas Canvas;
 	public UIDocument iHistory;
+	public UIDocument iFinish; // si sigo copiandole a Apple, con iCosa.
 	public InputActionAsset actions;
+
 	[HideInInspector]
 	public InputAction PauseAction;
+
 	public bool IsPaused = false;
 	public bool IsHistory = false;
+	public bool IsFinished = false;
+
 	public CellController Player;
 	public event Action OnHistoryExit;
-	bool initedHis = false;
-	// Start is called before the first frame update
+
+	private bool initedHis = false;
+	private bool initedFin = false;
+	private bool finishTriggered = false;
+
+	private const float FINISH_PROGRESS_THRESHOLD = 150f;
+
 	void Start()
 	{
-		Canvas.enabled = false;
-		var mapa = actions.FindActionMap("PPP", true);
-		mapa.Enable();
-		PauseAction = mapa.FindAction("PAUSA", true);
-		PauseAction.performed += delegate
-		{
-			TogglePause();
-		};
+		if (Canvas != null)
+			Canvas.enabled = false;
 
-		if (iHistory != null )
+		if (actions != null)
 		{
-			ResumeHistory();
+			var mapa = actions.FindActionMap("PPP", true);
+			mapa.Enable();
+
+			PauseAction = mapa.FindAction("PAUSA", true);
+			PauseAction.performed += OnPausePerformed;
 		}
+
+		if (iHistory != null)
+			ResumeHistory();
+
+		if (iFinish != null)
+			ResumeFinish();
+	}
+
+	private void OnDestroy()
+	{
+		if (PauseAction != null)
+			PauseAction.performed -= OnPausePerformed;
+	}
+
+	private void OnPausePerformed(InputAction.CallbackContext ctx)
+	{
+		TogglePause();
 	}
 
 	private void Ect_onClick()
 	{
 		ToggleHistory();
 		OnHistoryExit?.Invoke();
-		
+	}
+
+	private void OnFinishOkClicked()
+	{
+		ToggleFinish();
 	}
 
 	public void ToggleHistory()
 	{
 		if (!IsHistory)
-		{
 			PauseHistory();
-		}
 		else
-		{
 			ResumeHistory();
-		}
 	}
+
+	public void ToggleFinish()
+	{
+		if (!IsFinished)
+			PauseFinish();
+		else
+			ResumeFinish();
+	}
+
+	public void PauseFinish()
+	{
+		if (iFinish == null)
+			return;
+
+		iFinish.gameObject.SetActive(true);
+		iFinish.rootVisualElement.visible = true;
+
+		chechFin();
+
+		Time.timeScale = 0f;
+		IsPaused = true;
+		IsFinished = true;
+	}
+
+	public void ResumeFinish()
+	{
+		if (iFinish == null)
+			return;
+
+		chechFin();
+		iFinish.rootVisualElement.visible = false;
+
+		Time.timeScale = 1f;
+		IsPaused = false;
+		IsFinished = false;
+	}
+
 	public void TogglePause()
 	{
-
 		if (!IsPaused)
-		{
 			Pause();
-		}
 		else
-		{
 			Resume();
-		}
-
 	}
 
 	public void Pause()
 	{
-		if (IsHistory)
+		if (IsHistory || IsFinished)
 			return;
-		Canvas.enabled = true;
+
+		if (Canvas != null)
+			Canvas.enabled = true;
+
 		Time.timeScale = 0f;
 		IsPaused = true;
 	}
+
 	public void PauseHistory()
 	{
+		if (iHistory == null)
+			return;
 
-		iHistory.rootVisualElement.visible = 
-		(true);
+		iHistory.gameObject.SetActive(true);
+		iHistory.rootVisualElement.visible = true;
+
 		chechHis();
 
 		Time.timeScale = 0f;
 		IsPaused = true;
 		IsHistory = true;
 	}
+
 	public void PauseNoScreen()
 	{
 		Time.timeScale = 0f;
 		IsPaused = true;
 	}
+
 	public void ResumeHistory()
 	{
+		if (iHistory == null)
+			return;
+
 		chechHis();
 		iHistory.rootVisualElement.visible = false;
+
 		Time.timeScale = 1f;
 		IsPaused = false;
 		IsHistory = false;
 	}
+
 	public void Resume()
 	{
-		Canvas.enabled = false;
+		if (Canvas != null)
+			Canvas.enabled = false;
+
 		Time.timeScale = 1f;
 		IsPaused = false;
 	}
+
 	public void Save()
 	{
 		if (Player == null)
 			throw new GameSavingException("EL JUGADOR ES NULL");
-		if (Saver.HasLoadedAnySave())
-		{
-			//mejor pongo una variable para acceder facilmente al estado actual
-			var STD = Saver.CurrentGame.CurentStage;
-			if (STD == SerializableTypes.Stages.Microbe)
 
-			{
-				Saver.CurrentGame.CellGameData = new
-				()
-				{ DNA_Amount = Player.CurrentEvoPoints, MaxDNA_Got = Player.MaxEvoPointsGotStat, Gender = Player.CurrentGen, PlayerHealth = Player.Health, Progress = Player.StageProgress };
-			}
-			//else if (STD == SerializableTypes.Stages.Creature)
-			//{
-			//
-			//}
-			//aun no implementado asi que por eso son comentarios
-			else if (STD == SerializableTypes.Stages.Creature)
-			{
-				throw new GameSavingException("NO IMPLEMENTADO AUN");
-			}
-			else if (STD == SerializableTypes.Stages.MainMenu)
-			{
-				throw new GameSavingException("????????????????\nNO SE PUEDE GUARDAR EN EL MENU PRINCIPAL");// el juego se confunde por que quieres guardar en el menu principal
-			}
-			Saver.SaveCurrentGame();
-		}else
-		{
-			var EX = new GameSavingException("ESTADO INVALIDO");
+		if (!Saver.HasLoadedAnySave())
+			throw new GameSavingException("ESTADO INVALIDO");
 
-			throw EX;
+		var STD = Saver.CurrentGame.CurentStage;
+
+		if (STD == SerializableTypes.Stages.Microbe)
+		{
+			// IMPORTANTÍSIMO:
+			// conservar el estado Finished actual para no resetear el save
+			bool wasFinished = Saver.CurrentGame.CellGameData.Finished;
+
+			Saver.CurrentGame.CellGameData = new()
+			{
+				DNA_Amount = Player.CurrentEvoPoints,
+				MaxDNA_Got = Player.MaxEvoPointsGotStat,
+				Gender = Player.CurrentGen,
+				PlayerHealth = Player.Health,
+				Progress = Player.StageProgress,
+				Finished = wasFinished
+			};
 		}
-	}
+		else if (STD == SerializableTypes.Stages.Creature)
+		{
+			throw new GameSavingException("NO IMPLEMENTADO AUN");
+		}
+		else if (STD == SerializableTypes.Stages.MainMenu)
+		{
+			throw new GameSavingException("NO SE PUEDE GUARDAR EN EL MENU PRINCIPAL");
+		}
 
+		Saver.SaveCurrentGame();
+	}
 
 	public void Exit()
 	{
 		Resume();
 		Saver.UnloadCurrentGame(false);
 	}
+
 	void chechHis()
 	{
 		if (initedHis)
 			return;
-		if (iHistory != null)
+
+		if (iHistory == null)
+			return;
+
+		if (!iHistory.enabled)
+			return;
+
+		var roo = iHistory.rootVisualElement;
+		if (roo == null)
+			return;
+
+		var ect = roo.Q<Button>("exit_history");
+		if (ect == null)
 		{
-			if (!iHistory.enabled)
-				return;
-			var roo = iHistory.rootVisualElement;
-			if (roo == null)
-			{
-				initedHis = false;
-				return;
-			}
-			var ect = roo.Q<Button>("exit_history");
-			
-			ect.clicked += Ect_onClick;
-			initedHis = true;
+			Debug.LogError("NO SE ENCONTRO EL BOTON 'exit_history' EN LA INTERFAZ DE HISTORIA.");
+			return;
 		}
+
+		ect.clicked -= Ect_onClick;
+		ect.clicked += Ect_onClick;
+
+		initedHis = true;
 	}
+
+	void chechFin()
+	{
+		if (initedFin)
+			return;
+
+		if (iFinish == null)
+			return;
+
+		if (!iFinish.enabled)
+			return;
+
+		var roo = iFinish.rootVisualElement;
+		if (roo == null)
+			return;
+
+		var ect = roo.Q<Button>("OK");
+		if (ect == null)
+		{
+			Debug.LogError("NO SE ENCONTRO EL BOTON DE OK EN LA INTERFAZ DE FINISH, ASEGURATE DE QUE EL NOMBRE DEL BOTON SEA EXACTAMENTE 'OK' Y QUE ESTE DENTRO DEL ROOT DE LA INTERFAZ");
+			return;
+		}
+
+		ect.clicked -= OnFinishOkClicked;
+		ect.clicked += OnFinishOkClicked;
+
+		initedFin = true;
+	}
+
 	private void Update()
 	{
-		if (iHistory != null)
+		if (finishTriggered)
+			return;
+
+		if (!Saver.HasLoadedAnySave())
+			return;
+
+		if (Player == null)
+			return;
+
+		if (Saver.CurrentGame.CurentStage != SerializableTypes.Stages.Microbe)
+			return;
+
+		if (Saver.CurrentGame.CellGameData.Finished)
+			return;
+
+		if (Player.StageProgress < FINISH_PROGRESS_THRESHOLD)
+			return;
+
+		// Trigger de fin de prototipo: SE MANTIENE
+		finishTriggered = true;
+
+		//if (Saver.CurrentGame.CellGameData != null) //el tonto de ChatGPT SE OLVIDSO QUE ESO ES Struct Y NO CLass  (idiot gpt)
+			Saver.CurrentGame.CellGameData.Finished = true;
+
+		Saver.SaveCurrentGame();
+
+		if (iFinish != null)
 		{
-			chechHis();
+			ToggleFinish();
+			chechFin();
+		}
+	}
+
+	void LogEachAudioListenerBecauseDebug()
+	{
+		var listeners = FindObjectsOfType<AudioListener>();
+		// si tecnicamente eos est mal porque
+		/* 
+		'Object.FindObjectsOfType<T>()' está obsoleto: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'*/ //si unity me dice que use FindObjectsByType. pero me da pereza cambiarlo XD KAKAJKsAjSJA
+		foreach (var listener in listeners)
+		{
+			Debug.Log($"AudioListener found: {listener.gameObject.name}");
 		}
 	}
 }
-
+//al finalizar el juego la dopamina se dispara por finalmente haber terminado el prototipo;

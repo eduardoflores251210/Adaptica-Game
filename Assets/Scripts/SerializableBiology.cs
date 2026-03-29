@@ -22,6 +22,8 @@ namespace SerializableTypes.Biology
 	//la montaña de enums que controlan la biología del juego
 	#region Enums
 
+	//antes decia Sexo pero por Cosas de padres sobreprotectores aunque no he lanzzado el juego
+	//decidi usar "genero" aunque lo cientifico es decir "Sexo"
 	public enum GéneroBiológico
 	{
 		None = -1,
@@ -31,9 +33,9 @@ namespace SerializableTypes.Biology
 	public enum Diets
 	{
 		none = -1,
-		Omnivore,
-		Carnivore,
-		Herbivore
+		Omnivore, //omnonnom Carne y Plantas
+		Carnivore,// ESA GACELA SE VEÍA TAN DELICIOSA QUE ME LA COMÍ
+		Herbivore// SOLO PLANTAS, POBRES PLANTAS
 	}
 	[Obsolete("Usa el otro ActionTypes instead")]
 	public enum ActionTypes
@@ -62,13 +64,13 @@ namespace SerializableTypes.Biology
 	}
 	public enum reproductionTypes
 	{
-		SingleCell,
-		MultiCell,
+		SingleCell, //mejor dicho Asexual
+		MultiCell, //mejor dicho Sexual
 	}
 	public enum ReproductionMethod
 	{
 		#region SingleCell
-		Mitosis = 0,
+		SplitIn2 = 0, //antes era mitosis pero esto NO ES una celula es un muicrobio multicelular con organos internos y todo, asi que no es mitosis, es mas como una division celular pero a lo bestia, por eso SplitIn2
 		Fragmentation,
 		Budding,          // Gemation → Budding
 		EggBasedParthenogenesis,    // partenogenesisEgg → EggBasedParthenogenesis
@@ -87,6 +89,7 @@ namespace SerializableTypes.Biology
 		Fragmentation,
 		Budding,
 		SeedPartenogenesis,
+		Spore, // esporas, como los helechos y hongos, y referencia a Mi Juego inspirado a este proyecto SPORE(tm) (EA)
 		#endregion
 
 		#region MultiCell
@@ -470,7 +473,7 @@ namespace SerializableTypes.Biology
 			                          "AAAA",
 			                          false,
 			                          reproductionTypes.SingleCell,
-			                          ReproductionMethod.Mitosis,
+			                          ReproductionMethod.SplitIn2,
 			                          new List<SerializedPartData>() {
 			                          new("0", new StdUtils.Serializable.Transform(Vector3.forward, Quaternion.identity.eulerAngles, Vector3.one)),
 			                          new("-1", new StdUtils.Serializable.Transform(Vector3.up, Quaternion.identity.eulerAngles, Vector3.one))
@@ -541,7 +544,7 @@ namespace SerializableTypes.Biology
 	public class AnimalData : CreatureBase
 	{
 		public reproductionTypes RepType;
-		public ReproductionMethod RepMeth; //DICE metodo no metanfetamina
+		public ReproductionMethod RepMeth; //DICE metodo no metanfetamina por que hay gente malpensada.
 		public List<MicrobeData> Limbs; // SI internamente las Extremidades son Microbios por que  asi es mas facil de hacer que sean Dinamicas 
 		public AnimalData(string name, string description, bool hasMale, reproductionTypes repType, ReproductionMethod repMeth, List<SerializedPartData> partsF, List<SerializedPartData> partsM, Color femaleColor, Color maleColor, List<SegmentData> segments, Mesh mesh)
 	: base(name, description, hasMale, femaleColor, maleColor, partsF, partsM, segments, mesh)
@@ -743,14 +746,14 @@ namespace SerializableTypes.Biology
 									  "AAAA",
 									  false,
 									  reproductionTypes.SingleCell,
-									  ReproductionMethod.Mitosis,
+									  ReproductionMethod.SplitIn2,//Mitosis, //AKAJAJAJA anima mitosenado... ah claro por que el gato se va a dividir en 2.... (si sarcasmo) pero ya lo corregi por SplitIn2 que es mas generico y no tan biologicamente incorrecto para un animal, ademas de que el metodo de reproduccion no es algo que afecte a la forma del animal en si, asi que da igual que se llame Mitosis o SplitIn2
 									  new List<SerializedPartData>() {
 									  new("0", new StdUtils.Serializable.Transform(Vector3.forward, Quaternion.identity.eulerAngles, Vector3.one)),
 									  new("-1", new StdUtils.Serializable.Transform(Vector3.up, Quaternion.identity.eulerAngles, Vector3.one))
 									  },
 									  null,
-									  Color.magenta,
-									  Color.blue,
+									  Color.magenta, //las niñas son rosas y los niños azules, lo siento pero es asi, no es mi culpa que la sociedad sea asi, yo solo lo reflejo en el juego, no es mi culpa que el rosa sea un color tan bonito y femenino y el azul un color tan feo y masculino, lo siento de verdad pero es asi, no es mi culpa, no me odien por esto por favor, no me maten, no me hagan bullying
+									  Color.blue,//eso lo escribio el Github copilot. no yo, quise decir que es rosa y azul por motivos sociales que ayudan a identiifcar.
 									  new() { new() { radius = 3 } }, mesh: EmergencyMEsh);
 			return Tempdata;
 		}

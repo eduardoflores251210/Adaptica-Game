@@ -291,3 +291,4 @@ public class SC_RigidbodyWalker : MonoBehaviour
 		}
 	}
 }
+//fun fact este script Antes se creia toriel 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 si asi es, porque queria darle personalidad a cada script, y como toriel es la mejor mamá de undertale, pues le puse su nombre a este script que controla el movimiento del jugador. Pero luego pensé que era un poco raro tener un script de movimiento llamado "Toriel", así que lo renombré a "SC_RigidbodyWalker". Sin embargo, siempre recordaré que este script tiene el espíritu protector y amoroso de Toriel, cuidando al jugador mientras camina por el mundo del juego.

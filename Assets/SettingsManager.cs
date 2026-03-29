@@ -100,6 +100,7 @@ public class SettingsManager : MonoBehaviour
 		InitializeLanguageDropdown();
 
 		UpdateText();
+		gameObject.SetActive(false); // Iniciar con el menú de configuración oculto pero configuramos todo para que funcione correctamente al abrirlo por primera vez
 
 	}
 
@@ -348,3 +349,69 @@ MusicVolumeTextTag.gameObject.name
 //guaraní.
 //etc
 //>:(
+
+
+
+//pd PASTEL DE FRESA ES VIDA, EL MEJOR DLC QUE PODRÍAMOS HABER PEDIDO, GRACIAS MAXIS, GRACIAS EA, GRACIAS SIMS, GRACIAS POR HACER ESTE SUEÑO REALIDAD, GRACIAS POR HACER UN JUEGO CON OPCIONES DE ACCESIBILIDAD Y PERSONALIZACIÓN TAN INCREÍBLES, GRACIAS POR HACER UN JUEGO QUE INCLUYE IDIOMAS INDÍGENAS AMERICANOS COMO EL NÁHUATL, GRACIAS POR HACER UN JUEGO QUE CELEBRA LA DIVERSIDAD CULTURAL Y LINGÜÍSTICA DE NUESTRA HERMOSA AMÉRICA, GRACIAS POR HACER UN JUEGO QUE NOS PERMITE EXPRESAR NUESTRA IDENTIDAD Y NUESTRO ORGULLO A TRAVÉS DE LOS AJUSTES DE CONFIGURACIÓN, GRACIAS POR HACER UN JUEGO QUE NOS HACE SENTIR EN CASA, GRACIAS POR HACER UN JUEGO QUE NOS HACE SENTIR VIVOS, GRACIAS POR HACER UN JUEGO QUE NOS HACE SENTIR FELICES, GRACIAS POR HACER UN JUEGO QUE NOS HACE SENTIR AMADOS, GRACIAS POR HACER UN JUEGO QUE NOS HACE SENTIR LIBRES, GRACIAS POR HACER UN JUEGO QUE NOS HACE SENTIR INFINITOS
+// EL PASTEL ES EL mejor
+
+public class MensajesDePastelQUeNoSOnDelEasterEggSInoparaQueEldesarolladorSeRia
+{
+	public int CAKER = 0;
+	public string SSSS = "pastel de fresa pastel de chocolatr pastel de vianilaaaaaaaaaaaaaaaaaa fegbyhjkusw [bsod por sobrecarga de pastel]";
+}
+
+
+
+
+
+
+// TItulo de ventana fin del prototipo:
+// Fin del Prototipo -es/es-mx
+// End of Prototype -en
+// Fin du Prototype -fr
+// Prototypen Ende -de
+// nh: "Tlami nopa prototipo" 
+// espero que eso signifique "fin del prototipo" en náhuatl, no tengo ni la menor idea de como se dice eso en náhuatl pero suena bien, es un idioma muy bonito, me gusta mucho, es una lástima que no tenga soporte oficial en Unity, pero al menos lo incluimos como idioma personalizado, así que aunque no sea perfecto, es un gran paso para la representación de las lenguas indígenas americanas en los videojuegos, y eso es algo que debemos celebrar y agradecer.
+// Maya: "Xul le prototipo" (Prototipo en maya)
+// pr-br: "Fim do Protótipo" (Prototipo em português brasileiro)
+// pt-pt: "Fim do Protótipo" (Prototipo em português de Portugal)//es lo mismo OH
+//mensaje de fin del prototipo:
+// es: "Fin del Juego!, LLegaste al fin de lo jugable de la etapa Microbio de Adaptica, en el futuro llegaran mas etapas como Criatura, Tribal, etc, cada una con su propia jugabilidad, ¡¡Gracias por jugar y apoyar el desarrollo de Adaptica!!"
+// en: "End of the Game!, You have reached the end of the playable content of the Microbe stage of Adaptica, in the future more stages will come like Creature, Tribal, etc, each with its own gameplay, Thank you for playing and supporting the development of Adaptica!!"
+// fr: "Fin du Jeu!, Vous avez atteint la fin du contenu jouable de l'étape Microbe d'Adaptica, à l'avenir d'autres étapes viendront comme Creature, Tribal, etc, chacune avec son propre gameplay, Merci de jouer et de soutenir le développement d'Adaptica!!"
+// de: "Ende des Spiels!, Sie haben das Ende des spielbaren Inhalts der Mikrobenphase von Adaptica erreicht, in Zukunft werden weitere Phasen wie Kreatur, Tribal, etc. kommen, jede mit ihrem eigenen Gameplay, Vielen Dank fürs Spielen und Unterstützen der Entwicklung von Adaptica!!"
+// nh: "Tlami nopa tlauisokilistli! Ya tiajsito kampa tlami nopa tlauisokilistli tlen nopa etapa Microbio tlen Adaptica. Ipan nopa tonali tlen ualas onkas sekinok etapas kej Creature, Tribal, etc., sejse ika i tlauisokilistli. ¡Tlaskamati pampa tlauisoki uan tijpaleuijtok ma moskalti Adaptica!!"
+// yua: "Ts'o'okok le báaxala'! Ts'o'ok k'uchul u xuul le ba'ax ku jugable ti' le p'isibij microbio Adaptica, Ti' le futuro yaan u k'uchul asab jejelas súutukil bey Creature, Tribal, etcetera, Amal juntúulal yéetel u kajnáalo'ob báaxal. Yuumbo'otik báaxal yéetel yáanta'al le ma'alo'ob Adaptica!"
+// pt: "Fim do Jogo!, Você chegou ao fim do conteúdo jogável da fase Microbe de Adaptica, no futuro mais fases virão como Creature, Tribal, etc, cada uma com sua própria jogabilidade, Obrigado por jogar e apoiar o desenvolvimento de Adaptica!!"
+//espero que los traductores en linea no me hayan fallado.
+
+
+
+
+
+//definitvamente lo voy a reciclar para las pantallas de fin de etapa de las demas cuando lleges al final del prototipo de esa etapa
+//excepto cuando este el juego completo y ya no haya mas etapas.
+
+//creditos:
+
+//Programador principal: Jesús Eduardo -yo
+//compositor de musica: Jesús Eduardo -yo
+//diseñador de UI: Jesús Eduardo -yo
+//apoyo con las dudas: diversos LLMs y foros de desarrollo
+// tutoriales usados:
+// How to do Marching Cubes (Unity 2020) (omar snatiago) https://youtu.be/JdeyNbDACV0?si=hPZqKH690j02oBUQ
+// Official unity input system tutorials : https://www.youtube.com/playlist?list=PLX2vGYjWbI0RpLvO3B7aH-ObfcOifMD20
+// Coding Adventure: Ray Marching (Sebastian Lague) https://www.youtube.com/watch?v=Cp5WWtMoeKg
+// progrmas usados:
+// Unity 2023.2.20/22f1 (empeze en .20 y migre a .22 por Exploit GRAVE)
+// blender 4.5-5.1  (para modelado de partes)
+// Musescore 4 (para composicion de musica)
+// Paint (windows 11) para fondos y texturas.
+// Spore, Inspiracion para todo el juego
+// 
+// MUCHAS gracias a Maxis/EA por hacer spore lo que me 
+// inspiro a hacer este juego
+// A D I O S
+
+// no, no lo traducire por flojera :)

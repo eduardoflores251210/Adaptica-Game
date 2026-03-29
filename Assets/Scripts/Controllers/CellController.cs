@@ -302,8 +302,8 @@ public class CellController : MonoBehaviour
 		if (aa.HasMale)
 		{
 			CurrentGen = StandartUtilities.StdUtils.Randomness.CoinFlip() ?
-						 GéneroBiológico.Female :
-						 GéneroBiológico.Male;
+						 GéneroBiológico.Female : // ES UNA NIÑA
+						 GéneroBiológico.Male; // ES UN NIÑO
 		}
 		if (Saver.HasLoadedAnySave())
 		{
@@ -436,7 +436,7 @@ public class CellController : MonoBehaviour
 								  "AAAA",
 								  false,
 								  reproductionTypes.SingleCell,
-								  ReproductionMethod.Mitosis,
+								  ReproductionMethod.SplitIn2,
 								  new List<SerializedPartData>() {
 									  new("0", new StdUtils.Serializable.Transform(Vector3.forward, Quaternion.identity.eulerAngles, Vector3.one)),
 									  new("-1", new StdUtils.Serializable.Transform(Vector3.up, Quaternion.identity.eulerAngles, Vector3.one)) 

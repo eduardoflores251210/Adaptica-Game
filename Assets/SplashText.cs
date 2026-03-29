@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 [ExecuteAlways]
+///<summary>
+/// asi es HAY SPLASH TEXT, el texto que sale en la pantalla de carga, es un texto random que se muestra para entretener al jugador mientras espera, y a veces tiene mensajes secretos o referencias a cosas, es un clásico de los juegos, y este no es la excepción, aunque a veces puede ser un poco molesto si te toca uno malo, pero bueno, es parte de la experiencia, y si quieres ver todos los mensajes posibles, puedes revisar el código fuente, o esperar a que salgan todos en el juego, quien sabe, tal vez encuentres uno que te guste mucho y quieras compartirlo con tus amigos, o tal vez encuentres uno que te haga reír mucho y quieras guardarlo como tu favorito, o tal vez encuentres uno que te haga sentir identificado y quieras usarlo como tu lema de vida, en fin, el splash text es una parte importante del juego y merece ser apreciado por su creatividad y humor.
+///</summary>
 public class SplashText : MonoBehaviour
 {
 	public float PulseSpeed = 2f;
@@ -15,7 +18,9 @@ public class SplashText : MonoBehaviour
 	[Header("DEBUG")]
 	public bool Override = false;
 	public int idx = 0;
-
+	/// <summary>
+	/// la lista de mensajes que pueden aparecer en el splash text, algunos son referencias a cosas, otros son chistes internos, otros son frases random, y otros son generados por un modelo de lenguaje, la idea es que haya una gran variedad de mensajes para que cada vez que juegues puedas ver algo diferente, y si quieres agregar tus propios mensajes, puedes hacerlo editando esta lista, solo asegúrate de que sean apropiados y divertidos, y tal vez puedas hacer que tu mensaje sea el próximo en aparecer en el juego, así que no dudes en ser creativo y agregar tus propias frases al splash text, ¡quién sabe! tal vez tu mensaje se convierta en un clásico del juego y sea recordado por los jugadores durante años.
+	/// </summary>
 	public static List<string> Lines = new List<string>()
 	{
 		"Hecho en México",

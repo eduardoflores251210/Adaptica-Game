@@ -87,3 +87,4 @@ public class PreGameSettings : MonoBehaviour
 		}
 	}
 }
+//al final jamas lo use ni esta en una escena por que al final la consola llego y es mas Versatil

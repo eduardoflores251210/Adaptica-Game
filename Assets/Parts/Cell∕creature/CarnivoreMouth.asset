@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partID: 0
   displayName: Boca carnivora
-  description: 
+  description: una boca carmivora
   icon: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
   prefab: {fileID: 8610448829386464437, guid: 4344753b7bf29cc4b82e1b7ecf2d0096, type: 3}
   categories: 0000000003000000
-  size: 0
+  size: 1
   healthBoost: 0
   tags:
   - Carn

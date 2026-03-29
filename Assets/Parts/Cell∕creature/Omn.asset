@@ -14,14 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partID: 2
   displayName: Boca Omnivora
-  description: 
+  description: Boca omnivrosaa multiusos
   icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
   prefab: {fileID: 8610448829386464437, guid: 2fffd559bf82560469a8a3e182c07873, type: 3}
   categories: 0000000003000000
-  size: 0
+  size: 1
   healthBoost: 0
   tags:
   - Omn
+  Stats:
+    stats: []
   attackPower: 5
   movementBoost: 0
   function: 0

@@ -22,6 +22,47 @@ MonoBehaviour:
     m_Localized: Exit
     m_Metadata:
       m_Items: []
+  - m_Id: 20106292733145088
+    m_Localized: New Game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20106377911070720
+    m_Localized: New MIcrobe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20106522274820096
+    m_Localized: Load Game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20106660913344512
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20111584036384768
+    m_Localized: End of Prototype
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20111921778520064
+    m_Localized: End of the Game!, You have reached the end of the playable content
+      of the Microbe stage of Adaptica, in the future more stages will come like
+      Creature, Tribal, etc, each with its own gameplay, Thank you for playing and
+      supporting the development of Adaptica!!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20114859716505600
+    m_Localized: "creditos:\r\n\r\nProgramador principal: Jes\xFAs Eduardo -yo\r\ncompositor
+      de musica: Jes\xFAs Eduardo -yo\r\ndise\xF1ador de UI: Jes\xFAs Eduardo -yo\r\napoyo
+      con las dudas: diversos LLMs y foros de desarrollo\r\n tutoriales usados:\r\n
+      How to do Marching Cubes (Unity 2020) (omar snatiago) https:youtu.be/JdeyNbDACV0?si=hPZqKH690j02oBUQ\r\n
+      Official unity input system tutorials : https:www.youtube.com/playlist?list=PLX2vGYjWbI0RpLvO3B7aH-ObfcOifMD20\r\n
+      Coding Adventure: Ray Marching (Sebastian Lague) https:www.youtube.com/watch?v=Cp5WWtMoeKg\r\n
+      progrmas usados:\r\n Unity 2023.2.20/22f1 (empeze en .20 y migre a .22 por
+      Exploit GRAVE)\r\n blender 4.5-5.1  (para modelado de partes)\r\n Musescore
+      4 (para composicion de musica)\r\n Paint (windows 11) para fondos y texturas.\r\n
+      Spore, Inspiracion para todo el juego\r\n \r\n MUCHAS gracias a Maxis/EA por
+      hacer spore lo que me \r\n inspiro a hacer este juego\r\n A D I O S"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

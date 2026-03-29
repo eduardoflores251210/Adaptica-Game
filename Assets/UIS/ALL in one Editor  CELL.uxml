@@ -37,7 +37,7 @@
                         <engine:Label text="&#x9;Tipo" />
                         <engine:EnumField type="SerializableTypes.Biology.reproductionTypes, Assembly-CSharp" name="MTD" />
                         <engine:Label text="&#x9;Metodo" />
-                        <engine:EnumField type="UnityEngine.TextAlignment, UnityEngine.TextRenderingModule" include-obsolete-values="false" name="ASE" />
+                        <engine:EnumField type="SerializableTypes.Biology.ReproductionMethod, Assembly-CSharp" include-obsolete-values="false" name="ASE" />
                         <engine:Toggle label="Hay Dimorfismo?" name="DIM" />
                         <engine:Button name="SRX" />
                     </engine:Tab>

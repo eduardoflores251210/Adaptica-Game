@@ -56,6 +56,8 @@ public class SegmentManager : MonoBehaviour
         }
         if (HasTOloadCreture(out var GGG))
         {
+            if (GGG == null)
+                Debug.LogError("======???????????? NO SE QUE PASO AUXILIO ??????????======");
             MetaballManager.Instance.DestroyAllMetaballs();
             foreach (var G in GGG.Segments)
             {
@@ -64,8 +66,8 @@ public class SegmentManager : MonoBehaviour
                 seg.AddComponent<GizSelectable>();
                 Segments.Add(seg);
             }
-            PhaseManager.saver.partmanager.LoadMicrobe(GGG);
-        }
+            PhaseManager.saver.partmanager.QueQUeLoadMicrobe(GGG); //aun no se ha inizializado el PartManager, pero esto es para asegurar que se cargue el microbio antes de que el PartManager intente acceder a los segmentos, lo cual causaria errores porque el PartManager intentaria acceder a una lista de segmentos vacia, ya que esta clase es la encargada de llenar esa lista. 
+		}
 
     }
 
@@ -118,14 +120,31 @@ public class SegmentManager : MonoBehaviour
                 Selected = null;
             }
         }
-        foreach (Metaball metab in Segments)
+        List<Metaball> Dirty = new List<Metaball>();
+		foreach (Metaball metab in Segments)
         {
-            if (metab.TryGetComponent<GizSelectable>(out var ar))
+            if (metab == null)
+                Dirty.Add(metab);
+
+            try
             {
-                ar.IsMovable = ((PhaseManager.currentCat & CurrentCategory.Body) == CurrentCategory.Body);
+                if (metab.TryGetComponent<GizSelectable>(out var ar))
+                {
+                    ar.IsMovable = ((PhaseManager.currentCat & CurrentCategory.Body) == CurrentCategory.Body);
+                }
             }
+            catch (System.Exception)
+            {
+                Dirty.Add(metab);//por si no lo detecta el Nullcheck.
+			}
         }
-        OldSelected = Selected;
+        foreach (var item in Dirty)
+        {
+            Segments.Remove(item);// por si se destruyen Metaballs desde otro lado, no se que clase de brujeria podria causar eso pero bueno, prevenidos estamos
+
+			//la brujeria se llama CARGAR un mirobio nuevo, lo que destruye las Metaballs viejas, entonces esto es necesario para evitar referencias a objetos destruidos
+		}
+		OldSelected = Selected;
        
     }
 }

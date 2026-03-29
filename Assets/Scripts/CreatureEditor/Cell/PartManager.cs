@@ -61,14 +61,13 @@ public class PartManager : MonoBehaviour
 	{
 		PlayerManager.RegisterEditor(this, Editors.Microbe);
 	}
-	public void LoadMicrobe(MicrobeData microbe)
+	bool QueUedLoadMic = false;
+	MicrobeData MicrobeToLoad; //cosass de fila
+	public void QueQUeLoadMicrobe(MicrobeData microbe)
 	{
-		ActiveGen = GéneroBiológico.Female;
-		RepMethodEnum.value = microbe.RepMeth;
-		MaleColor = microbe.MaleColor;
-		FemaleColor = microbe.FemaleColor;
-
-		foreach (var PF in microbe.PartsF)
+		QueUedLoadMic = true;
+		MicrobeToLoad = microbe;
+		foreach (var PF in microbe.PartsF) //aunque no se ha iniciado la UI, se pueden cargar las partes porque esto solo instancia prefabs y los pone en la jerarquía, no toca nada de la UI, así que no debería haber problema
 			addPart(PF.Id);
 
 		if (microbe.PartsM != null)
@@ -79,6 +78,20 @@ public class PartManager : MonoBehaviour
 
 			ActiveGen = GéneroBiológico.Female;
 		}
+		PhaseManager.TemporalirySetAnState(CurrentCategory.Parts, 0.5f); //por medio segundo se abre la UI de partes para terminar la carga de partes, y luego se vuelve a la categoría que estaba, para evitar problemas de que la UI no esté lista para cargar las partes o cosas así. Es un parche feo pero debería funcionar sin problemas.
+	}
+	private void FinishLoadMicrobe(MicrobeData microbe)
+	{
+		if (microbe == null)
+			Debug.LogError("======???????????? NO SE QUE PASO AUXILIO ??????????======");
+		ActiveGen = GéneroBiológico.Female;
+		RepMethodEnum.value = microbe.RepMeth; 
+		MaleColor = microbe.MaleColor;
+		FemaleColor = microbe.FemaleColor;
+
+
+		QueUedLoadMic = false;
+
 	}
 
 	void Update()
@@ -104,6 +117,8 @@ public class PartManager : MonoBehaviour
 			CreatureRenderer.material = FemaleMat;
 		else
 			CreatureRenderer.material = MaleMat;
+		if (QueUedLoadMic)
+			FinishLoadMicrobe(MicrobeToLoad);
 	}
 
 	private void TryInitUI()

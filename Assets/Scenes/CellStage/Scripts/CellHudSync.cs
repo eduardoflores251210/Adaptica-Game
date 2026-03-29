@@ -7,7 +7,7 @@ public class CellHudSync : MonoBehaviour
 	public CellController Player;
 	public PauseMenuManager PauseManager;
 	ProgressBar ProgressBar95;//Jeje referencia a progressbar95
-	float MaxPoints = 260f;
+	public float MaxPoints = 150f; //ah con razon es muy tardado temrinar el juego. listo ahora es 150 puntos :)
 
 	void Start()
 	{
@@ -41,7 +41,7 @@ public class CellHudSync : MonoBehaviour
 		//comprobación paranoica
 		if (ProgressBar95 == null||document == null || Player == null)
 		{
-			Debug.LogError("💥✨ SYSTEM FAILURE: A VALUABLE REFERENCE HAS TRAGICALLY PERISHED ✨💥");
+			Debug.LogError("💥✨ SYSTEM FAILURE: A VALUABLE REFERENCE HAS TRAGICALLY PERISHED ✨💥");//creo que el script se cree mettaton de undertale.
 			return;
 		}
 		float progress = Player.StageProgress;
