@@ -30,6 +30,54 @@ MonoBehaviour:
     m_Localized: Adaptica
     m_Metadata:
       m_Items: []
+  - m_Id: 2227554742272
+    m_Localized: Farbton
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2268793139200
+    m_Localized: "S\xE4ttigung"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2015532675072
+    m_Localized: Verhalten
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1958607581184
+    m_Localized: Malen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1201598623744
+    m_Localized: Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1031804809216
+    m_Localized: Vorschau
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1270410375168
+    m_Localized: Beschreibung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1611226935296
+    m_Localized: "Segment hinzuf\xFCgen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357352337408
+    m_Localized: beseitigen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 826137112576
+    m_Localized: Augen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 922006319104
+    m_Localized: "M\xFCnder"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 966071676928
+    m_Localized: Weapons
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

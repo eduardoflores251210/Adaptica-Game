@@ -17,7 +17,76 @@ MonoBehaviour:
   m_SharedData: {fileID: 11400000, guid: 04515583f27920c45a5dcadf3c71793a, type: 2}
   m_Metadata:
     m_Items: []
-  m_TableData: []
+  m_TableData:
+  - m_Id: 178381385728
+    m_Localized: "/*\r\n//[NITERNAL_RECIPE]\r\n\r\n// \"Le g\xE2teau n'est toujours
+      pas un mensonge\"\r\n// \"Le g\xE2teau de configuration est toujours rouge\"
+      (\xC9dition Saveur Fraise v2.0 - Version Stable)\r\n\r\n* Notes de mise \xE0
+      jour\_:\r\n\r\n* - Correction d'un bug de confusion avec la levure (utilisation
+      correcte de la levure chimique)\r\n\r\n* - Ajout de beurre pour am\xE9liorer
+      la texture (fini les DLC secs)\r\n\r\n* - R\xE9\xE9quilibrage de la physique
+      de la confiture de fraises\r\n\r\n* - Am\xE9lioration du rendu de l'humidit\xE9\r\n\r\n*
+      300\_g de farine (Nombre \xE9lev\xE9 de polygones, hydratation correcte)\r\n\r\n*
+      150\_g de sucre (Pour le go\xFBt sucr\xE9 de la victoire)\r\n\r\n* 3 \u0153ufs
+      (Ne servent toujours pas \xE0 l'\xE9closion. Merci d'arr\xEAter d'essayer.)\r\n\r\n*
+      100\_g de beurre OU 80\_ml d'huile (Fluidit\xE9 optimale)\r\n\r\n* 100\u2013150\_g
+      de confiture de fraises (Ingr\xE9dient rouge - d\xE9sormais \xE9quilibr\xE9)\r\n\r\n*
+      100\_ml de lait (G\xE9n\xE9r\xE9 par Calcium Engine) v1.0)\r\n\r\n*15 g de
+      levure chimique (PAS de levure de boulanger. Ceci n'est pas un simulateur de
+      fermentation. Si vous souhaitez l'utiliser, dosez-la vous-m\xEAme.)\r\n\r\n/
+      Logique :\r\n\r\n/ Ajout de mati\xE8re grasse pour corriger le bug du \xAB
+      g\xE2teau du biome d\xE9sertique \xBB.\r\n\r\n/ Quantit\xE9 de confiture r\xE9duite
+      pour \xE9viter le speedrun \xAB centre cru \xBB.\r\n\r\n/ Stabilit\xE9 am\xE9lior\xE9e.
+      Plus de bugs d'acc\xE8s anticip\xE9.\r\n\r\n/ Instructions :\r\n\r\n/ 1. Battre
+      le beurre et le sucre jusqu'\xE0 obtenir une consistance mousseuse (augmenter
+      le volume).\r\n\r\n/ 2. Ajouter les \u0153ufs un \xE0 un (ne vous \xE9nervez
+      pas si le r\xE9sultat vous para\xEEt \xE9trange).\r\n\r\n/ 3. M\xE9langer le
+      lait et la confiture de fraises (active le shader rouge).\r\n\r\n/ 4. Ajouter
+      la farine et la levure chimique (tamis\xE9es, sans bugs de texture).\r\n\r\n/
+      5. M\xE9langer jusqu'\xE0 ce que la p\xE2te atteigne une fr\xE9quence d'images
+      stable (pas d'overclocking).\r\n\r\n// DLC optionnel :\r\n\r\n/ - Ajouter de
+      la confiture en spirale sur le dessus pour un rendu plus esth\xE9tique.\r\n\r\n/
+      - Ou injectez de la confiture apr\xE8s la cuisson pour une couche secr\xE8te.\r\n\r\n/
+      // Cuire au four \xE0 180 \xB0C pendant environ 30 \xE0 40 minutes, jusqu'\xE0
+      ce que le g\xE2teau soit dor\xE9.\r\n\r\n/ Test du cure-dent\_: s'il ressort
+      propre, c'est gagn\xE9\_!\r\n\r\n/ // AVERTISSEMENT\_:\r\n\r\n/ N'utilisez
+      PAS votre carte graphique comme un four.\r\n\r\n/ La limitation thermique n'est
+      pas une technique culinaire.\r\n\r\n/ On a essay\xE9. Le g\xE2teau avait le
+      go\xFBt des mises \xE0 jour de pilotes et de la d\xE9prime.\r\n\r\n*/"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 165933769027584
+    m_Localized: "Volume ma\xEEtre"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 166681881866240
+    m_Localized: Volume des effets sonores
+    m_Metadata:
+      m_Items: []
+  - m_Id: 167023155605504
+    m_Localized: Volume musical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 180898752098304
+    m_Localized: "R\xE9solution d'\xE9cran"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181732873334784
+    m_Localized: Langue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 182115863621632
+    m_Localized: "Plein \xE9cran"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 223661350711296
+    m_Localized: "ARR\xCAT"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 248903985000448
+    m_Localized: "ARR\xCATEZ DE CLIQUER"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

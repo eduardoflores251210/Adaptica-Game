@@ -45,7 +45,12 @@ public enum PartCategories
 	Roots
 	#endregion
 }
-
+public enum PartTypes
+{
+	Animal,
+	Vehicle,
+	Vegetal
+}
 
 [Serializable]
 public struct Stat

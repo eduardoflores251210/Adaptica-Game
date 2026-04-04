@@ -96,12 +96,16 @@ public class NewGameMaker : MonoBehaviour
 	{
 		UnityEngine.SceneManagement.SceneManager.LoadScene(1); //carga el editor de micrboio
 	}
+	public void NewPlant()
+	{
+		LoadWithLoadingScreen.LoadScene(5, Stages.Creature); //carga el editor de plantas
+	}
 	//razones UGUI
 	public void NewGame()
 	{
 		if (!(AllowStars && AllowRouguePlanetsMoons))
 		{
-			Debug.Log("¿??????????????????????????????????????????"); 
+			Debug.Log("¿?????????????????????????????????????????? si no permites nada permites todo"); //el script esta confundido ante tus cuestionables decisiones, pero no se atreve a decirlo en voz alta
 			AllowStars = AllowRouguePlanetsMoons = true;//si no permites nada permites todo
 		}
 		var ins = CrossScenePackageSender.Instance;
@@ -134,7 +138,7 @@ public class NewGameMaker : MonoBehaviour
 			if (chosenPlanet == null)
 			{
 				// No se encontró ningún planeta válido
-				ShowBSOD();
+				ShowBSOD("No se encontró ningún planeta válido", 0x01);
 				return;
 			}
 
@@ -169,11 +173,11 @@ public class NewGameMaker : MonoBehaviour
 				cache.PlanetIds.Remove(planetID);
 			}
 			OverWriteCache(cache);
-			UnityEngine.SceneManagement.SceneManager.LoadScene(3);
+			LoadWithLoadingScreen.LoadScene(3, Stages.Microbe); //aun no puedes iniciar en otras etapas por que solo es funcional Microbio.
 		}
 	}
 
-	private void ShowBSOD()
+	private void ShowBSOD(string message, int errorCode)
 	{
 		GameObject A = new("BSOD");
 		var C = A.AddComponent<Canvas>();
@@ -201,7 +205,7 @@ public class NewGameMaker : MonoBehaviour
 		
 		GameObject TextGO = new("ERROR_TXT");
 		var TEXT = TextGO.AddComponent<TMPro.TextMeshProUGUI>();
-		TEXT.text = "ERROR";
+		TEXT.text = $"ERROR\n {message}\n ERROR CODE {errorCode.ToString("X")}";//mensaje de error con el mensaje y el codigo de error en hexadecimal
 		TEXT.fontSize = 120;
 		TEXT.color = Color.white;
 		TEXT.alignment = TMPro.TextAlignmentOptions.Center;
@@ -214,7 +218,11 @@ public class NewGameMaker : MonoBehaviour
 	}
 
 }
-
+/// <summary>
+/// Cache de planetas para nuevas partidas
+/// Son bastante utiles para evitar que el usuario
+/// espere mucho para encontrar un planeta valido
+/// </summary>
 [Serializable]
 public struct PlanetCacheFile
 {

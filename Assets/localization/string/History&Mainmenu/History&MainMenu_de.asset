@@ -43,6 +43,30 @@ MonoBehaviour:
       hacer spore lo que me \r\n inspiro a hacer este juego\r\n A D I O S"
     m_Metadata:
       m_Items: []
+  - m_Id: 37364690944
+    m_Localized: Beenden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20106292733145088
+    m_Localized: Neues Spiel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20106377911070720
+    m_Localized: Neuer Mikrobe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20106522274820096
+    m_Localized: Spiel laden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20106660913344512
+    m_Localized: Konfiguration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22250736313126912
+    m_Localized: Neue Pflanze
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

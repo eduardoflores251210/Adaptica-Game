@@ -382,3 +382,16 @@ public class PartManager : MonoBehaviour
 			PlayerManager.UnregisterEditor();
 	}
 }
+
+
+//mensaje de error Texto sin localñización: (esto no deveria estar aqui epro lo pondre)
+/*
+ * es-mx/es NO HAY TRADUCCION
+ * en: NO TRANSLATION
+ * fr: AUCUNE TRADUCTION
+ * de: KEINE ÜBERSETZUNG
+ * pt-br: SEM TRADUÇÃO
+ * pt-pt: SEM TRADUÇÃO
+ * nah: Ax onka tlajtolkuepalistli
+ * yua: Mina'an mix jump'éel traducción
+*/

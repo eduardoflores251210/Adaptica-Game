@@ -23,7 +23,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 20106292733145088
-    m_Localized: Nuevo Juego
+    m_Localized: Nueva Partida
     m_Metadata:
       m_Items: []
   - m_Id: 20106377911070720
@@ -61,6 +61,10 @@ MonoBehaviour:
       4 (para composicion de musica)\r\n Paint (windows 11) para fondos y texturas.\r\n
       Spore, Inspiracion para todo el juego\r\n \r\n MUCHAS gracias a Maxis/EA por
       hacer spore lo que me \r\n inspiro a hacer este juego\r\n A D I O S"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22250736313126912
+    m_Localized: Nueva Planta
     m_Metadata:
       m_Items: []
   references:

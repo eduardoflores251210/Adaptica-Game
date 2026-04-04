@@ -290,7 +290,9 @@ namespace SerializableTypes
 		Civilization, //No ha empesado desarollo		ademas se le llama actualmente NACION
 		Space, //estructuras de datos en cosntrucción  aunque ya puedes visitar sistemas pero no planetas
 		MainMenu //Funciona desde alpha 1 
+				 //ah claro porque todos definitivamernte sabemos que el Menu principal es el estadio MAS Avanzado del juego XD 
 	}
+
 	public enum CreatureTypes
 	{
 		Microbe,

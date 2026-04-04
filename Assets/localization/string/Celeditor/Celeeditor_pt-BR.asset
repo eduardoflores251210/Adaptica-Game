@@ -31,7 +31,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1270410375168
-    m_Localized: "descrip\xE7ao"
+    m_Localized: "descri\xE7ao"
     m_Metadata:
       m_Items: []
   - m_Id: 1201598623744
@@ -39,7 +39,43 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 107086853435392
-    m_Localized: Adaptica
+    m_Localized: "Adapt\xEDca"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2227554742272
+    m_Localized: Matiz
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2268793139200
+    m_Localized: "\r\rSatura\xE7\xE3o"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2015532675072
+    m_Localized: Comportamento
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1958607581184
+    m_Localized: Pintar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1031804809216
+    m_Localized: "Pr\xE9-visualiza\xE7\xE3o"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1611226935296
+    m_Localized: adicionar segmento
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357352337408
+    m_Localized: eliminar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 922006319104
+    m_Localized: bocas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 966071676928
+    m_Localized: Armas
     m_Metadata:
       m_Items: []
   references:

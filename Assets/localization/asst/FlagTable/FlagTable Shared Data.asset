@@ -41,5 +41,9 @@ MonoBehaviour:
           - en
           - es
           - pt-BR
+          - pt-PT
+          - fr
+          - de
+          - yua
         m_TypeString: UnityEngine.Texture2D, UnityEngine.CoreModule, Version=0.0.0.0,
           Culture=neutral, PublicKeyToken=null

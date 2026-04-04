@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5197019b10814e549a1baa0f8eca9ac7, type: 3}
+  m_Name: Rama 56985592024F66F
+  m_EditorClassIdentifier: 
+  partID: 
+  displayName: Rama 56985
+  description: 'RAMA '
+  icon: {fileID: 0}
+  prefab: {fileID: 919132149155446097, guid: ce90c00cfd86736489353a733021dd98, type: 3}
+  categories: 
+  size: 0
+  healthBoost: 0
+  tags: []
+  Stats:
+    stats: []
+  SunLightPower: 0
+  WaterAbsortionBoost: 0
+  function: 0

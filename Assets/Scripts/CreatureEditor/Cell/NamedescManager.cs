@@ -13,6 +13,7 @@ public class NamedescManager : MonoBehaviour
     private bool initialized = false;
     private TextField Nam; // campo nombre
     private TextField Desc; // campo descripción
+    private Button Exit;    // botón salir
     //private Label Warning; // etiqueta de advertencia
     private Button Sig;    // botón siguiente
 
@@ -30,9 +31,9 @@ public class NamedescManager : MonoBehaviour
                 Desc = root.Q<TextField>("Desc");
                 //Warning = root.Q<Label>("WARNING");
                 Sig = root.Q<Button>("Sig");
-
-                // Restaurar texto guardado
-                Nam.value = Name;
+                Exit = root.Q<Button>("Exit");
+				// Restaurar texto guardado
+				Nam.value = Name;
                 Desc.value = Description;
 
                 // Suscribirse a cambios para actualizar persistencia
@@ -49,8 +50,9 @@ public class NamedescManager : MonoBehaviour
                 });
 
                 Sig.clicked += OnNextClicked;
+                Exit.clicked += () => { phaseManager.saver.ExitWitourthSaving(); };
 
-                ValidateInput();
+				ValidateInput();
 
                 initialized = true;
             }

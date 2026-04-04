@@ -105,7 +105,56 @@ public class CellSaver : MonoBehaviour
 		}
         else SceneManager.LoadScene(0); // menu principal
     }
-	
+	public void ExitWitourthSaving()
+
+	{
+		bool Load_Stage = false;
+		PlanetData planetfat = new();
+		string LdStgSndr = "";
+		var Mailman = CrossScenePackageSender.Instance;
+		if (Mailman != null)
+		{
+			// Revisar paquetes tipados tipo bool
+			if (Mailman.IsThereAnyTypedMailForHim<bool>("CellSaver", out var boolMail))
+			{
+				foreach (var pkg in boolMail)
+				{
+					if (pkg.Tags.Length > 1 && pkg.Tags[1] == "LodStg")
+					{
+						Load_Stage = pkg.Contents;
+						LdStgSndr = pkg.Sender;
+						Mailman.DeleteMyPackage(pkg);
+					}
+				}
+			}
+
+			// Revisar paquetes tipados tipo PlanetData
+			if (Mailman.IsThereAnyTypedMailForHim<PlanetData>("CellSaver", out var planetMail))
+			{
+				planetfat = planetMail[0].Contents;
+				Mailman.DeleteMyPackage(planetMail[0]);
+			}
+		}
+		if (Load_Stage)
+		{
+			MicrobeData microbe = Saver.TryToLoadLastMicrobeRevision(Saver.CurrentSaveName, out var data) ? data : null;
+
+			Mailman.SendTypedPackage(gameObject.name, "Player", microbe, new string[1] { nameof(MicrobeData) });
+			if (LdStgSndr != "EnterEdit")
+			{
+				//bien llegamos a MicrobeSaver ahora vamos a elimianr ese codigo obsoelto para guardar usando Saver
+				SavedGame game = new SavedGame(planetfat.id, false, Stages.Microbe, microbe.Name, new(), GetDiet(microbe), 0d);
+				Saver.CreateSavefile(microbe.Name, BodyID.FromString(planetfat.id).GetID(), out string NAME);
+				Saver.SaveGame(game, NAME);
+				Saver.SaveMicrobeRevision(NAME, microbe);
+				Saver.LoadGameComplete(NAME);
+			}
+			else
+				StageLoader.LoadCurrentStage();
+		}
+		else
+			StageLoader.LoadStage(Stages.MainMenu);
+	}
 	private Diets GetDiet(MicrobeData microbe)
 	{
 		Diets diet = Diets.none;

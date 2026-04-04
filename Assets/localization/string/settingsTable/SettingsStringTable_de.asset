@@ -50,6 +50,38 @@ MonoBehaviour:
     m_Localized: "H\xF6r auf, den Knopf zu dr\xFCcken!"
     m_Metadata:
       m_Items: []
+  - m_Id: 178381385728
+    m_Localized: "/*\r\n//[NITERNAL_RECIPE]\r\n// \"Der Kuchen ist immer noch keine
+      L\xFCge\"\r\n// \"Der Konfigurationskuchen ist immer noch rot\" (Erdbeergeschmack
+      Edition v2.0 - Stabile Version)\r\n\r\n* Patch-Hinweise:\r\n\r\n* - Verwirrungsfehler
+      mit Hefe behoben (Backpulver wird jetzt korrekt verwendet)\r\n\r\n* - Butter
+      hinzugef\xFCgt, um die Textur zu verbessern (kein trockener DLC mehr)\r\n\r\n*
+      - Physik der Erdbeermarmelade neu ausbalanciert\r\n\r\n* - Rendering-Pipeline
+      f\xFCr Feuchtigkeit verbessert\r\n\r\n*300 g Mehl (Hohe Polygonanzahl, jetzt
+      korrekt hydratisiert)\r\n\r\n*150 g Zucker (F\xFCr den s\xFC\xDFen Geschmack
+      des Sieges)\r\n\r\n*3 Eier (Noch nicht zum Ausbr\xFCten. Bitte nicht mehr versuchen.)\r\n\r\n*100
+      g Butter ODER 80 ml \xD6l (Endlich fl\xFCssige Performance)\r\n\r\n*100\u2013150
+      g Erdbeermarmelade (DIE ROTE ZUTATE - jetzt ausbalanciert, nicht mehr fehlerhaft)\r\n\r\n*100
+      ml Milch (Angetrieben von der Calcium-Engine) (v1.0)\r\n\r\n*15 g Backpulver
+      (KEINE Hefe. Dies ist kein G\xE4rungssimulator. Falls Sie es dennoch verwenden,
+      messen Sie die Menge bitte selbst ab.)\r\n\r\n// Logik:\r\n\r\n// Fett hinzugef\xFCgt,
+      um den \u201EW\xFCstenbiom-Kuchen\u201C-Bug zu beheben.\r\n\r\n// Marmeladenmenge
+      reduziert, um den \u201ERohkern-Any%\u201C-Speedrun zu verhindern.\r\n\r\n//
+      Stabilit\xE4t verbessert. Keine Early-Access-Probleme mehr.\r\n\r\n// Anleitung:\r\n\r\n//
+      1. Butter und Zucker schaumig schlagen (Lautst\xE4rke erh\xF6hen).\r\n\r\n//
+      2. Eier einzeln hinzuf\xFCgen (nicht verzweifeln, wenn es komisch aussieht).\r\n\r\n//
+      3. Milch und Erdbeermarmelade verr\xFChren (aktiviert den roten Shader).\r\n\r\n//
+      4. Mehl und Backpulver hinzuf\xFCgen (gesiebt, keine Texturfehler).\r\n\r\n//
+      5. R\xFChren, bis der Teig eine stabile Framerate erreicht (kein \xDCbertakten).\r\n\r\n//
+      Optionaler DLC:\r\n\r\n// - Marmelade obenauf verteilen f\xFCr eine bessere
+      Optik.\r\n\r\n// - Oder spritze nach dem Backen Marmelade hinein, um eine geheime
+      Beuteschicht zu erhalten.\r\n\r\n// Backe bei 180 \xB0C f\xFCr ca. 30\u201340
+      Minuten, bis der Kuchen goldbraun ist.\r\n\r\n// Zahnstochertest: Wenn er sauber
+      herauskommt, hast du gewonnen.\r\n\r\n// WARNUNG:\r\n\r\n// Benutze deine GPU
+      NICHT als Backofen.\r\n\r\n// Thermisches Drosseln ist keine Backtechnik.\r\n\r\n//
+      Wir haben es ausprobiert. Der Kuchen schmeckte nach Treiber-Updates und Traurigkeit.\r\n\r\n*/"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
