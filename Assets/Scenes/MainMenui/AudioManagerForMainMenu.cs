@@ -44,6 +44,10 @@ public class AudioManagerForMainMenu : MonoBehaviour
 
             if (GalaxyGenerator.DoesTheGalaxyExist && !GalaxyGenerator.IsGenerating)
             {
+				if (obj != null)
+				{
+					Destroy(obj);
+				}
                 if (GalaxyGenerator.visualizer != null)
                 {
                     if (GalaxyGenerator.visualizer.Done)
@@ -66,7 +70,31 @@ public class AudioManagerForMainMenu : MonoBehaviour
                         {
                             Init();
                         }
-                    }
+                    }else
+					{
+						if (A)
+						{
+
+						}
+						else
+						{
+							Transform C = fade.transform;
+							GameObject TextGO = new("GEN_TXT");
+							var TEXT = TextGO.AddComponent<TMPro.TextMeshProUGUI>();
+							TEXT.text = "Cargando Galaxia por favor espere....";
+							TEXT.fontSize = 120;
+							TEXT.color = Color.white;
+							TEXT.alignment = TMPro.TextAlignmentOptions.Center;
+
+							TEXT.rectTransform.SetParent(C, false);
+							TEXT.rectTransform.anchorMin = Vector2.zero;
+							TEXT.rectTransform.anchorMax = Vector2.one;
+							TEXT.rectTransform.offsetMin = Vector2.zero;
+							TEXT.rectTransform.offsetMax = Vector2.zero;
+							A = true;
+							P = TextGO;
+						}
+					}
                 }
                 else
 				{
@@ -82,6 +110,7 @@ public class AudioManagerForMainMenu : MonoBehaviour
                 {
                     Transform C = fade.transform;
 					GameObject TextGO = new("GEN_TXT");
+					obj = TextGO;
 					var TEXT = TextGO.AddComponent<TMPro.TextMeshProUGUI>();
 					TEXT.text = "Generando Galaxia por favor espere....";
 					TEXT.fontSize = 120;
@@ -99,7 +128,7 @@ public class AudioManagerForMainMenu : MonoBehaviour
             }
         }
     }
-
+	GameObject obj = null;
 	private void Init()
 	{
 		fade.StartFadeIn();

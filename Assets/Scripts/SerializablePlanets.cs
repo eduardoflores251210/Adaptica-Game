@@ -77,6 +77,8 @@ namespace SerializableTypes.Space
 		}
 		public bool IsNull()
 		{
+			if (this is null)
+				return true ;
 			return (string.IsNullOrEmpty(Name) && string.IsNullOrEmpty(id) && string.IsNullOrEmpty(Description) && string.IsNullOrEmpty(ParentID) && Children.Count == 0 && (transform.Pos == Vector3.zero && transform.Rot == Vector3.zero && transform.Scale == Vector3.zero));
 		}
 

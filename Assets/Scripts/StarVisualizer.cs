@@ -4,6 +4,8 @@ using SerializableTypes.Space;
 using StandartUtilities.Extentions;
 using System;
 using System.Collections;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -11,6 +13,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
 using Debug = UnityEngine.Debug;
+using System.Collections.Concurrent;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "UNT0022:Inefficient position/rotation assignment", Justification = "<pendiente>")]
 public class StarVisualizer : MonoBehaviour
 {
@@ -30,8 +33,9 @@ public class StarVisualizer : MonoBehaviour
 	public bool Done = false;
 	[HideInInspector]
 	[NonSerialized]
+	public ConcurrentBag<GalaxySector> Bag;
 	public List<GalaxySector> list;
-	public List<quequeElement> QueQue;//fila futura para que se carge paralela las estrellas y una co rutina las spawnee conforme se carge por que unity no permite modificar objetos de la escena desde hilos secundarios, asi que se me ocurrio esta solucion medio rara pero que creo que puede funcionar, la idea es que la ParralelLOAD cargue las estrellas en esta lista y la co rutina las vaya sacando de a batch para spawnear y asi no bloquear el hilo principal por mucho tiempo
+	public System.Collections.Concurrent.ConcurrentBag<quequeElement> QueQue;//fila futura para que se carge paralela las estrellas y una co rutina las spawnee conforme se carge por que unity no permite modificar objetos de la escena desde hilos secundarios, asi que se me ocurrio esta solucion medio rara pero que creo que puede funcionar, la idea es que la ParralelLOAD cargue las estrellas en esta lista y la co rutina las vaya sacando de a batch para spawnear y asi no bloquear el hilo principal por mucho tiempo
 	public List<GalaxySector> SectorsToLoad;//esta es la lista de sectores que se van a cargar, la idea es que se carguen en orden de cercania al jugador para que no se note tanto el pop in, aunque esto es un poco complicado de implementar por que no se exactamente como calcular la cercania de los sectores al jugador sin tener una referencia al jugador, asi que por ahora esta lista se va a llenar con todos los sectores y la co rutina los va a ir sacando de a uno para cargar las estrellas, aunque esto puede causar un poco de pop in si el jugador esta lejos del centro de la galaxia, asi que una posible solucion seria cargar primero los sectores cercanos al centro y luego ir cargando los sectores mas lejanos, aunque esto puede causar un poco de pop in si el jugador esta cerca del borde de la galaxia, asi que por ahora esta lista se va a llenar con todos los sectores y la co rutina los va a ir sacando de a uno para cargar las estrellas, aunque esto puede causar un poco de pop in si el jugador esta lejos del centro de la galaxia, asi que una posible solucion seria cargar primero los sectores cercanos al centro y luego ir cargando los sectores mas lejanos, aunque esto puede causar un poco de pop in si el jugador esta cerca del borde de la galaxia, asi que por ahora esta lista se va a llenar con todos los sectores y la co rutina los va a ir sacando de a uno para cargar las estrellas, aunque esto puede causar un poco de pop in si el jugador esta lejos del centro de la galaxia, asi que una posible solucion seria cargar primero los sectores cercanos al centro y luego ir cargando los sectores mas lejanos, aunque esto puede causar un poco de pop in si el jugador esta cerca del borde de la galaxia, asi que por ahora esta lista se va a llenar con todos los sectores y la co rutina los va a ir sacando de a
 	public int BatchSize = 50;
 	public bool IsInMainMenu = false;
@@ -40,6 +44,7 @@ public class StarVisualizer : MonoBehaviour
 	public bool Use1FramesPerSecondMode = false;
 	[Header("Opcional")]
 	public SectorTurnOnOffEr ChunckManager;
+	public bool EXPERIMENTAL = false;
 
 	void Start()
 	{
@@ -106,10 +111,20 @@ public class StarVisualizer : MonoBehaviour
 		{
 			yield return null; // esperar a que el hilo de carga termine
 		}
-
-		if (list.Count > 0) yield return StartCoroutine(VisualizeStars(list, data));
+		if (list.Count == 0 && Bag.Count > 0)
+		{
+			list = Bag.ToList();
+		}
+		if (list.Count > 0 || Bag.Count > 0)
+		{
+			if (!EXPERIMENTAL)
+			yield return StartCoroutine(VisualizeStars(list, data));
+			else 
+				yield return StartCoroutine(NEWPARARELVisualizeStars(Bag,data));
+		}
 	}
 	public GalaxyData galaxy = null;
+	//puede que en pc este metodo sea RAPIDISIMO pero en movil no
 	public IEnumerator VisualizeStars(List<GalaxySector> sectors, GalaxyData data = null)
 	{
 		Debug.Log("Visuzlize");
@@ -397,7 +412,8 @@ public class StarVisualizer : MonoBehaviour
 
 		yield break;
 	}
-	public IEnumerator NEWPARARELVisualizeStars(List<GalaxySector> sectors, GalaxyData data = null)
+	//deveria ser un poquito mas rapido
+	public IEnumerator NEWPARARELVisualizeStars(ConcurrentBag<GalaxySector> sectors, GalaxyData data = null)
 	{
 		Debug.Log("Visuzlize");
 		List<ParticleSystem.EmitParams> particleX = new();
@@ -505,68 +521,84 @@ public class StarVisualizer : MonoBehaviour
 			}
 			SpawnedSector = false;
 			ParralelStarSpawn(sector);
-			int i = 0;
-			foreach (var element in QueQue)
+			while (!SpawnedSector)
 			{
-				var star = element.star;
-				if (star == null) continue;
-				if (star.IsNull()) continue;
-
-				if (needTemplates)
+				if (QueQue == null) yield return null; // esperar a que el hilo de carga inicialice la fila
+				if (QueQue.Count == 0) yield return null; // esperar a que el hilo de carga ponga elementos en la fila
+				int i = 0;
+				while (!QueQue.IsEmpty)
 				{
-					// Instanciar clonando la plantilla (evita AddComponent por cada estrella)
-					GameObject starGO = Instantiate(starTemplate);
-					starGO.name = star.id;
-					starGO.transform.position = star.transform.Pos * GalaxyScale;
-					starGO.transform.rotation = Quaternion.Euler(star.transform.Rot);
-					starGO.transform.parent = SectorGO != null ? SectorGO.transform : starParent;
-					// activar después de setear datos
-					var sps = starGO.GetComponent<SpaceStageStar>();
-					if (sps != null)
+					
+
+					// En lugar de foreach + Clear, usamos un while que extrae
+					// Esto garantiza que no borramos estrellas que acaban de entrar
+					while (QueQue.TryTake(out quequeElement element))
 					{
-						sps.ID = star.id;
-						sps.BinTransform = star.transform;
-						sps.Type = star.type;
-						sps.SectorPos = sector.Position;
+						var star = element.star;
+						if (star == null || star.IsNull()) continue;
+
+						// 1. Instanciar (Tu lógica de templates)
+						if (needTemplates)
+						{
+							GameObject starGO = Instantiate(starTemplate);
+							starGO.name = star.id;
+							starGO.transform.position = star.transform.Pos * GalaxyScale;
+							starGO.transform.parent = SectorGO != null ? SectorGO.transform : starParent;
+
+							var sps = starGO.GetComponent<SpaceStageStar>();
+							if (sps != null)
+							{
+								sps.ID = star.id;
+								sps.Type = star.type;
+							}
+							starGO.SetActive(true);
+						}
+
+						// 2. Partículas
+						var emit = element.emit;
+						switch (star.type)
+						{
+							case StarTypes.O: particleO.Add(emit); break;
+							case StarTypes.B: particleB.Add(emit); break;
+							case StarTypes.A: particleA.Add(emit); break;
+							case StarTypes.F: particleF.Add(emit); break;
+							case StarTypes.G: particleG.Add(emit); break;
+							case StarTypes.K: particleK.Add(emit); break;
+							case StarTypes.M: particleM.Add(emit); break;
+							case StarTypes.L: particleL.Add(emit); break;
+							case StarTypes.T: particleT.Add(emit); break;
+							case StarTypes.EB: particleEB.Add(emit); break;
+							case StarTypes.NS: particleNS.Add(emit); break;
+							case StarTypes.EN: particleEN.Add(emit); break;
+							case StarTypes.X:
+							default: particleX.Add(emit); break;
+						}
+
+						bool T = false;
+						if (Use1FramesPerSecondMode)
+						{
+							// mantengo tu lógica original de throttling temporal si está activada
+							// (aquí no usamos stopwatch global para no agregar overhead por iteración)
+						}
+
+						Batch++;
+						if ((Batch >= BatchSize && !Use1FramesPerSecondMode) || T)
+						{
+							Batch = 0;
+							yield return null;
+						}
+						i++;
 					}
-					starGO.SetActive(true);
-				}
-
-				var emit = element.emit;
-				switch (star.type)
-				{
-					case StarTypes.O: particleO.Add(emit); break;
-					case StarTypes.B: particleB.Add(emit); break;
-					case StarTypes.A: particleA.Add(emit); break;
-					case StarTypes.F: particleF.Add(emit); break;
-					case StarTypes.G: particleG.Add(emit); break;
-					case StarTypes.K: particleK.Add(emit); break;
-					case StarTypes.M: particleM.Add(emit); break;
-					case StarTypes.L: particleL.Add(emit); break;
-					case StarTypes.T: particleT.Add(emit); break;
-					case StarTypes.EB: particleEB.Add(emit); break;
-					case StarTypes.NS: particleNS.Add(emit); break;
-					case StarTypes.EN: particleEN.Add(emit); break;
-					case StarTypes.X:
-					default: particleX.Add(emit); break;
-				}
-
-				bool T = false;
-				if (Use1FramesPerSecondMode)
-				{
-					// mantengo tu lógica original de throttling temporal si está activada
-					// (aquí no usamos stopwatch global para no agregar overhead por iteración)
-				}
-
-				Batch++;
-				if ((Batch >= BatchSize && !Use1FramesPerSecondMode) || T)
-				{
-					Batch = 0;
 					yield return null;
 				}
-				i++;
-			}
 
+
+				
+
+
+
+
+			}
 			yield return null;
 
 			if (!HideRouguePlanets)
@@ -685,59 +717,76 @@ public class StarVisualizer : MonoBehaviour
 	bool isDoneLoading = false;
 	async void ParralelLOAD()
 	{
-		await System.Threading.Tasks.Task.Run(() =>
+		_cts = new CancellationTokenSource(); // Inicializar antes de empezar
+		var token = _cts.Token;
+		if (Bag == null)
 		{
-			GalaxyData data = null;
-			try { data = GalaxyData.LoadGalaxy(); }
-			catch (Exception e) { Debug.Log(e); return; }
-			if (data == null) return;
-			foreach (var st in data.SectorPositions)
+			Bag = new();
+		}
+		try
+		{
+			await System.Threading.Tasks.Task.Run(() =>
 			{
-				GalaxyData.LoadSector(st, out var Sec);
-				if (Sec != null)
-				{
-					list.Add(Sec);
-					
-					//Debug.Log("LD SEC " + Sec.Position.ToString());
-				}
-			}
-			isDoneLoading = true;
-		});
+				GalaxyData data = GalaxyData.LoadGalaxy();
+				if (data == null) return;
+
+				Parallel.ForEach(data.SectorPositions, (st) => {
+					GalaxyData.LoadSector(st, out var Sec);
+					if (Sec != null) Bag.Add(Sec); // 'list' debe ser ConcurrentBag
+				});
+				isDoneLoading = true;
+			}, token);
+		}
+		catch (OperationCanceledException) { /* Tarea cancelada con éxito */ }
 	}
 	bool SpawnedSector= false;
+	private CancellationTokenSource _cts;
 	async void ParralelStarSpawn(GalaxySector sector)
 	{
-		await System.Threading.Tasks.Task.Run(() =>
+		var token = _cts.Token;
+		if (QueQue == null) QueQue = new();
+
+		try
 		{
-
-			foreach (var star in sector.Stars)
+			await System.Threading.Tasks.Task.Run(() =>
 			{
-				if (star == null) continue;
-				if (star.IsNull()) continue;
-				ParticleSystem.EmitParams emit = new();
-				emit.position = star.transform.Pos * GalaxyScale;
-				StarTypes type = star.type;
-				if (QueQue==null) QueQue = new ();
-				QueQue.Add(new quequeElement { star = star, emit = emit });
-			}
-			SpawnedSector = true;
+				if (sector == null)
+				{
+					throw new NullReferenceException("SECTOR IS NULL");
+				}
+				// 1. Validar que el sector y su lista de estrellas existan
+				if (sector == null || sector.Stars == null) return;
+				
+				foreach (var star in sector.Stars)
+				{
+					if (token.IsCancellationRequested) return;
 
-		});
+					// 2. ¡AQUÍ ESTÁ EL TRUCO! 
+					// Primero checamos si la referencia 'star' es nula.
+					// Si es nula, el "||" hace que pase a la siguiente sin ejecutar IsNull()
+					if (star == null || star.IsNull()) continue;
+
+					ParticleSystem.EmitParams emit = new();
+					emit.position = star.transform.Pos * GalaxyScale;
+
+					QueQue.Add(new quequeElement { star = star, emit = emit });
+				}
+				SpawnedSector = true;
+			}, token);
+		}
+		catch (Exception e) { Debug.LogError(e); }
 	}
 	private void OnDisable()
 	{
-		// Limpiar materiales y sistemas de partículas para evitar fugas de memoria
-		foreach (var mat in Mats.Values)
+		if (_cts != null)
 		{
-			if (mat != null) Destroy(mat);
+			_cts.Cancel(); // Notifica a todas las tareas que deben parar
+			_cts.Dispose();
+			_cts = null;
 		}
-		Mats.Clear();
-		foreach (var ps in Particles.Values)
-		{
-			if (ps != null) Destroy(ps.gameObject);
-		}
-		Particles.Clear();
 
+		// Opcional: Detener corrutinas si quieres ser extra seguro
+		StopAllCoroutines();
 	}
 	public struct quequeElement
 	{

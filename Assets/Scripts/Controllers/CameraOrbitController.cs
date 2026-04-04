@@ -10,6 +10,7 @@ using UnityEngine.UI;
 /// El script que se usa mas es 
 /// una camara en orbita
 /// y a veces la entrada a los dispositivos
+/// y a veces actua como Queen de deltarune 
 /// </summary>
 [Icon("Assets/Textures/UI/Editor/CamOrbICON.png")]
 public class CameraOrbitController : MonoBehaviour
