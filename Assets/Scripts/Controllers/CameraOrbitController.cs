@@ -113,7 +113,7 @@ public class CameraOrbitController : MonoBehaviour
 	{
 		Screen.fullScreen = false;
 	}
-
+    public bool DisableChildCheck;
 	private void LateUpdate()
     {
 		if (Camera.transform == Target)
@@ -161,9 +161,68 @@ public class CameraOrbitController : MonoBehaviour
 
 			return;
 		}
+        if (!DisableChildCheck)
+        {
+            if (Target.IsChildOf(Camera.transform))
+            {
+                Debug.LogWarning(
+        "⚡ OHOHOHO~ ⚡\n" +
+        "PARECE QUE LA CÁMARA HA DECIDIDO ADMIRAR A UNO DE SUS HIJOS.\n" +
+        "ESO NO ES ÓRBITA.\n" +
+        "ESO ES NARCISISMO DIGITAL DISFRAZADO, QUERID@.\n\n" +
+        "RESULTADOS PREDECIBLES:\n" +
+        "🚀 DESPEGUE NO AUTORIZADO\n" +
+        "🧠 CONFUSIÓN ESPACIO-TEMPORAL\n" +
+        "💥 REALIDAD LEVEMENTE DESTRUIDA\n\n" +
+        "RECOMENDACIÓN:\n" +
+        "SEPARA LA CÁMARA DEL TARGET.\n" +
+        "— Queen 💅✨"
+    );
 
+                List<GameObject> Cosas =
+                    FindObjectsByType<GameObject>(FindObjectsSortMode.None).ToList();
 
+                Cosas.Remove(Camera.gameObject);
+                List<GameObject> childs = new();
+                foreach (GameObject obj in Cosas)
+                {
+                    if (obj.transform.parent == Camera.transform)
+                    {
+                        childs.Add(obj);
+                    }
+                }
+                foreach (var g in childs)
+                {
+                    if (Cosas.Contains(g.gameObject))
+                    {
+                        Cosas.Remove(g);
+                    }
+                }
+                if (Cosas.Count > 0)
+                {
+                    Target = Cosas[Random.Range(0, Cosas.Count)].transform;
 
+                    Debug.LogWarning(
+                        "💎 NO TE PREOCUPES 💎\n" +
+                        "YA HE CORREGIDO TU ERROR.\n" +
+                        "YO SIEMPRE LO HAGO.\n" +
+                        "SIGUE PROGRAMANDO.\n" +
+                        "— Queen 👑"
+                    );
+                }
+                else
+                {
+                    Debug.LogError(
+                        "❌ NI SIQUIERA YO PUEDO ARREGLAR ESTO ❌\n" +
+                        "NO HAY NADA MÁS QUE MIRAR.\n" +
+                        "ESTO ES TU CULPA.\n" +
+                        "— Queen"
+                    );
+                }
+
+                return;
+            }
+        }
 
 
 		if ((Pointer.current != null && usandoMouse) && Cursor != null)
