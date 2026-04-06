@@ -80,7 +80,7 @@ namespace Modding
 		public float powerConsumption;
 		public float armor;
 		public float speedBoost;
-		public VehicleFunction Func;
+		public VehicleFunction function; //si el nombre no es consistente con su version Scripotable pero es consistente con sus hermanos personalizabdos 
 		GameObject createPrefab()
 		{
 			GameObject partPrefab = new GameObject(displayName);
@@ -114,7 +114,7 @@ namespace Modding
 			partData.powerConsumption = powerConsumption;
 			partData.armor = armor;
 			partData.speedBoost = speedBoost;
-			partData.Func = Func;
+			partData.Func = function;
 			return partData;
 		}
 	}

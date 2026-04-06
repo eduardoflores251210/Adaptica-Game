@@ -21,13 +21,13 @@ Tribal:
 	basicamente edad de piedra
 	El objetivo es desarollar tecnologias y interactuar con otras tribus
 	es un city builder
-City: 
+Feudal: 
 	es un city builder mas avanzado el objetivo es mejorar la tecnologia inicias en la edad feudal
 	este estadio es especial por que No termina en si aun puede acceder sus caracteristicas desde espacio y civilización
 	aunque si solo sobrevive el editor de ciudades en los otros estadios no la parte feudal antes que pienses eso
-Civilización:
+Nación:
 	es un juego de estrategia en tiempo real como victoria 2
-	hay acceso al editor de ciudad de City
+	hay acceso al editor de ciudad de Feudal aka City
 Space:
 	En esta etapa exploras el universo interactuas ocn demas especies
 	colizas planetas
@@ -48,9 +48,9 @@ NUEVAS IDEAS:
 1. MicroMundo
 2. Adaptaville
 3. BioJourney
-4. VidaLúdica
+4. VidaLúdica (que bueno que no gano este nombre XD)
 5. EvoLúdico
-6. MundoCélula
+6. MundoCélula ( ni este eso suena a juego de moviles para niños XD)
 Pensandolo bien Adaptica no suena tan epico XD
 asi que es OFICIAL el nombre del juego sera ADAPTICA ya no mas SporeLikeEditor XDD OK CREO QUE YA VOY A DEJAR DE PONER NOMBRES PROVISIONALES AL JUEGO Y VOVER A  reformar
 el sistema de guardado pues falta corregir la creacion de nuevas partidas y demas VAMOS A microbe saver a corregir eso
@@ -58,3 +58,6 @@ el sistema de guardado pues falta corregir la creacion de nuevas partidas y dema
 la silaba tonica de Adaptica es la "ti" asi que se pronuncia "Adaptíca" y no "Adapticá" XD pues 
 Adapticá es una conjugación del verbo imaginario
 Adapticar.
+y Ádaptica no existe
+
+asi que NO ADAPTIQUES ADAPTICA

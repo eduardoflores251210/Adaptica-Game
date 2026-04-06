@@ -35,7 +35,10 @@ public class AudioManagerForMainMenu : MonoBehaviour
 
 	}
 	ConfigLoadScreen configLoadScreen;
-	Sprite Spinner	= null;
+	[SerializeField]
+	Sprite Spinner = null;
+	SPINNER SS = null;
+	UnityEngine.UI.Image SSIMG = null;
 	public async void LoadLoadScreen()
 	{
 		var handle = Addressables.LoadAssetAsync<ConfigLoadScreen>("Assets/GLSS"); // "GLSS" es el Address que yo le puse
@@ -55,6 +58,7 @@ public class AudioManagerForMainMenu : MonoBehaviour
 	bool A = false;
 	GameObject P = null;
 	GameObject E = null;
+
 	// Update is called once per frame
 	void Update()
 	{
@@ -63,6 +67,21 @@ public class AudioManagerForMainMenu : MonoBehaviour
 		{
 			if (CheckStuff())
 				return;
+			if (Spinner == null)
+			{
+				if (configLoadScreen !=null)
+				{
+					Spinner = configLoadScreen.Spinner;
+				}
+			}
+			if (SS != null)
+			{
+				SS.speed = 200f;
+				if (SSIMG != null)
+				{
+					SSIMG.sprite = Spinner;
+				}
+			}
 
 			if (GalaxyGenerator.DoesTheGalaxyExist && !GalaxyGenerator.IsGenerating)
 			{
@@ -100,6 +119,13 @@ public class AudioManagerForMainMenu : MonoBehaviour
 						}
 						else
 						{
+							if (Spinner == null)
+							{
+								if (configLoadScreen != null)
+								{
+									Spinner = configLoadScreen.Spinner;
+								}
+							}
 							Transform C = fade.transform;
 							GameObject TextGO = new("GEN_TXT");
 							var TEXT = TextGO.AddComponent<TMPro.TextMeshProUGUI>();
@@ -115,15 +141,16 @@ public class AudioManagerForMainMenu : MonoBehaviour
 							TEXT.rectTransform.offsetMax = Vector2.zero;
 							GameObject eee = new("SPINNER"); //esta porqué la gente piensa que crasheo si no ven algo moviendose en la pantalla, aunque la verdad es que el texto ya se mueve por si solo, pero bueno, asi se sienten mas seguros de que el juego no se crasheo
 							eee.transform.SetParent(C, false);
-							var IMG = eee.AddComponent<UnityEngine.UI.Image>();
-							IMG.sprite = Spinner;
-							var SPIN = eee.AddComponent<SPINNER>();// NO esto no es un fidget Spinner de 2017, es un script que hice para rotar cosas, como por ejemplo este sprite de carga
-							SPIN.speed = 200f;
-							SPIN.eje = StandartUtilities.Eje.Z; // el unico eje posible para 2D	.
-							SPIN.clockwise = !true;//!true por que la claridad a proposito es mala. ejejejeje
+							SSIMG = eee.AddComponent<UnityEngine.UI.Image>();
+							SSIMG.sprite = Spinner;
+							SS = eee.AddComponent<SPINNER>();// NO esto no es un fidget Spinner de 2017, es un script que hice para rotar cosas, como por ejemplo este sprite de carga
+							SS.speed = 200f;
+							SS.eje = StandartUtilities.Eje.Z; // el unico eje posible para 2D	.
+							SS.clockwise = !true;//!true por que la claridad a proposito es mala. ejejejeje
 							E = eee;
 							A = true; //false
 							P = TextGO;
+							SS = SS;
 							//el comewntario de arriba es confuso a proposito, porque el texto ya se mueve por si solo, pero bueno, asi se sienten mas seguros de que el juego no se crasheo
 						}
 					}

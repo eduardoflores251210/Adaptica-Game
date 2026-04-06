@@ -23,9 +23,9 @@ public class SplashText : MonoBehaviour
 	/// </summary>
 	public static List<string> Lines = new List<string>()
 	{
-		"Hecho en México",
+		"Hecho en México", //si es verdad, soy MEXICANo,   []MEXICANOS AL GRITO DE GUERRA, el acero aprestad... No no me pondre a cantar el himno por que ni soy Patriotico. solo se me ocurio este splahs trext por  que vi la tele y salio un anuncio que decia ¡Hecho en México! mostrando productos mexicanos, y me parecio gracioso, asi que lo puse como splash text, ademas de que es verdad, el juego esta hecho en México, asi que es un buen mensaje para mostrar en el splash text, ademas de que es un buen mensaje para mostrar el orgullo por el trabajo hecho en México, aunque no se si alguien mas lo va a entender o si alguien mas se va a sentir identificado con ese mensaje, pero bueno, es parte de la experiencia y merece ser apreciado por su creatividad y humor.",
 		"Please don't Make Horrors beyond my comprehendsion",
-		"Also Try minecraft",
+		"Also Try minecraft", //clasico por que mine craft pone Also try terraria.
 		"Now in HD",
 		"Now in 3D",
 		$"Now in {DevInfo.CurrentDevPhase.ToString()}",
@@ -87,7 +87,7 @@ public class SplashText : MonoBehaviour
 		"Your PC may experience existential dread",
 		"Now compatible with your fridge",
 		"Ultra immersive experience: eyes optional",
-		"Powered by coffee",
+		"Powered by coffee", //falso NO tomo cafe, por eso puse el siguiente de chocolate
 		"Powered by cocoa",
 		"Powered by Tea",
 		"Powered by Juice",
@@ -222,7 +222,7 @@ public class SplashText : MonoBehaviour
 		"<color=#00FFFF>C</color><color=#FF00FF>M</color><color=#FFFF00>Y</color><color=#000000>K</color>",
 		"Supercalifragilisticexpialidocious",
 		"suoicod­ilaipxe­citsiligarf­ilac­repuS",
-		"Supercalifragilisticoespialidoso",
+		"Supercalifragilisticoespialidoso", //aunque suene raro y extravagante si lo dices con soltura sonara armonioso. -referencia a la cancion de Mary Poppins, aunque la version original es supercalifragilisticexpialidocious, la version en español es supercalifragilisticoespialidoso, pero como el juego esta en español e ingles, puse ambas versiones, ademas de que me gusta mas la version en español por que suena mas divertida y extravagante, aunque la version en ingles es mas conocida y tiene un significado mas profundo, asi que puse ambas versiones para que cada quien pueda elegir su favorita, ademas de que es una referencia divertida y apropiada para el juego, ya que el juego trata sobre evolucionar y adaptarse a diferentes situaciones, y esa palabra es un ejemplo perfecto de algo que es complicado pero divertido al mismo tiempo. OK el texto predictivo Genera comentarios largiuisimos.
 		"osodilaipxeocitsiligarfilacrepuS",
 		"NOW With a Not Scrapped Plant Editor", //spore elimino el suyo
 		"Dun dun Next station Pantitlan",
@@ -302,9 +302,12 @@ public class SplashText : MonoBehaviour
 		"I like Metric.",
 		"I like Imperial.",
 		"e<sup>iπ</sup>",
-		"Rwdyxed im Typos",//"reduced" in typos
+		"Rwdyxed im Typos",//"reduced" in typos. FALSO hay mucho typo
+
+		//v3.1
+		"Kittens and puppies",
 	};
-	Idioma esp;
+	Idioma esp;//si español 
 	void Start()
 	{
 		try
@@ -352,7 +355,7 @@ public class SplashText : MonoBehaviour
 			Debug.Log(StdUtils.General.ListToString(Lines));
 		}
 	}
-	Idioma eng;
+	Idioma eng; // si inglés
 	public bool isDebug;
 
 	void configurarIdioma()
@@ -432,8 +435,8 @@ public class SplashText : MonoBehaviour
 		esp.AgregarLexema("piña", PartOfSpeech.Sustantivo, 600);
 		esp.AgregarLexema("pistache", PartOfSpeech.Sustantivo, 600);
 		esp.AgregarLexema("chile", PartOfSpeech.Sustantivo, 600);
-		esp.AgregarLexema("guatemala", PartOfSpeech.Sustantivo, 600);
 		esp.AgregarLexema("calcetin", PartOfSpeech.Sustantivo, 600);
+		//quite a guatemala por si la gente se ofende por que el programa haya generado algo como Piña come guatemala.
 		esp.AgregarLexema("agua", PartOfSpeech.Sustantivo, 700);
 		esp.AgregarLexema("baño", PartOfSpeech.Sustantivo, 800);
 		esp.AgregarLexema("Refresco de cola", PartOfSpeech.Sustantivo, 600);
