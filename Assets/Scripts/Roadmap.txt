@@ -1,15 +1,15 @@
-AQUI esta el roadmap añada una palomita emoji al terminar un elemento al acabar un roadmap totoalmente favor de crear uno nuevo pues sin o no sabras que hacer
+ï»¿AQUI esta el roadmap aÃ±ada una palomita emoji al terminar un elemento al acabar un roadmap totoalmente favor de crear uno nuevo pues sin o no sabras que hacer
 
 ROAMAP  ACTUAL: 
-3.0.1 optimizar el visualizador de estrellas //aqui estoy :)
-3.1.0 Corregir la generación de galaxia y volver al sistema flexible
-3.2.0 volver al editor de microbios parte del gameplay y no solo lo primero que usas hacer menos tonta la IA de los microbios la cual no toma en cuenta su tamaño ni sus partes encontrar comida ademas podria implementar la depredación entre microbios y que los microbios puedan comer a otros microbios
-3.3.0 Añadir colisiones al erstadio microbio y aplicar la escala  en relación al progreso ademas de conbinar lso puntos iguales en historia 
-3.4.0 optimizar la generación de planeta para  para manejar tamaño grandes  y añadir la evolución de partes
-3.5.0 Añadir guardado al editor de Plantas y  generar los datos del planeta al iniciar juego
-	(tecnicamebnte ya estoy empezando pero aqui ya le dare mas atención)
+3.0.1 optimizar el visualizador de estrellas âœ…
+3.1.0 Corregir la generaciÃ³n de galaxia y volver al sistema flexible
+3.2.0 volver al editor de microbios parte del gameplay y no solo lo primero que usas hacer menos tonta la IA de los microbios la cual no toma en cuenta su tamaÃ±o ni sus partes encontrar comida ademas podria implementar la depredaciÃ³n entre microbios y que los microbios puedan comer a otros microbios
+3.3.0 AÃ±adir colisiones al erstadio microbio y aplicar la escala  en relaciÃ³n al progreso ademas de conbinar lso puntos iguales en historia 
+3.4.0 optimizar la generaciÃ³n de planeta para  para manejar tamaÃ±o grandes  y aÃ±adir la evoluciÃ³n de partes
+3.5.0 AÃ±adir guardado al editor de Plantas y  generar los datos del planeta al iniciar juego
+	(tecnicamebnte ya estoy empezando pero aqui ya le dare mas atenciÃ³n)
 4.0.0  empezar con el prototipo de Criatura (sin guardado ni animaciones de extremidades) 
-4.1.0  diseñar los sistemas basicos para guardar  
+4.1.0  diseÃ±ar los sistemas basicos para guardar  
 4.2.0+  Mas mejoras a la etapa microbio 
 
 (este roadmap aplica desde el 5 de abril de 2026)
@@ -26,5 +26,5 @@ Ni copies Thrive Thrive es muy realista adaptica NO esta hecho para ser Hiperrea
 
 por si se te olvida que etapas hay en el juego 
 revisa Stageplaning.txt para recordar las etapas del juego y no perder el enfoque en lo que quieres lograr en cada etapa, esto te ayudara a mantener el rumbo y no desviarte del objetivo principal.
-Si una trancision entre 2 etapas no es fluida o no se siente bien, no dudes en Añadir una etapa nueva entre esas 2
+Si una trancision entre 2 etapas no es fluida o no se siente bien, no dudes en AÃ±adir una etapa nueva entre esas 2
 como ya hiciste con Feudal entre Tribe y Nation, no tengas miedo en modificar StagePlaning.txt para mejorar la experiencia del juego, recuerda que el roadmap es una guia pero no es algo rigido, puedes modificarlo y adaptarlo segun las necesidades del juego y tu vision.
