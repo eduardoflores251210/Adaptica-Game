@@ -77,6 +77,8 @@ public class DynamicUIButtonCreator : MonoBehaviour
 			btn.clicked += delegate (){ 
 				Vector3 Z = new(0, 0, Camera.main.nearClipPlane * 50); 
 				GameObject OBJ =Instantiate(PlantDatabase.GetPartByName(iNam).prefab,Camera.main.ScreenToWorldPoint(((Vector3)Pointer.current.position.ReadValue()) + Z),Quaternion.identity);
+				if (OBJ.activeInHierarchy == false)
+					OBJ.SetActive(true);
 				OBJ.AddComponent<SnapOffset>();
 			}; //name es el internal name y Displayname es el nombre a mostrar
 		}

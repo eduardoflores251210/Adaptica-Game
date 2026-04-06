@@ -198,7 +198,7 @@ public class PartManager : MonoBehaviour
 				continue;
 
 			// Si quieres mostrar SOLO partes de criatura, deja esto.
-			if (part.categories == null || !part.categories.Contains(PartCategories.Cell))
+			if (part.categories == null || !part.categories.Contains(PartCategories.Microbe))
 				continue;
 
 			var container = GetContainerForPart(part);
@@ -207,7 +207,7 @@ public class PartManager : MonoBehaviour
 
 			var button = new Button(() => addPart(part.partID))
 			{
-				text = part.partID,
+				text = part.displayName,//antes mostraba id pero es mejor que muestre el display name asi no explota la UI con nombres raros de partes que no se han traducido o cosas así, y el tooltip es la descripción para dar más info sobre la parte sin saturar la UI
 				tooltip = part.description
 			};
 
@@ -296,6 +296,8 @@ public class PartManager : MonoBehaviour
 			return;
 
 		var Part = Instantiate(PartData.prefab);
+		if (Part.activeInHierarchy == false)
+			Part.SetActive(true);
 		var gz = Part.AddComponent<SnapOffset>();
 
 		if (PartData is BiologicalPart biol)

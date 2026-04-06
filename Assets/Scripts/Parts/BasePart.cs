@@ -14,11 +14,22 @@ public abstract class BasePart : ScriptableObject
 	public float healthBoost;
 	public List<string> tags;
 	public StatList Stats;
+	public static PartCategories ParseCategory(string value)
+	{
+		return (PartCategories)Enum.Parse(typeof(PartCategories), value, true);
+	}
+	public static List<PartCategories> ParseCategories(string[] values)
+	{
+		var list = new List<PartCategories>();
+		foreach (var v in values)
+			list.Add(ParseCategory(v));
+		return list;
+	}
 }
 public enum PartCategories
 {
 	#region Bio
-	Cell,
+	Microbe,
 	Eyes,
 	Cats,// esto es broma
 	Mouths,
@@ -42,8 +53,12 @@ public enum PartCategories
 	Flowers,
 	Fruits,
 	Branchs,
-	Roots
+	Roots,
 	#endregion
+	Plant,
+	Vehicle,
+	Animal,
+	Fungus,
 }
 public enum PartTypes
 {

@@ -22,4 +22,19 @@ public class PartsDatabase : ScriptableObject
 	{
 		return allParts.Find(p=>p.name == name);
 	}
+    public void AddPart(BasePart part)
+    {
+        if (!allParts.Contains(part))
+        {
+            allParts.Add(part);
+        }
+	}
+
+	internal void RemovePart(string ID)
+	{
+		if (allParts.Any(p => p.partID== ID))
+        {
+            allParts.Remove(allParts.Find(p => p.partID == ID));
+		}
+	}
 }

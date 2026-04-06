@@ -1,12 +1,12 @@
 using aaa;
 using ActualUtils;
 using ModelosDeIdioma; //No se cuando probe aqui el generador de idiomas
-using SerializableTypes; //remanente de cuando los 3 serializables estaban en Utils.cs
+using SerializableTypes; //remanente de cuando los 3 serializables estaban en Utils.cs pero AUn se usa para otras cosas probablemente por el enum stages
 using SerializableTypes.Biology;
 using StandartUtilities;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Collections.LowLevel.Unsafe;
+using Unity.Collections.LowLevel.Unsafe; // NO eso yo no lo añadi lo puso el IDE por alguna razon pero no se usa en este script asi que no se para que esta
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -51,6 +51,7 @@ public class CellController : MonoBehaviour
 	private Vector3 targetPosition;
 	private float wanderRadius = 5f;      // radio de deambulación
 	public float viewRadius = 0;
+	public SizeRespectPlayer SizeRespect = SizeRespectPlayer.igual; 
 	InputActionMap map;
 	private void OnEnable()
 	{
@@ -135,7 +136,7 @@ public class CellController : MonoBehaviour
 		}
 	}
 
-
+	//metodo legacy que nadie usa
 	private void MoverMicrobio(Vector2 input)
 	{
 		transform.Translate(new(input.x,0,input.y), Space.Self);
@@ -261,7 +262,8 @@ public class CellController : MonoBehaviour
 		}
 	}
 
-
+	//voy a seguir comentando todo aunque no tenga sentido por que hay gente que dice que comentar todo es cosa de IA :)
+	//Metodo para obtener una posición aleatoria para la IA TONTISIMA (si es MUY tonta) que deambula
 	private Vector3 GetRandomWanderPosition()
 	{
 		Vector2 circle = Random.insideUnitCircle * wanderRadius;
@@ -269,7 +271,7 @@ public class CellController : MonoBehaviour
 		return pos;
 	}
 
-
+	//mueve cursor
 	private void MoveCursor(Vector2 input,InputDevice a)
 	{
 		//Debug.Log(a.GetType().ToString());
@@ -286,7 +288,14 @@ public class CellController : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Configura el/la Microbi@
+	/// Configura el/la Microbi@ 
+	/// 
+	/// 
+	/// 
+	/// 
+	/// 
+	/// pd si uso Aroba 
+	/// en vez de X para genero neutral :) ademas Microbix es raro
 	/// </summary>
 	void SetupMicrobe()
 	{
@@ -339,6 +348,8 @@ public class CellController : MonoBehaviour
 		foreach (var ff in partsList)
 		{
 			var GOP = Parts.GetPartByID(ff.Id).prefab;
+			if (GOP.activeInHierarchy == false)
+				GOP.SetActive(true);
 			var meshI = GOP.GetComponent<MeshFilter>();
 			var Ren = GOP.GetComponent<MeshRenderer>();
 			var GO = new GameObject(i.ToRoman());
@@ -536,4 +547,15 @@ public class CellController : MonoBehaviour
 		if (!isAI && PlayerManager.Player == this)
 			PlayerManager.UnRegisterPlayer();
 	}
+}
+
+public enum SizeRespectPlayer
+{
+	enano = -3,
+	MINUSCULO = -2,
+	pequeño = -1,
+	igual = 0,
+	grande,
+	GIGANTE,
+	COLOSAL,
 }

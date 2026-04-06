@@ -37,13 +37,12 @@ public class StarVisualizer : MonoBehaviour
 	[HideInInspector]
 	[NonSerialized]
 	public List<GalaxySector> list;
-	public System.Collections.Concurrent.ConcurrentBag<quequeElement> QueQue;//fila futura para que se carge paralela las estrellas y una co rutina las spawnee conforme se carge por que unity no permite modificar objetos de la escena desde hilos secundarios, asi que se me ocurrio esta solucion medio rara pero que creo que puede funcionar, la idea es que la ParralelLOAD cargue las estrellas en esta lista y la co rutina las vaya sacando de a batch para spawnear y asi no bloquear el hilo principal por mucho tiempo
-	public List<GalaxySector> SectorsToLoad;//esta es la lista de sectores que se van a cargar, la idea es que se carguen en orden de cercania al jugador para que no se note tanto el pop in, aunque esto es un poco complicado de implementar por que no se exactamente como calcular la cercania de los sectores al jugador sin tener una referencia al jugador, asi que por ahora esta lista se va a llenar con todos los sectores y la co rutina los va a ir sacando de a uno para cargar las estrellas, aunque esto puede causar un poco de pop in si el jugador esta lejos del centro de la galaxia, asi que una posible solucion seria cargar primero los sectores cercanos al centro y luego ir cargando los sectores mas lejanos, aunque esto puede causar un poco de pop in si el jugador esta cerca del borde de la galaxia, asi que por ahora esta lista se va a llenar con todos los sectores y la co rutina los va a ir sacando de a uno para cargar las estrellas, aunque esto puede causar un poco de pop in si el jugador esta lejos del centro de la galaxia, asi que una posible solucion seria cargar primero los sectores cercanos al centro y luego ir cargando los sectores mas lejanos, aunque esto puede causar un poco de pop in si el jugador esta cerca del borde de la galaxia, asi que por ahora esta lista se va a llenar con todos los sectores y la co rutina los va a ir sacando de a uno para cargar las estrellas, aunque esto puede causar un poco de pop in si el jugador esta lejos del centro de la galaxia, asi que una posible solucion seria cargar primero los sectores cercanos al centro y luego ir cargando los sectores mas lejanos, aunque esto puede causar un poco de pop in si el jugador esta cerca del borde de la galaxia, asi que por ahora esta lista se va a llenar con todos los sectores y la co rutina los va a ir sacando de a
+	public ConcurrentBag<quequeElement> QueQue; // bolsa concurrente para pasar estrellas desde el hilo de carga a la corutina de visualización sin bloquear
 	public int BatchSize = 50;
 	public bool IsInMainMenu = false;
 	public bool HideRouguePlanets = true;
 	[Tooltip("Usado en el menu principal para cargar las estrellas antes de hacer el fundido de negro a vista normal")]
-	public bool Use1FramesPerSecondMode = false;
+	public bool Use1FramesPerSecondMode = false; //es mas rapido pero se ve mas lento por que el juego se alenta
 	[Header("Opcional")]
 	public SectorTurnOnOffEr ChunckManager;
 	public bool EXPERIMENTAL = false;
@@ -501,6 +500,7 @@ public class StarVisualizer : MonoBehaviour
 		// --- Opciones de chunking/batching ---
 		int Batch = 0;
 		int emitChunk = 1024; // ajustar según memoria/frametime objetivo
+		Debug.Log("STAR Counted " + totalStars.ToString());
 
 		foreach (var sector in sectors)
 		{
@@ -557,23 +557,22 @@ public class StarVisualizer : MonoBehaviour
 						}
 
 						// 2. Partículas
-						var emit = element.emit;
 						switch (star.type)
 						{
-							case StarTypes.O: particleO.Add(emit); break;
-							case StarTypes.B: particleB.Add(emit); break;
-							case StarTypes.A: particleA.Add(emit); break;
-							case StarTypes.F: particleF.Add(emit); break;
-							case StarTypes.G: particleG.Add(emit); break;
-							case StarTypes.K: particleK.Add(emit); break;
-							case StarTypes.M: particleM.Add(emit); break;
-							case StarTypes.L: particleL.Add(emit); break;
-							case StarTypes.T: particleT.Add(emit); break;
-							case StarTypes.EB: particleEB.Add(emit); break;
-							case StarTypes.NS: particleNS.Add(emit); break;
-							case StarTypes.EN: particleEN.Add(emit); break;
+							case StarTypes.O: particleO.Add(element.emit); break;
+							case StarTypes.B: particleB.Add(element.emit); break;
+							case StarTypes.A: particleA.Add(element.emit); break;
+							case StarTypes.F: particleF.Add(element.emit); break;
+							case StarTypes.G: particleG.Add( element.emit); break; //usamos directamente el emit que viene del hilo de carga para evitar crear uno nuevo en cada iteracion
+							case StarTypes.K: particleK.Add( element.emit); break;
+							case StarTypes.M: particleM.Add( element.emit); break;
+							case StarTypes.L: particleL.Add( element.emit); break;
+							case StarTypes.T: particleT.Add(element.emit); break;
+							case StarTypes.EB: particleEB.Add( element.emit); break;
+							case StarTypes.NS: particleNS.Add( element.emit); break;
+							case StarTypes.EN: particleEN.Add(element.emit); break;
 							case StarTypes.X:
-							default: particleX.Add(emit); break;
+							default: particleX.Add(element.emit); break;
 						}
 
 						bool T = false;
@@ -758,7 +757,8 @@ public class StarVisualizer : MonoBehaviour
 				}
 				// 1. Validar que el sector y su lista de estrellas existan
 				if (sector == null || sector.Stars == null) return;
-				
+				//y si hago esto un parralel for each? no se si es buena idea pero podria ser divertido y mas rapido, aunque no se si el overhead de crear tareas por cada estrella lo haria mas lento, pero bueno, podria ser divertido intentarlo
+				/*
 				foreach (var star in sector.Stars)
 				{
 					if (token.IsCancellationRequested) return;
@@ -773,6 +773,15 @@ public class StarVisualizer : MonoBehaviour
 
 					QueQue.Add(new quequeElement { star = star, emit = emit });
 				}
+				*/
+				Parallel.ForEach(sector.Stars, (star) =>
+				{
+					if (token.IsCancellationRequested) return;
+					if (star == null || star.IsNull()) return;
+					ParticleSystem.EmitParams emit = new();
+					emit.position = star.transform.Pos * GalaxyScale;
+					QueQue.Add(new quequeElement { star = star, emit = emit });
+				});
 				SpawnedSector = true;
 			}, token);
 		}

@@ -17896,6 +17896,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 914693088}
   m_CullTransparentMesh: 1
+--- !u!1 &918810441
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 918810443}
+  - component: {fileID: 918810442}
+  m_Layer: 0
+  m_Name: PART LOADER
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &918810442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918810441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec727d4ad33ae304d9bad04dfd52cd59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  VegetalParts: {fileID: 11400000, guid: f34b1fbed2ed53641b1858fb5dcf87dc, type: 2}
+  AnimalParts: {fileID: 11400000, guid: 983c8c5cc3bfdd84fb478d91b60df101, type: 2}
+  VehicleParts: {fileID: 11400000, guid: fda34852be5bcbc4c8398f021fa7a7c9, type: 2}
+--- !u!4 &918810443
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918810441}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 529, y: 326, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &922030350
 GameObject:
   m_ObjectHideFlags: 0
@@ -36053,8 +36100,6 @@ MonoBehaviour:
   Generator: {fileID: 1498985392}
   IsDebug: 0
   Done: 0
-  list: []
-  SectorsToLoad: []
   BatchSize: 250
   IsInMainMenu: 1
   HideRouguePlanets: 1
@@ -36097,6 +36142,7 @@ MonoBehaviour:
   showCursorAviway: 0
   inputActions: {fileID: -944628639613478452, guid: c4765c325f0af464799a1a764737ea39, type: 3}
   currentZoom: 10
+  DisableChildCheck: 0
 --- !u!114 &1498985396
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44755,7 +44801,7 @@ RectTransform:
   m_GameObject: {fileID: 2030201383}
   m_LocalRotation: {x: -0, y: -0, z: 0.28464007, w: 0.9586345}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.0251994, y: 1.0251994, z: 1.0251994}
+  m_LocalScale: {x: 1.0976123, y: 1.0976123, z: 1.0976123}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1336602438}
@@ -44780,7 +44826,7 @@ MonoBehaviour:
   PulseSpeed: 8.13
   PulseAmplitude: 0.1
   ChangeTimeInMinutes: 0.5
-  timer: 14.756816
+  timer: 7.916222
   text: {fileID: 2030201386}
   Override: 0
   idx: 0
@@ -44805,7 +44851,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Hier ist das erste unity fernsehn mit der ADAPTICA
+  m_text: Natural selection at 60 FPS.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1f251fab3f3063343aa12b35ff14bc77, type: 2}
   m_sharedMaterial: {fileID: -4311610417880198931, guid: 1f251fab3f3063343aa12b35ff14bc77, type: 2}
@@ -44832,7 +44878,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18.3
+  m_fontSize: 22.9
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -45609,3 +45655,4 @@ SceneRoots:
   - {fileID: 145422072}
   - {fileID: 1843621334}
   - {fileID: 1912880424}
+  - {fileID: 918810443}

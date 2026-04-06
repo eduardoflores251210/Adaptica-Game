@@ -2,6 +2,7 @@ using FixedMath;
 using SerializableTypes;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SetTime : MonoBehaviour
@@ -13,12 +14,9 @@ public class SetTime : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        TestComplexFixed128 test = new TestComplexFixed128();
-        test.TestTrigonometry();
-        test.BasicTest();
-        test.TestRoots();
-        test.FULLTEST();
-    }
+		
+
+	}
 	public Material mat; // asigna el material en el inspector
 
 	void OnRenderImage(RenderTexture src, RenderTexture dest)

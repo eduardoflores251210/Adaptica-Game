@@ -6,6 +6,7 @@ public class VegetalPart : BasePart
     public float SunLightPower;
     public float WaterAbsortionBoost;
     public VegetalPartFunction function;
+    public float AtackPower; //para plantas carnívoras o cosas asi o pinchos de Nopal
 }
 public enum VegetalPartFunction
 {

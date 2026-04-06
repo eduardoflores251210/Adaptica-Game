@@ -4,6 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+//esto NO lo uso que recuerde en el juego es solo una prueba que hize
+//en unity por que es mas faxcil debugear esto en unity que en
+// Cosmos OS por que todos sabemos Lo poco que se puede debugear en Cosmos OS
+//y su debugger de por si explota con static 
 
 namespace FixedMath
 {
@@ -337,11 +341,14 @@ namespace FixedMath
         }
 
     }
-    [Serializable]
+	/// <summary>
+	/// por que no era suficiente con los Naturales y Racionales las matematicas inventaron los numeros complejos para complicarnos la vida aun mas, asi que aqui esta el ComplexFixed128
+	/// </summary>
+	[Serializable]
     public struct ComplexFixed128
     {
-        public Fixed128 Real;
-        public Fixed128 Imaginary;
+        public Fixed128 Real;//a
+		public Fixed128 Imaginary;//i
 
         public ComplexFixed128(Fixed128 real, Fixed128 imaginary)
         {
@@ -416,6 +423,12 @@ namespace FixedMath
             return Root;
         }
     }
+
+
+	//e^(i * pi) = -1
+	//i^4 = 1
+
+
 	/// <summary>
 	/// Guarda Un numero racional como fracción
 	/// </summary>

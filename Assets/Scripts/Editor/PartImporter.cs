@@ -5,11 +5,15 @@ using UnityEditor;
 using UnityEngine;
 using EGL = UnityEditor.EditorGUILayout;
 using EGL2 = UnityEngine.GUILayout;
+/// <summary>
+/// Ventana para importar partes
+/// 
+/// actua a veces como el Chavo del 8 como puedes ver
+/// </summary>
 public class PartImporter :  EditorWindow
 {
-    // O HNO NO SE COMO HACER ESTO 
-    public GameObject PärtPrefab;
-    public PartTypes type;
+    public GameObject PärtPrefab; // si uso ä por que es raro ademas esto es herramienta interna asi que no lo va a ver nadie mas que yo y asi me evito problemas de colisiones de nombres con otras variables o cosas asi
+	public PartTypes type;
 	public string PartName;
 	public string PartDescription;
 	// Update is called once per frame
@@ -93,8 +97,12 @@ public class PartImporter :  EditorWindow
 
 
 				@base = partData;
+			}else
+			{
+				EditorUtility.DisplayDialog("Error", " Se te chispoteo ese tipo de parte no esta soportado", "OK");//si asi es use una frase del Chavo
+				return;
 			}
-			AssetDatabase.CreateAsset(@base, assetPath);
+				AssetDatabase.CreateAsset(@base, assetPath);
 			AssetDatabase.SaveAssets();
 			EditorUtility.DisplayDialog("Parte guardada", $"La parte '{PartName}' ha sido guardada en '{assetPath}' NOTA tu tienes que añadirla a la base de datos correspondiente No soy mago", "OK");
 		}
