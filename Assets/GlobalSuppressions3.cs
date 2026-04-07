@@ -26,7 +26,17 @@ public class ñ
 public class Soap
 {
 	public string Brand;
-	public string Name; public string Description;
+	public string Name; 
+	public string Description;
 	public string Fragance;
 	public float Efectiveness;
+	public bool IsHipolargenic;
+	public SoapType SoapType;
+}
+public enum SoapType
+{
+	none,
+	Bar,
+	Liquid,
+	Powder,
 }

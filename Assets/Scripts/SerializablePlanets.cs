@@ -997,7 +997,15 @@ namespace SerializableTypes.Space
 
 		public static bool TryToLoadGalaxy(out GalaxyData data)
 		{
-			data = LoadGalaxy();
+			try
+			{
+				data = LoadGalaxy();
+			}
+			catch(Exception)
+			{
+				data = null;	
+				return false;
+			}
 			return data != null;
 		}
 
@@ -1104,7 +1112,7 @@ namespace SerializableTypes.Space
 		Eliptical,
 		/// <summary>
 		/// Iregular la galaxia esferoidal sin una forma definida
-		/// QUE CAUSA BAJONES DE FPS MASIVOS
+		/// QUE CAUSA BAJONES DE FPS MASIVOS Esspoiler ya no era por mala optimización
 		/// </summary>
 		Irregular
 	}

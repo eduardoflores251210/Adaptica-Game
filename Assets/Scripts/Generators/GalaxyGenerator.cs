@@ -1,5 +1,4 @@
-﻿using SerializableTypes;
-using SerializableTypes.Space;
+﻿using SerializableTypes.Space;
 using StandartUtilities;
 using System;
 using System.Collections;
@@ -24,8 +23,10 @@ public class GalaxyGenerator : MonoBehaviour
 	public int totalSectoresY;
 
 	[Header("Bool util")]
+	
 	public bool DoesTheGalaxyExist;
 	public bool IsGenerating;
+	public bool RegenNow;
 
 	[Header("Depuración")]
 	public string AAAAAAAAA;
@@ -37,7 +38,7 @@ public class GalaxyGenerator : MonoBehaviour
 
 	[Header("StarGenStuff")]
 	public bool AllowRogues = true;
-	[Tooltip ("de aucerdo con las observaciones reales 95% es la probabilidad que un objeto sea un planeta")]
+	[Tooltip("de aucerdo con las observaciones reales 95% es la probabilidad que un objeto sea un planeta")]
 	public float Probability = 0.95f;
 	public List<PlanetData> planetDataList;
 	public event Action OnGalaxyGenerated;
@@ -49,15 +50,26 @@ public class GalaxyGenerator : MonoBehaviour
 	public float ellipseEdgeFalloff = 100f;
 	[Tooltip("Máximo intentos de muestreo por estrella para respetar la elipse antes de proyectar.")]
 	public int starPlacementMaxTries = 8;
-
+	public bool IsTestingGeneration;
+	public bool ForceType = false;
+	public GalaxyTypes ForcedType;
 	void Start()
 	{
 
 		Soap soap = new Soap();
 		int seed = GetSeed();
 		Random = new Random(seed);
-		Debug.Log($"SEED {seed}"); 
-		DoesTheGalaxyExist = GalaxyExists();
+		Debug.Log($"SEED {seed}");
+		if (!IsTestingGeneration)
+			DoesTheGalaxyExist = GalaxyExists();
+		else
+		{
+			DoesTheGalaxyExist = false;
+			if (Directory.Exists(Paths.Galaxy))
+			{
+				Directory.Delete(Paths.Galaxy, true );
+			}
+		}
 		CalculateTotalSectors();
 		//Debug.Log($"GalaxyGenerator init: totalSectoresX={totalSectoresX}, totalSectoresY={totalSectoresY}");
 	}
@@ -69,6 +81,23 @@ public class GalaxyGenerator : MonoBehaviour
 	}
 	void Update()
 	{
+		if (RegenNow)
+		{
+			if (IsGenerating)
+			{
+				RegenNow = false;
+			}
+			else
+			{
+				DoesTheGalaxyExist = false;
+				if (Directory.Exists(Paths.Galaxy))
+				{
+					Directory.Delete(Paths.Galaxy, true);
+				}
+				RegenNow = false;
+			}
+		}
+
 		if (!DoesTheGalaxyExist)
 		{
 			StartCoroutine(GenerateGalaxy());
@@ -178,11 +207,11 @@ public class GalaxyGenerator : MonoBehaviour
 					result.Add(item.pos);
 			}
 		}
-		
+
 		return result;
 	}
 
-
+	int numArms = 0; //numero de brazos en Espiral
 	public IEnumerator GenerateGalaxy()
 	{
 		IsGenerating = true;
@@ -196,6 +225,12 @@ public class GalaxyGenerator : MonoBehaviour
 			NebulaColor = Random.ColorHSV(),
 			SectorPositions = new List<Vector2Int>()
 		};
+		if (ForceType)
+			galaxy.Type = ForcedType;
+		if (galaxy.Type == GalaxyTypes.Spiral)
+		{
+			numArms = Random.Range(1, 6);
+		}
 		galaxy.Description = GenerateGalaxyDescription(galaxy.Type);
 
 		if (visualizer != null)
@@ -222,7 +257,7 @@ public class GalaxyGenerator : MonoBehaviour
 			// central
 			if (sectorPos == Vector2Int.zero)
 			{
-				sector = CreateCentralSector(galaxy.Name, sectorIndex, (Vector2)sectorSize);
+				sector = CreateCentralSector(galaxy.Name, sectorIndex, (Vector2)sectorSize,galaxy.Type);
 
 				globalStarId += sector.Stars.Count(s => s != null);
 
@@ -326,7 +361,7 @@ public class GalaxyGenerator : MonoBehaviour
 		Directory.CreateDirectory(Paths.SaveFiles);
 	}
 
-	private GalaxySector CreateCentralSector(string galaxyName, int sectorIndex, Vector2 sectorSize)
+	private GalaxySector CreateCentralSector(string galaxyName, int sectorIndex, Vector2 sectorSize, GalaxyTypes type)
 	{
 		int totalStars = starCountPerSector;
 		var sector = new GalaxySector(Vector2Int.zero, sectorSize, totalStars);
@@ -359,9 +394,10 @@ public class GalaxyGenerator : MonoBehaviour
 		List<PlanetData> allPlanets = new List<PlanetData> { controlPlanet };
 		for (int i = 1; i < totalStars; i++)
 		{
+			float Y = (type == GalaxyTypes.Irregular) ? Random.Range(-(float)sectorSize.x / 2f, (float)sectorSize.x / 2f) : 0;
 			Vector3 starLocalPos = new Vector3(
 				Random.Range(-(float)sectorSize.x / 2f, (float)sectorSize.x / 2f),
-				0f,
+				Y,
 				Random.Range(-(float)sectorSize.y / 2f, (float)sectorSize.y / 2f)
 			);
 
@@ -399,7 +435,13 @@ public class GalaxyGenerator : MonoBehaviour
 
 		return sector;
 	}
-
+	bool IsInsideSector(Vector3 pos, Vector3 origin, Vector3 size)
+{
+    return pos.x >= origin.x - size.x/2f &&
+           pos.x <= origin.x + size.x/2f &&
+           pos.z >= origin.z - size.z/2f &&
+           pos.z <= origin.z + size.z/2f;
+}
 	public List<StarData> GenStarsInSector(
 	 int sectorId,
 	 Vector3 sectorOrigin,
@@ -433,54 +475,129 @@ public class GalaxyGenerator : MonoBehaviour
 			// Muestreo local con "redondeo/elipse" aplicado:
 			Vector3 acceptedWorldPos = Vector3.zero;
 			bool accepted = false;
-
-			for (int attempt = 0; attempt < starPlacementMaxTries; attempt++)
+			if (galaxy == GalaxyTypes.Irregular || galaxy == GalaxyTypes.Irregular)
 			{
-				Vector3 localSample = new Vector3(
-					Random.Range(-halfX, halfX),
-					Random.Range(-halfY, halfY),
-					Random.Range(-halfZ, halfZ)
-				);
-				Vector3 worldSample = sectorOrigin + localSample;
-
-				// calcular norma respecto a la elipse: rNorm = sqrt((x/a)^2 + (z/b)^2)
-				float rNorm = Mathf.Sqrt(Mathf.Pow(worldSample.x * invA, 2f) + Mathf.Pow(worldSample.z * invB, 2f));
-
-				if (rNorm <= 1f)
+				for (int attempt = 0; attempt < starPlacementMaxTries; attempt++)
 				{
-					// dentro de la elipse
-					acceptedWorldPos = worldSample;
-					accepted = true;
-					break;
-				}
-				else
-				{
-					// fuera: aceptar con probabilidad decreciente
-					float p = Mathf.Exp(-ellipseEdgeFalloff * (rNorm - 1f));
-					if (Random.Value() < p)
+					Vector3 localSample = new Vector3(
+						Random.Range(-halfX, halfX),
+						Random.Range(-halfY, halfY),
+						Random.Range(-halfZ, halfZ)
+					);
+					Vector3 worldSample = sectorOrigin + localSample;
+
+					// calcular norma respecto a la elipse: rNorm = sqrt((x/a)^2 + (z/b)^2)
+					float rNorm = Mathf.Sqrt(Mathf.Pow(worldSample.x * invA, 2f) + Mathf.Pow(worldSample.z * invB, 2f));
+
+					if (rNorm <= 1f)
 					{
+						// dentro de la elipse
 						acceptedWorldPos = worldSample;
 						accepted = true;
 						break;
 					}
+					else
+					{
+						// fuera: aceptar con probabilidad decreciente
+						float p = Mathf.Exp(-ellipseEdgeFalloff * (rNorm - 1f));
+						if (Random.Value() < p)
+						{
+							acceptedWorldPos = worldSample;
+							accepted = true;
+							break;
+						}
+					}
+				}
+
+				// si no aceptó tras varios intentos, proyectar al borde elíptico (clamp)
+				if (!accepted)
+				{
+					// último muestreo simple (para tener algo estable)
+					Vector3 localSample = new Vector3(
+						Random.Range(-halfX, halfX),
+						Random.Range(-halfY, halfY),
+						Random.Range(-halfZ, halfZ)
+					);
+					Vector3 worldSample = sectorOrigin + localSample;
+					float rNorm = Mathf.Sqrt(Mathf.Pow(worldSample.x * invA, 2f) + Mathf.Pow(worldSample.z * invB, 2f));
+					if (rNorm <= 0f) rNorm = 1f;
+					float s = 1f / rNorm; // factor de escala para proyectar sobre la elipse
+					Vector3 projected = new Vector3(worldSample.x * s, worldSample.y, worldSample.z * s);
+					acceptedWorldPos = projected;
 				}
 			}
-
-			// si no aceptó tras varios intentos, proyectar al borde elíptico (clamp)
-			if (!accepted)
+			else
+			if (galaxy == GalaxyTypes.Spiral)
 			{
-				// último muestreo simple (para tener algo estable)
-				Vector3 localSample = new Vector3(
-					Random.Range(-halfX, halfX),
-					Random.Range(-halfY, halfY),
-					Random.Range(-halfZ, halfZ)
-				);
-				Vector3 worldSample = sectorOrigin + localSample;
-				float rNorm = Mathf.Sqrt(Mathf.Pow(worldSample.x * invA, 2f) + Mathf.Pow(worldSample.z * invB, 2f));
-				if (rNorm <= 0f) rNorm = 1f;
-				float s = 1f / rNorm; // factor de escala para proyectar sobre la elipse
-				Vector3 projected = new Vector3(worldSample.x * s, worldSample.y, worldSample.z * s);
-				acceptedWorldPos = projected;
+				// parámetros de la espiral (NO usar a/b)
+				float spiralScale = galaxyRadius * 0.2f;
+				float spiralTightness = 0.25f;
+
+				float minR = float.MaxValue;
+				float maxR = 0f;
+
+				// esquinas del sector
+				Vector3[] corners = new Vector3[]
+				{
+				sectorOrigin + new Vector3(-halfX, 0, -halfZ),
+				sectorOrigin + new Vector3(-halfX, 0,  halfZ),
+				sectorOrigin + new Vector3( halfX, 0, -halfZ),
+				sectorOrigin + new Vector3( halfX, 0,  halfZ),
+				};
+
+				foreach (var c in corners)
+				{
+					float dist = Mathf.Sqrt(c.x * c.x + c.z * c.z);
+					minR = Mathf.Min(minR, dist);
+					maxR = Mathf.Max(maxR, dist);
+				}
+
+				// convertir a rango de t
+				float minT = Mathf.Log(minR / spiralScale) / spiralTightness;
+				float maxT = Mathf.Log(maxR / spiralScale) / spiralTightness;
+
+				if (float.IsNaN(minT) || float.IsInfinity(minT)) minT = 0f;
+				if (float.IsNaN(maxT) || float.IsInfinity(maxT)) maxT = 5f;
+
+				bool found = false;
+
+				for (int attempt = 0; attempt < starPlacementMaxTries; attempt++)
+				{
+					float t = Random.Range(minT, maxT);
+
+					// variación para evitar líneas perfectas
+					t += Random.Range(-0.2f, 0.2f);
+
+					int brazo = Random.Range(0, numArms);
+					float offsetBrazo = (Mathf.PI * 2f / numArms) * brazo;
+
+					float r = spiralScale * Mathf.Exp(spiralTightness * t);
+
+					// ruido radial
+					r += Random.Range(-0.5f, 0.5f);
+
+					float x = r * Mathf.Cos(t + offsetBrazo);
+					float z = r * Mathf.Sin(t + offsetBrazo);
+
+					Vector3 pos = new Vector3(x, 0f, z);
+
+					if (!IsInsideSector(pos, sectorOrigin, sectorSize))
+						continue;
+
+					acceptedWorldPos = pos;
+					found = true;
+					break;
+				}
+
+				// fallback (MUY importante)
+				if (!found)
+				{
+					acceptedWorldPos = sectorOrigin + new Vector3(
+						Random.Range(-halfX, halfX),
+						0f,
+						Random.Range(-halfZ, halfZ)
+					);
+				}
 			}
 
 			if (generateRogue)
@@ -725,6 +842,57 @@ public class GalaxyGenerator : MonoBehaviour
 
 
 
+
+/// <summary>
+/// inplemebnta metodos de Random de unity a Random de System
+/// </summary>
+public static class gdfdgfdfg
+{
+	public static float Value(this Random r)
+	{
+		return (float)r.NextDouble();
+	}
+	public static Color ColorHSV(this Random r)
+	{
+		float H = r.Value();
+		float S = r.Value();
+		float V = r.Value();
+		return Color.HSVToRGB(H, S, V);
+	}
+	public static Color ColorHSV(this Random r, float hueMin, float hueMax, float saturationMin, float saturationMax)
+	{
+		// Genera un hue dentro del rango dado
+		float H = r.Range(hueMin, hueMax);
+
+		// Genera una saturación dentro del rango dado
+		float S = r.Range(saturationMin, saturationMax);
+
+		// Valor (V) aleatorio completo de 0 a 1
+		float V = r.Value();
+
+		return Color.HSVToRGB(H, S, V);
+	}
+	// Para float, similar a Unity
+	public static float Range(this Random r, float min, float max)
+	{
+		return min + (max - min) * (float)r.NextDouble();
+	}
+
+
+	public static int Range(this Random r, int min, int max)
+	{
+		return r.Next(min, max); // r.Next(min, max) ya es [min, max)
+	}
+	public static Quaternion rotation(this Random r)
+	{
+		float x = r.Range(0f, 360f);
+		float y = r.Range(0f, 360f);
+		float z = r.Range(0f, 360f);
+		return Quaternion.Euler(x, y, z);
+	}
+
+}
+
 public static class GalaxyDiagnostics
 {
 	public static void FindDuplicateStarIDs(string sectorsDir)
@@ -815,49 +983,3 @@ public struct Vector2Double
 	}
 }
 
-public static class gdfdgfdfg
-{
-	public static float Value(this Random r)
-	{
-		return (float)r.NextDouble();
-	}
-	public static Color ColorHSV(this Random r)
-	{
-		float H = r.Value();
-		float S = r.Value();
-		float V = r.Value();
-		return Color.HSVToRGB(H, S, V);
-	}
-	public static Color ColorHSV(this Random r, float hueMin, float hueMax, float saturationMin, float saturationMax)
-	{
-		// Genera un hue dentro del rango dado
-		float H = r.Range(hueMin, hueMax);
-
-		// Genera una saturación dentro del rango dado
-		float S = r.Range(saturationMin,saturationMax);
-
-		// Valor (V) aleatorio completo de 0 a 1
-		float V = r.Value();
-
-		return Color.HSVToRGB(H, S, V);
-	}
-	// Para float, similar a Unity
-	public static float Range(this Random r, float min, float max)
-	{
-		return min + (max - min) * (float)r.NextDouble();
-	}
-
-
-	public static int Range(this Random r, int min, int max)
-	{
-		return r.Next(min, max); // r.Next(min, max) ya es [min, max)
-	}
-	public static Quaternion rotation(this Random r)
-	{
-		float x = r.Range(0f, 360f);
-		float y = r.Range(0f, 360f);
-		float z = r.Range(0f, 360f);
-		return Quaternion.Euler(x, y, z);
-	}
-
-}

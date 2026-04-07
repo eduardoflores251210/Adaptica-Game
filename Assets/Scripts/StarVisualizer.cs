@@ -101,7 +101,7 @@ public class StarVisualizer : MonoBehaviour
 		GalaxyData data = null;
 #pragma warning restore IDE0059 // Asignación innecesaria de un valor
 		try { data = GalaxyData.LoadGalaxy(); }
-		catch (Exception e) { Debug.Log(e); yield break; }
+		catch (Exception ) {/* Debug.Log(e);*/ yield break; }
 
 		if (data == null) yield break;
 
