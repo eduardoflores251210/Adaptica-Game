@@ -18,7 +18,7 @@ public class ToggleGameName : MonoBehaviour
     {
         if (Text == null)
             return;
-        Text.text = "Adaptica";
+        Text.text = "Adaptica™";
         if (System.DateTime.Now.Month == 4 && System.DateTime.Now.Day == 1) //si es el 1 de abril, se aumenta la probabilidad de cambiar el nombre a Aduptica
         {
             if (Random.value < AprilFoolsDayChance)

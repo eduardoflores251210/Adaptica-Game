@@ -97,6 +97,7 @@ public class StarVisualizer : MonoBehaviour
 	public IEnumerator LookCoroutine()
 	{
 		Debug.Log("LOOK");
+		ResetVisualizationIfNeeded();
 #pragma warning disable IDE0059 // Asignación innecesaria de un valor
 		GalaxyData data = null;
 #pragma warning restore IDE0059 // Asignación innecesaria de un valor
@@ -512,6 +513,50 @@ public class StarVisualizer : MonoBehaviour
 	{
 		public StarData star;
 		public ParticleSystem.EmitParams emit;
+	}
+	public void ResetVisualizationIfNeeded()
+	{
+		if (!Done) return;
+
+		// Detener corrutinas activas
+		StopAllCoroutines();
+
+		// Cancelar tareas async
+		if (_cts != null)
+		{
+			_cts.Cancel();
+			_cts.Dispose();
+			_cts = null;
+		}
+
+		// Limpiar estructuras de datos
+		Bag = new ConcurrentBag<GalaxySector>();
+		list = new List<GalaxySector>();
+		QueQue = new ConcurrentBag<quequeElement>();
+
+		// Reset flags
+		isDoneLoading = false;
+		SpawnedSector = false;
+		Done = false;
+
+		// Limpiar partículas
+		foreach (var ps in Particles.Values)
+		{
+			if (ps == null) continue;
+			ps.Clear(true);
+			ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+		}
+
+		// Destruir hijos visuales (estrellas, sectores, etc.)
+		if (starParent != null)
+		{
+			for (int i = starParent.childCount - 1; i >= 0; i--)
+			{
+				Destroy(starParent.GetChild(i).gameObject);
+			}
+		}
+
+		Debug.Log("StarVisualizer reset: listo para visualizar otra vez");
 	}
 }
 

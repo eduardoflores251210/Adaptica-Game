@@ -1,4 +1,5 @@
-﻿using SerializableTypes.Space;
+﻿using ActualUtils;
+using SerializableTypes.Space;
 using StandartUtilities;
 using System;
 using System.Collections;
@@ -7,6 +8,7 @@ using System.IO;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Random = System.Random;
 
 public class GalaxyGenerator : MonoBehaviour
@@ -29,11 +31,16 @@ public class GalaxyGenerator : MonoBehaviour
 	public bool RegenNow;
 
 	[Header("Depuración")]
+	/*
 	public string AAAAAAAAA;
-	public string BBBBBBBBB;
+	public string BBBBBBBBB;*/
 	public long globalStarId;
 	public long globalPlanetId;
-
+	public bool IsTestingGeneration;
+	public bool ForceType = false;
+	public GalaxyTypes ForcedType;
+	public bool ForceArms = false;
+	public byte ForcedArms;
 	private bool aaa = true;
 
 	[Header("StarGenStuff")]
@@ -50,9 +57,13 @@ public class GalaxyGenerator : MonoBehaviour
 	public float ellipseEdgeFalloff = 100f;
 	[Tooltip("Máximo intentos de muestreo por estrella para respetar la elipse antes de proyectar.")]
 	public int starPlacementMaxTries = 8;
-	public bool IsTestingGeneration;
-	public bool ForceType = false;
-	public GalaxyTypes ForcedType;
+	[Header("Spiral Settings")]
+	public float spiralBackgroundDensity = 0.015f;
+	public float spiralTightness = 0.15f;
+	public float SpiralArmWidthMultiplier = 0.08f;
+	public float SpiralScaleMultiplier = 0.2f;
+	public float spiralAngularStretch = 0.35f;
+
 	void Start()
 	{
 
@@ -79,6 +90,17 @@ public class GalaxyGenerator : MonoBehaviour
 		System.Security.Cryptography.RandomNumberGenerator.Fill(b);
 		return BitConverter.ToInt32(b);
 	}
+	[ConsoleCommand(Name = "!reggal", Description = "Regenera la galaxia", IsEgg = true)]
+	public static void RegenGalaxy()
+	{
+		GalaxyGenerator generator = FindAnyObjectByType<GalaxyGenerator>();
+		if (generator != null)
+		{
+			Debug.Log("REGENERANDO GALAXIA");
+			generator.RegenNow = true;
+		}
+
+	}
 	void Update()
 	{
 		if (RegenNow)
@@ -95,6 +117,8 @@ public class GalaxyGenerator : MonoBehaviour
 					Directory.Delete(Paths.Galaxy, true);
 				}
 				RegenNow = false;
+				int seed = GetSeed();
+				Random = new Random(seed);
 			}
 		}
 
@@ -211,7 +235,7 @@ public class GalaxyGenerator : MonoBehaviour
 		return result;
 	}
 
-	int numArms = 0; //numero de brazos en Espiral
+	byte numArms = 0; //numero de brazos en Espiral
 	public IEnumerator GenerateGalaxy()
 	{
 		IsGenerating = true;
@@ -229,7 +253,11 @@ public class GalaxyGenerator : MonoBehaviour
 			galaxy.Type = ForcedType;
 		if (galaxy.Type == GalaxyTypes.Spiral)
 		{
-			numArms = Random.Range(1, 6);
+			numArms = (byte)Random.Range(1, 6);
+		}
+		if (ForceArms)
+		{
+			numArms = ForcedArms;
 		}
 		galaxy.Description = GenerateGalaxyDescription(galaxy.Type);
 
@@ -290,8 +318,7 @@ public class GalaxyGenerator : MonoBehaviour
 				sectorSize: new Vector3((float)sectorSize.x, galaxyRadius * 2f, (float)sectorSize.y),
 				SectorPos: sector.Position,
 				starCount: starCountPerSector,
-				galaxy: galaxy.Type,
-				sectorIndex: sectorIndex
+				galaxy: galaxy.Type, sectorIndex: sectorIndex
 			);
 
 			for (int i = 0; i < stars.Count && i < sector.Stars.Length; i++)
@@ -437,43 +464,45 @@ public class GalaxyGenerator : MonoBehaviour
 		return sector;
 	}
 	bool IsInsideSector(Vector3 pos, Vector3 origin, Vector3 size)
-{
-    return pos.x >= origin.x - size.x/2f &&
-           pos.x <= origin.x + size.x/2f &&
-           pos.z >= origin.z - size.z/2f &&
-           pos.z <= origin.z + size.z/2f;
-}
+	{
+		return pos.x >= origin.x - size.x / 2f &&
+			   pos.x <= origin.x + size.x / 2f &&
+			   pos.z >= origin.z - size.z / 2f &&
+			   pos.z <= origin.z + size.z / 2f;
+	}
+
+
+	
+
 	public List<StarData> GenStarsInSector(
 		int sectorId,
 		Vector3 sectorOrigin,
 		Vector3 sectorSize,
 		Vector2Int SectorPos,
 		int starCount,
-		GalaxyTypes galaxy,
-		int sectorIndex = 0
+		GalaxyTypes galaxy, int sectorIndex = 0
 	)
 	{
 		var stars = new List<StarData>();
 		planetDataList = new List<PlanetData>();
 
-		if (AAAAAAAAA == null) AAAAAAAAA = "";
-		AAAAAAAAA += SectorPos + " " + sectorOrigin + '\n';
+	/*	if (AAAAAAAAA == null) AAAAAAAAA = "";
+		AAAAAAAAA += SectorPos + " " + sectorOrigin + '\n';*/
 
-		// half extents (X, Z) dentro del sector
 		float halfX = sectorSize.x / 2f;
 		float halfZ = sectorSize.z / 2f;
 		float halfY = sectorSize.y / 2f;
 
-		// Parámetros de la elipse global
 		float ellipseRadiusX = Mathf.Max(0.0001f, galaxyRadius);
 		float ellipseRadiusZ = Mathf.Max(0.0001f, galaxyRadius * Mathf.Max(0.0001f, ellipseRatio));
 		float invEllipseRadiusX = 1f / ellipseRadiusX;
 		float invEllipseRadiusZ = 1f / ellipseRadiusZ;
 
-		// Parámetros de la espiral
 		float spiralScale = Mathf.Max(0.0001f, galaxyRadius * 0.2f);
-		float spiralTightness = 0.25f;
-		float spiralCoreEpsilon = Mathf.Max(0.5f, galaxyRadius * 0.15f);
+
+		float spiralCoreEpsilon = Mathf.Max(0.5f, galaxyRadius * 0.3f);
+		float spiralArmWidth = Mathf.Max(0.5f, galaxyRadius *  SpiralArmWidthMultiplier);
+
 
 		float anglePerArm = numArms > 0 ? (Mathf.PI * 2f / numArms) : (Mathf.PI * 2f);
 
@@ -541,27 +570,121 @@ public class GalaxyGenerator : MonoBehaviour
 
 			return acceptedWorldPos;
 		}
+		Vector3 GenerateInterArmPosition(
+	Vector3 sectorOrigin,
+	float halfX,
+	float halfY,
+	float halfZ,
+	float spiralScale,
+	float spiralTightness,
+	float anglePerArm
+)
+		{
+			for (int attempt = 0; attempt < starPlacementMaxTries; attempt++)
+			{
+				Vector3 localSample = new Vector3(
+					Random.Range(-halfX, halfX),
+					Random.Range(-halfY, halfY),
+					Random.Range(-halfZ, halfZ)
+				);
+
+				Vector3 worldSample = sectorOrigin + localSample;
+
+				float x = worldSample.x;
+				float z = worldSample.z;
+
+				float r = Mathf.Sqrt(x * x + z * z);
+				if (r <= 0.001f) continue;
+
+				float angle = Mathf.Atan2(z, x);
+				if (angle < 0f) angle += Mathf.PI * 2f;
+
+				int armIndex = Mathf.FloorToInt(angle / anglePerArm);
+				float armBaseAngle = armIndex * anglePerArm;
+
+				float expectedR = spiralScale * Mathf.Exp(spiralTightness * angle);
+
+				// distancia al brazo
+				float distToArm = Mathf.Abs(r - expectedR);
+
+				// queremos que esté LEJOS del brazo
+				float minDist = spiralScale * SpiralArmWidthMultiplier * 2f;
+
+				if (distToArm > minDist)
+				{
+					return worldSample;
+				}
+			}
+
+			// fallback seguro
+			return sectorOrigin + new Vector3(
+				Random.Range(-halfX, halfX),
+				Random.Range(-halfY, halfY),
+				Random.Range(-halfZ, halfZ)
+			);
+		}
+		Vector3 GenerateHaloPosition(
+	Vector3 sectorOrigin,
+	float halfX,
+	float halfY,
+	float halfZ,
+	float galaxyRadius
+)
+		{
+			for (int attempt = 0; attempt < starPlacementMaxTries; attempt++)
+			{
+				Vector3 localSample = new Vector3(
+					Random.Range(-halfX, halfX),
+					Random.Range(-halfY, halfY),
+					Random.Range(-halfZ, halfZ)
+				);
+
+				Vector3 worldSample = sectorOrigin + localSample;
+
+				float x = worldSample.x;
+				float z = worldSample.z;
+
+				float r = Mathf.Sqrt(x * x + z * z);
+
+				// halo = fuera del disco principal
+				float minHaloRadius = galaxyRadius * 0.6f;
+
+				if (r >= minHaloRadius)
+				{
+					// darle más altura (clave para halo)
+					worldSample.y += Random.Range(galaxyRadius * 0.1f, galaxyRadius * 0.4f);
+					return worldSample;
+				}
+			}
+
+			// fallback
+			Vector3 fallback = sectorOrigin + new Vector3(
+				Random.Range(-halfX, halfX),
+				Random.Range(-halfY, halfY),
+				Random.Range(-halfZ, halfZ)
+			);
+
+			fallback.y += galaxyRadius * 0.2f;
+			return fallback;
+		}
 		int spiralHits = 0;
 		int spiralFallbacks = 0;
 		int CenterspiralFallbacks = 0;
-		float distToCenter = new Vector2(sectorOrigin.x, sectorOrigin.z).magnitude;
 
+		float distToCenter = new Vector2(sectorOrigin.x, sectorOrigin.z).magnitude;
 
 		for (long i = 0; i < starCount; i++)
 		{
 			bool generateRogue = AllowRogues && Random.Value() < Probability;
-
+			bool ImAlreadyAHaloStarPleaseGoAway = false;
 			Vector3 acceptedWorldPos = Vector3.zero;
-
+			bool Discard = false;
 			if (galaxy == GalaxyTypes.Spiral)
 			{
+				/*
 				if (i == 0)
-				{
 					Debug.Log($"Sector {SectorPos} distToCenter={distToCenter} core={spiralCoreEpsilon}");
-				}
-
-
-				// Cerca del núcleo: fallback
+				*/
 				if (distToCenter <= spiralCoreEpsilon)
 				{
 					acceptedWorldPos = GenerateFallbackPosition();
@@ -569,8 +692,6 @@ public class GalaxyGenerator : MonoBehaviour
 				}
 				else
 				{
-					anglePerArm = (Mathf.PI * 2f) / numArms;
-
 					bool found = false;
 
 					for (int attempt = 0; attempt < starPlacementMaxTries; attempt++)
@@ -598,14 +719,23 @@ public class GalaxyGenerator : MonoBehaviour
 
 						int pick = Random.Range(0, 3);
 						int brazo = pick == 0 ? armIndex : (pick == 1 ? prevArm : nextArm);
+
 						float offsetBrazo = brazo * anglePerArm;
 
-						float expectedR = spiralScale * Mathf.Exp(spiralTightness * angle);
+						// aquí sí entra el offset del brazo
+						float localAngle = angle - offsetBrazo;
+						if (localAngle < 0f) localAngle += Mathf.PI * 2f;
+						localAngle *= spiralAngularStretch;
+
+						float expectedR = spiralScale * Mathf.Exp(spiralTightness * localAngle);
+
 						float distToArm = Mathf.Abs(r - expectedR);
+						float density = Mathf.Exp(-(distToArm * distToArm) / (2f * spiralArmWidth * spiralArmWidth));
 
-						float density = Mathf.Exp(-distToArm * 1.2f);
+						// fondo tenue entre brazos
+						float acceptChance = Mathf.Clamp01(density + spiralBackgroundDensity);
 
-						if (Random.Value() < density)
+						if (Random.Value() < acceptChance)
 						{
 							acceptedWorldPos = worldSample;
 							found = true;
@@ -614,16 +744,58 @@ public class GalaxyGenerator : MonoBehaviour
 					}
 
 					if (!found)
-						acceptedWorldPos = GenerateFallbackPosition();
+					{
+						float roll = Random.Value();
+
+						if (roll < 0.95f)
+						{
+							continue; // ❌ descartar estrella completamente
+						}
+						else if (roll < 0.97f)
+						{
+							// 🌑 planeta errante
+							generateRogue = true;
+							acceptedWorldPos = GenerateFallbackPosition();
+						}
+						else if (roll < 0.975f)
+						{
+							// 🌌 entre brazos
+
+							// 🌌 entre brazos
+							acceptedWorldPos = GenerateInterArmPosition(
+								sectorOrigin,
+								halfX,
+								halfY,
+								halfZ,
+								spiralScale,
+								spiralTightness,
+								anglePerArm
+							);
+						}
+						else
+						{
+							// 🌀 halo
+							acceptedWorldPos = GenerateHaloPosition(
+		sectorOrigin,
+		halfX,
+		halfY,
+		halfZ,
+		galaxyRadius
+	);
+							ImAlreadyAHaloStarPleaseGoAway = true;
+						}
+					}
+
 					if (found) spiralHits++;
 					else spiralFallbacks++;
 				}
-
 			}
 			else
 			{
 				acceptedWorldPos = GenerateFallbackPosition();
 			}
+			if (Discard)
+				continue;
 
 			if (generateRogue)
 			{
@@ -673,11 +845,18 @@ public class GalaxyGenerator : MonoBehaviour
 
 				if (galaxy != GalaxyTypes.Irregular)
 				{
-					float haloChance = 0.05f;
-					var pos = star.transform.Pos;
-					if (Random.Value() >= haloChance)
-						pos.y = Mathf.Clamp(pos.y, 0f, 0.1f);
-					star.transform.Pos = pos;
+					if (ImAlreadyAHaloStarPleaseGoAway)
+					{ }
+					else
+					{
+						float haloChance = 0.05f;
+						var pos = star.transform.Pos;
+						if (Random.Value() <= haloChance)
+							pos = GenerateHaloPosition(sectorOrigin, halfX, halfY, halfZ, galaxyRadius);
+						else
+							pos.y = Random.Range(-1,1)*0.5f;
+						star.transform.Pos = pos;
+					}
 				}
 
 				var (planets, planetCount) = GenPlanets(star, globalPlanetId);
@@ -700,17 +879,21 @@ public class GalaxyGenerator : MonoBehaviour
 		string path = Path.Combine(Paths.Planets, $"SectorPlanet{SectorPos}.bin");
 		using (var fs = File.Open(path, FileMode.Create, FileAccess.Write))
 			BinaryGalaxySerializer.SerializePlanetSector(fs, sectorPlanets);
-		Debug.Log($"Sector {SectorPos} -> spiralHits={spiralHits}, spiralFallbacks={spiralFallbacks}, CenterFallbacks {CenterspiralFallbacks}");
-		planetDataList.Clear();
 
+		//Debug.Log($"Sector {SectorPos} -> spiralHits={spiralHits}, spiralFallbacks={spiralFallbacks}, CenterFallbacks {CenterspiralFallbacks}");
+
+		planetDataList.Clear();
 		return stars;
 	}
 
 	public PlanetData GenPlanet(StarData parentStar, long planetId, short planetIndex, short totalPlanets)
 	{
+		PlanetTypes type = PlanetTypes.None;
 		if (parentStar == null) throw new System.ArgumentNullException(nameof(parentStar));
-
-		PlanetTypes type = GetPlanetTypeByOrbit(planetIndex, totalPlanets);
+		if (parentStar.type != StarTypes.EN)
+			type = GetPlanetTypeByOrbit(planetIndex, totalPlanets); 
+		else
+			type = GetPlanetTypeByOrbitBLACK(planetIndex, totalPlanets);
 
 		int attempts = 0;
 		while (type == PlanetTypes.None && attempts < 30)
@@ -795,6 +978,25 @@ public class GalaxyGenerator : MonoBehaviour
 		return (planets, maxPlanets);
 	}
 
+	public PlanetTypes GetPlanetTypeByOrbitBLACK(int index, int total)
+	{
+		PlanetTypes[] calientes = { PlanetTypes.VenusLike, PlanetTypes.Toxic, PlanetTypes.Deserted };
+		PlanetTypes[] templados = { PlanetTypes.WaterWorld, PlanetTypes.MarsLike, PlanetTypes.ExTerra };
+		PlanetTypes[] frios = { PlanetTypes.IceRock, PlanetTypes.IceGas };
+		PlanetTypes[] neutros = { PlanetTypes.BasicGas, PlanetTypes.MoonLike, PlanetTypes.Barren, PlanetTypes.None };
+
+		if (Random.Value() < 0.005f) return PlanetTypes.SPAMTON; // easter egg ultra raro
+
+		if (total == 0) return PlanetTypes.None;
+		if (total == 1) return (PlanetTypes)StdUtils.Randomness.GetRandomEnumValue<PlanetTypesNoEgg>(); // por que no quremos a veces un spamton gritandonos "OFERTAS ESPECIALES SOLO POR [CANTIDAD NO ESPECIFICADA]"
+		if (total == 2) return index == 0 ? calientes[Random.Range(0, calientes.Length)] : frios[Random.Range(0, frios.Length)];
+
+		float t = (float)index / (total - 1); //matematicas raras para que el ultimo planeta sea 1.0f y el primero 0.0f
+		if (Random.Value() < 0.15f) return neutros[Random.Range(0, neutros.Length)];
+		if (t < 0.33f) return calientes[Random.Range(0, calientes.Length)];
+		else if (t < 0.66f) return templados[Random.Range(0, templados.Length)];
+		else return frios[Random.Range(0, frios.Length)];
+	}
 	public PlanetTypes GetPlanetTypeByOrbit(int index, int total)
 	{
 		PlanetTypes[] calientes = { PlanetTypes.VenusLike, PlanetTypes.Toxic, PlanetTypes.Deserted };
