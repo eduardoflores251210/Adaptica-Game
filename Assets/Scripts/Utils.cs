@@ -257,6 +257,9 @@ public static class SpaceUtils
 
 		return result;
 	}
+	/// <summary>
+	/// instancia un sistema solar... POSICIONES y DISCOS DE ACRECIÓN NO INCLUIDOS TODO SE GENERA EN 0.0
+	/// </summary>
 	public static class SystemObjectsBuilder
 	{
 		public static Material BaseMat;
@@ -294,7 +297,7 @@ public static class SpaceUtils
 				CacheSphere = (UnityEngine.Mesh)SphereMesh;
 			@object.AddComponent<MeshFilter>().mesh = CacheSphere;
 			@object.AddComponent<MeshRenderer>().material = mat;
-			@object.AddComponent<MeshFilter>();
+			@object.AddComponent<MeshCollider>();
 		}
 		public static GameObject InstantiateStar(StarData starData)
 		{
@@ -303,8 +306,10 @@ public static class SpaceUtils
 			GiveSphere(starGO, Mats[starData.type]);
 
 			starGO.SetActive(true);
+			starGO.transform.localScale = Vector3.one; //iba a multiplicar por radio pero olvide que no hay StarData.radius 
 			systemData.IDS.Stars.Add(BodyID.FromString(starData.id));
 			systemData.Datas.Stars.Add(starData);
+			systemData.ObjAndIDS.Add(starGO, starData.id);
 			return starGO;
 		}
 		public static GameObject InstantiateBaricenter(BaricenterData baricenterData)
@@ -312,6 +317,7 @@ public static class SpaceUtils
 			var gol = new GameObject(baricenterData.Name);
 			systemData.IDS.baricenters.Add(BodyID.FromString(baricenterData.id));
 			systemData.Datas.baricenters.Add(baricenterData);
+			systemData.ObjAndIDS.Add(gol, baricenterData.id);
 			return gol; //literalmente son invisibles
 		}
 		public static GameObject InstantiatePlanet(PlanetData planetData)
@@ -343,8 +349,10 @@ public static class SpaceUtils
 				Mat = OpaceMat;
 
 			GiveSphere(planetGO, Mat);
+			planetGO.transform.localScale = Vector3.one*planetData.radius;
 			systemData.IDS.planets.Add(BodyID.FromString(planetData.id));
 			systemData.Datas.planets.Add(planetData);
+			systemData.ObjAndIDS.Add(planetGO,planetData.id);
 			return planetGO;
 		}
 		public static void InstantiateBody(string StartID, UnityEngine.Transform parent)
@@ -420,9 +428,29 @@ public static class SpaceUtils
 		{
 			if (!Inited)
 			{
-				InitStuf();
+				InitStuf();	
 			}
 			systemData = new();
+			systemData.Datas = new();
+			systemData.IDS = new();
+			systemData.ObjAndIDS = new();//des-optimización
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
+			systemData.ObjAndIDS = new();
 			if (ParentId[0] == 'S')
 				throw new ArgumentException("NO PUEDES HACER ESTO EN UN SECTOR ENTERO");
 			if (galaxyData == null)
@@ -462,6 +490,7 @@ public static class SpaceUtils
 		{
 			public GalObjCollection Datas;
 			public GalObjCollectionID IDS;
+			public Dictionary<GameObject, string> ObjAndIDS;
 
 		}
 	}
