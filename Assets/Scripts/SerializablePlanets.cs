@@ -30,6 +30,7 @@ namespace SerializableTypes.Space
 		public List<string> Children;
 		public string id; //string es mas conveniente que BodyID para Json
 		public string ParentID;
+		public StatList ExtraData; //
 	}
 	[Serializable]
 	public class PlanetData : CelestialBody
