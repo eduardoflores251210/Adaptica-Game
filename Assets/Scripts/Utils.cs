@@ -258,7 +258,7 @@ public static class SpaceUtils
 		return result;
 	}
 	/// <summary>
-	/// instancia un sistema solar... POSICIONES y DISCOS DE ACRECIÓN NO INCLUIDOS TODO SE GENERA EN 0.0
+	/// Instancia un sistema solar... ¡AHORA CON POSICIONES BASADAS EN ÍNDICE! 
 	/// </summary>
 	public static class SystemObjectsBuilder
 	{
@@ -269,7 +269,10 @@ public static class SpaceUtils
 		public static Dictionary<StarTypes, Material> Mats = new Dictionary<StarTypes, Material>();
 		public static GalaxyData galaxyData;
 		public static InstantiatedSystemData systemData;
-		public static Mesh SphereMesh; //esto es Mesh serializable de mi libreria estandar dem is projecctos unity no un Mesh de unity pero hay conversiones imple,entadas
+		public static Mesh SphereMesh;
+		private static bool Inited;
+		private static UnityEngine.Mesh CacheSphere;
+
 		public static void InitStuf()
 		{
 			foreach (StarTypes st in Enum.GetValues(typeof(StarTypes)))
@@ -277,221 +280,145 @@ public static class SpaceUtils
 				Material material = new Material(BaseMat);
 				material.SetFloat("_Temp_K", StarData.Temperatures[st]);
 				Mats[st] = material;
-				if (st == StarTypes.X)
-				{
-					Mats[st] = BholMat;
-				}
-				else if (st == StarTypes.EN)
-				{
-					Mats[st] = OpaceMat;
-				}
+				if (st == StarTypes.X) Mats[st] = BholMat;
+				else if (st == StarTypes.EN) Mats[st] = OpaceMat;
 			}
 			SphereMesh = Mesh.FromObjString(PrimitivesOBJ.Sphere);
 			Inited = true;
-
 		}
-		static UnityEngine.Mesh CacheSphere;
+
 		static void GiveSphere(GameObject @object, Material mat)
 		{
-			if (CacheSphere == null)
-				CacheSphere = (UnityEngine.Mesh)SphereMesh;
+			if (CacheSphere == null) CacheSphere = (UnityEngine.Mesh)SphereMesh;
 			@object.AddComponent<MeshFilter>().mesh = CacheSphere;
 			@object.AddComponent<MeshRenderer>().material = mat;
 			@object.AddComponent<MeshCollider>();
 		}
+
 		public static GameObject InstantiateStar(StarData starData)
 		{
-			GameObject starGO = new GameObject();
-			starGO.name = starData.Name;
+			GameObject starGO = new GameObject(starData.Name);
 			GiveSphere(starGO, Mats[starData.type]);
+			starGO.transform.localScale = Vector3.one * 5f; // Placeholder de radio estelar
 
-			starGO.SetActive(true);
-			starGO.transform.localScale = Vector3.one; //iba a multiplicar por radio pero olvide que no hay StarData.radius 
 			systemData.IDS.Stars.Add(BodyID.FromString(starData.id));
 			systemData.Datas.Stars.Add(starData);
 			systemData.ObjAndIDS.Add(starGO, starData.id);
 			return starGO;
 		}
+
 		public static GameObject InstantiateBaricenter(BaricenterData baricenterData)
 		{
 			var gol = new GameObject(baricenterData.Name);
 			systemData.IDS.baricenters.Add(BodyID.FromString(baricenterData.id));
 			systemData.Datas.baricenters.Add(baricenterData);
 			systemData.ObjAndIDS.Add(gol, baricenterData.id);
-			return gol; //literalmente son invisibles
+			return gol;
 		}
+
 		public static GameObject InstantiatePlanet(PlanetData planetData)
 		{
 			GameObject planetGO = new GameObject(planetData.Name);
-			Material Mat = null;
+			Material Mat = OpaceMat;
+
 			if (planetData.type == PlanetTypes.BasicGas || planetData.type == PlanetTypes.IceGas)
 			{
-				if (planetData.GasColors == null || planetData.GasColors.Count < 5)
+				if (planetData.GasColors != null && planetData.GasColors.Count >= 5 && BaseGasMaterial != null)
 				{
-					Debug.LogWarning($"Planeta gaseoso sin suficientes colores: {planetData.Name ?? "Unnamed"}");
-					// Asignamos material básico como fallback para evitar crash
-					if (OpaceMat != null)
-						Mat = OpaceMat;
-				}
-				else if (BaseGasMaterial != null)
-				{
-					Material gasMatInstance = new Material(BaseGasMaterial);
-					gasMatInstance.SetColor("_PoloNorte", planetData.GasColors[0]);
-					gasMatInstance.SetColor("_Arriba", planetData.GasColors[1]);
-					gasMatInstance.SetColor("_Ecuador", planetData.GasColors[2]);
-					gasMatInstance.SetColor("_Abajo", planetData.GasColors[3]);
-					gasMatInstance.SetColor("_PoloSur", planetData.GasColors[4]);
-					Mat = gasMatInstance;
+					Mat = new Material(BaseGasMaterial);
+					Mat.SetColor("_PoloNorte", planetData.GasColors[0]);
+					Mat.SetColor("_Arriba", planetData.GasColors[1]);
+					Mat.SetColor("_Ecuador", planetData.GasColors[2]);
+					Mat.SetColor("_Abajo", planetData.GasColors[3]);
+					Mat.SetColor("_PoloSur", planetData.GasColors[4]);
 				}
 			}
-			else
-				if (OpaceMat != null)
-				Mat = OpaceMat;
 
 			GiveSphere(planetGO, Mat);
-			planetGO.transform.localScale = Vector3.one*planetData.radius;
+			planetGO.transform.localScale = Vector3.one * planetData.radius;
+
 			systemData.IDS.planets.Add(BodyID.FromString(planetData.id));
 			systemData.Datas.planets.Add(planetData);
-			systemData.ObjAndIDS.Add(planetGO,planetData.id);
+			systemData.ObjAndIDS.Add(planetGO, planetData.id);
 			return planetGO;
 		}
-		public static void InstantiateBody(string StartID, UnityEngine.Transform parent)
-		{
-			if (StartID[0] == 'S')
-				throw new ArgumentException("NO PUEDES HACER ESTO EN UN SECTOR ENTERO");
-			if (galaxyData == null)
-				if (!GalaxyData.TryToLoadGalaxy(out galaxyData))
-				{
-					throw new Exception("ERROR AL CARGAR GALAXIA");
-				}
 
-			CelestialBody body = null;
+		public static void InstantiateBody(string StartID, UnityEngine.Transform parent, int index = 0)
+		{
+			if (StartID[0] == 'S') throw new ArgumentException("NO SECTORES");
+
+			if (galaxyData == null && !GalaxyData.TryToLoadGalaxy(out galaxyData))
+				throw new Exception("ERROR AL CARGAR GALAXIA");
+
 			BodyID bodyID = BodyID.FromString(StartID);
-			if (!TryToLoadABody(bodyID, out body, out var celestialBodyType))
+			if (!TryToLoadABody(bodyID, out var body, out var celestialBodyType))
 				throw new Exception("ERROR CARGANDO");
-			GameObject gameObject = null;
-			switch (bodyID.GetCelestialBodyType())
-			{
-				case CelestialBodyType.None:
-					break;
-				case CelestialBodyType.Planet:
-					gameObject=InstantiatePlanet((PlanetData)body);
-					break;
-				case CelestialBodyType.Star:
-					gameObject=InstantiateStar((StarData)body);
-					break;
-				case CelestialBodyType.Baricenter:
-					gameObject=InstantiateBaricenter((BaricenterData)body);
-					break;
-				case CelestialBodyType.Nova:
-					gameObject = InstantiateNova((NovaData)body);
-					break;
-				case CelestialBodyType.Nebula:
-					gameObject = InstantiateNebula((NebulaData)body);
-					break;
-				case CelestialBodyType.Sector:
-					Debug.Log("NO");
-					throw new ArgumentException("NO SECTORES");
-				default:
-					break;
-			}
-			if (parent !=null)
-			gameObject.transform.parent = parent;
-			if (body.Children == null)
-			{
 
-			}
-			else if (body.Children.Count == 0)
+			GameObject gameObject = celestialBodyType switch
 			{
+				CelestialBodyType.Planet => InstantiatePlanet((PlanetData)body),
+				CelestialBodyType.Star => InstantiateStar((StarData)body),
+				CelestialBodyType.Baricenter => InstantiateBaricenter((BaricenterData)body),
+				CelestialBodyType.Nova => throw new NotImplementedException(),
+				CelestialBodyType.Nebula => throw new NotImplementedException(),
+				_ => null
+			};
 
-			}
-			else
+			if (gameObject != null)
 			{
-				foreach (var child in body.Children)
+				gameObject.transform.SetParent(parent);
+				// POSICIONAMIENTO POR ÍNDICE: Separación de 20 unidades por nivel
+				float dist = (index + 1) * 20f;
+				gameObject.transform.localPosition = new Vector3(dist, 0, 0);
+			}
+
+			if (body.Children != null && body.Children.Count > 0)
+			{
+				for (int i = 0; i < body.Children.Count; i++)
 				{
-					InstantiateBody(child,gameObject.transform);
+					InstantiateBody(body.Children[i], gameObject.transform, i);
 				}
 			}
 		}
 
-		private static GameObject InstantiateNebula(NebulaData body)
-		{
-			throw new NotImplementedException();//ni tengo forma de renderizar Nebulosas 
-		}
-
-		private static GameObject InstantiateNova(NovaData body)
-		{
-			throw new NotImplementedException();//ni tengo forma de renderizar Novas
-		}
-		static bool Inited;
 		public static void InstantiateSystem(string ParentId)
 		{
-			if (!Inited)
+			if (!Inited) InitStuf();
+
+			systemData = new InstantiatedSystemData
 			{
-				InitStuf();	
-			}
-			systemData = new();
-			systemData.Datas = new();
-			systemData.IDS = new();
-			systemData.ObjAndIDS = new();//des-optimización
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			systemData.ObjAndIDS = new();
-			if (ParentId[0] == 'S')
-				throw new ArgumentException("NO PUEDES HACER ESTO EN UN SECTOR ENTERO");
-			if (galaxyData == null)
-				if (!GalaxyData.TryToLoadGalaxy(out galaxyData))
-				{
-					throw new Exception("ERROR AL CARGAR GALAXIA");
-				}
+				Datas = new GalObjCollection(),
+				IDS = new GalObjCollectionID(),
+				ObjAndIDS = new Dictionary<GameObject, string>()
+			};
 
 			InstantiateBody(ParentId, null);
 		}
-		static bool TryToLoadABody(BodyID bodyID,out CelestialBody body, out CelestialBodyType d)
+
+		static bool TryToLoadABody(BodyID bodyID, out CelestialBody body, out CelestialBodyType d)
 		{
 			try
 			{
 				d = bodyID.GetCelestialBodyType();
-				body = d
-					switch
+				body = d switch
 				{
 					CelestialBodyType.Planet => galaxyData.LoadPlanet(bodyID.GetID()),
 					CelestialBodyType.Star => galaxyData.LookForStar(bodyID.GetID()),
 					CelestialBodyType.Baricenter => galaxyData.LookForBaricenter(bodyID.GetID()),
 					CelestialBodyType.Nova => galaxyData.LookForNova(bodyID.GetID()),
 					CelestialBodyType.Nebula => galaxyData.LookForNebula(bodyID.GetID()),
-					CelestialBodyType.Sector => throw new ArgumentException("TIPO INVALIDO"),
 					_ => throw new Exception("TIPO DESCONOCIDO"),
 				};
 				return true;
 			}
-			catch (Exception)
-			{
-				d = CelestialBodyType.None;
-				body = null;
-				return false;
-			}
+			catch { body = null; d = CelestialBodyType.None; return false; }
 		}
+
 		public struct InstantiatedSystemData
 		{
 			public GalObjCollection Datas;
 			public GalObjCollectionID IDS;
 			public Dictionary<GameObject, string> ObjAndIDS;
-
 		}
 	}
 }
