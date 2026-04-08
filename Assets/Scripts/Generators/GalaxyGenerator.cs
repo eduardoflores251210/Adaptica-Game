@@ -977,7 +977,13 @@ public class GalaxyGenerator : MonoBehaviour
 		}
 		return (planets, maxPlanets);
 	}
-
+	/// <summary>
+	/// genera el tipo de planeta basandose en su orbita
+	/// EN UNA ENANA NEGRA O PLANETA ERRANTE
+	/// </summary>
+	/// <param name="index"></param>
+	/// <param name="total"></param>
+	/// <returns></returns>
 	public PlanetTypes GetPlanetTypeByOrbitBLACK(int index, int total)
 	{
 		PlanetTypes[] calientes = { PlanetTypes.VenusLike, PlanetTypes.Toxic, PlanetTypes.Deserted };
@@ -1158,7 +1164,7 @@ public static class GalaxyDiagnostics
 			}
 			catch (Exception ex)
 			{
-				Debug.LogWarning($"Error leyendo {f}: {ex.Message}");
+				Debug.LogWarning($"Error leyendo {f}: {ex.Message}");//ups se me chispoteo
 			}
 		}
 
@@ -1169,7 +1175,7 @@ public static class GalaxyDiagnostics
 			return;
 		}
 
-		Debug.Log($"Encontradas {duplicates.Count} IDs duplicadas:");
+		Debug.Log($"Encontradas {duplicates.Count} IDs duplicadas:");//es que no me tienen paciencia 
 		foreach (var kv in duplicates)
 		{
 			Debug.Log($"ID {kv.Key} aparece en: {string.Join(", ", kv.Value)}");

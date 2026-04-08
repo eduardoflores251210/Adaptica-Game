@@ -19,48 +19,44 @@ public class NamedescManager : MonoBehaviour
 
     void Update()
     {
-        if (true)
+
+        if (!initialized)
         {
-            if (!initialized)
+            if (!Document.isActiveAndEnabled) return;
+
+            var root = Document.rootVisualElement;
+
+            Nam = root.Q<TextField>("Nam");
+            Desc = root.Q<TextField>("Desc");
+            //Warning = root.Q<Label>("WARNING");
+            Sig = root.Q<Button>("Sig");
+            Exit = root.Q<Button>("Exit");
+            // Restaurar texto guardado
+            Nam.value = Name;
+            Desc.value = Description;
+
+            // Suscribirse a cambios para actualizar persistencia
+            Nam.RegisterValueChangedCallback(evt =>
             {
-                if (!Document.isActiveAndEnabled) return;
+                Name = evt.newValue;
+                ValidateInput();
+            });
 
-                var root = Document.rootVisualElement;
+            Desc.RegisterValueChangedCallback(evt =>
+            {
+                Description = evt.newValue;
+                ValidateInput();
+            });
 
-                Nam = root.Q<TextField>("Nam");
-                Desc = root.Q<TextField>("Desc");
-                //Warning = root.Q<Label>("WARNING");
-                Sig = root.Q<Button>("Sig");
-                Exit = root.Q<Button>("Exit");
-				// Restaurar texto guardado
-				Nam.value = Name;
-                Desc.value = Description;
+            Sig.clicked += OnNextClicked;
+            Exit.clicked += () => { phaseManager.saver.ExitWitourthSaving(); };
 
-                // Suscribirse a cambios para actualizar persistencia
-                Nam.RegisterValueChangedCallback(evt =>
-                {
-                    Name = evt.newValue;
-                    ValidateInput();
-                });
+            ValidateInput();
 
-                Desc.RegisterValueChangedCallback(evt =>
-                {
-                    Description = evt.newValue;
-                    ValidateInput();
-                });
-
-                Sig.clicked += OnNextClicked;
-                Exit.clicked += () => { phaseManager.saver.ExitWitourthSaving(); };
-
-				ValidateInput();
-
-                initialized = true;
-            }
+            initialized = true;
         }
-        else
-        {
-            initialized = false;
-        }
+
+
     }
 
     public string ValidateInput()

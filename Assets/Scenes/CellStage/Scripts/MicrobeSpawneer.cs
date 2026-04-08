@@ -55,7 +55,7 @@ public class MicrobeSpawneer : MonoBehaviour
 		}
 		StartCoroutine(nameof(Spawn));
 	}
-	string DestroyMsg = "razon desconocida";
+	public string DestroyMsg = "razon desconocida";
 	private void OnDestroy()
 	{
 		StopAllCoroutines();

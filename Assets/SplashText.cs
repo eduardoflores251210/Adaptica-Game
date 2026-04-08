@@ -318,7 +318,7 @@ public class SplashText : MonoBehaviour
 				Lines.Add($"Made by {Application.companyName}");
 			}
 		}
-		catch (Exception e)
+		catch (Exception)
 		{
 
 		}
@@ -330,11 +330,7 @@ public class SplashText : MonoBehaviour
 		}
 
 		DateTime date = DateTime.Now;
-		if (false)
-		{
-			enabled = false;
-			return;
-		}
+
 		var TTTTTTTTTT = new System.Random(UnityEngine.Random.Range(0, 99999));
 		configurarIdioma();
 		for (int i = 0; i < 5; i++)

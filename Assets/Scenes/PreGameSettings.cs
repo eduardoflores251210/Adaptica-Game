@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
+using System;
+[Obsolete("PreGameSettings es una reliquia de la Alpha 2.0. Por favor, no lo uses o te daré un coscorrón.")]
 /// <summary>
 /// cosa para debug que quitare despues
 /// activa y desactiva bloom en todos los volumes de la escena

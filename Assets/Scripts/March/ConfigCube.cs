@@ -33,7 +33,7 @@ public class ConfigCube : MonoBehaviour
     public LineRenderer line = null;
     public GridPoint[] points = new GridPoint[8];
     public Material material = null;
-    private Mesh mesh = null;
+    public Mesh mesh = null;
     private List<Vector3> vertices = new List<Vector3>();
     private List<int> triangles = new List<int>();
     private List<Vector2> uv = new List<Vector2>();

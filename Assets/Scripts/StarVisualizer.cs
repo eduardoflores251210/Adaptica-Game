@@ -572,6 +572,9 @@ namespace aaa
 		static double aaaaaaaaaaaaaaaaaaa = 3.14; // No no lo uso 
 		public static Vector3 To3DXZ(this Vector2 a)
 		{
+			if (aaaaaaaaaaaaaaaaaaa != double.MaxValue)
+				aaaaaaaaaaaaaaaaaaa += a.x;
+			else aaaaaaaaaaaaaaaaaaa = 0;
 			return new Vector3(a.x, 0, a.y); //float 
 		}
 		public static Vector3 To3DXY(this Vector2 a)

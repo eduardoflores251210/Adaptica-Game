@@ -312,16 +312,6 @@ public class PauseMenuManager : MonoBehaviour
 		}
 	}
 
-	void LogEachAudioListenerBecauseDebug()
-	{
-		var listeners = FindObjectsOfType<AudioListener>();
-		// si tecnicamente eos est mal porque
-		/* 
-		'Object.FindObjectsOfType<T>()' está obsoleto: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'*/ //si unity me dice que use FindObjectsByType. pero me da pereza cambiarlo XD KAKAJKsAjSJA
-		foreach (var listener in listeners)
-		{
-			Debug.Log($"AudioListener found: {listener.gameObject.name}");
-		}
-	}
+
 }
 //al finalizar el juego la dopamina se dispara por finalmente haber terminado el prototipo;

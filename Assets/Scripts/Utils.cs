@@ -14,6 +14,7 @@ using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
@@ -255,6 +256,150 @@ public static class SpaceUtils
 			result = '-' + result;
 
 		return result;
+	}
+	public static class SystemObjectsBuilder
+	{
+		public static Material BaseMat;
+		public static Material BholMat;
+		public static Material OpaceMat;
+		public static Dictionary<StarTypes, Material> Mats = new Dictionary<StarTypes, Material>();
+		public static GalaxyData galaxyData;
+		public static void InitMaterials()
+		{
+			foreach (StarTypes st in Enum.GetValues(typeof(StarTypes)))
+			{
+				Material material = new Material(BaseMat);
+				material.SetFloat("_Temp_K", StarData.Temperatures[st]);
+				Mats[st] = material;
+				if (st == StarTypes.X)
+				{
+					Mats[st] = BholMat;
+				}
+				else if (st == StarTypes.EN)
+				{
+					Mats[st] = OpaceMat;
+				}
+
+			}
+			}
+		public static GameObject InstantiateStar(StarData starData)
+		{
+			return new GameObject(starData.Name);
+		}
+		public static GameObject InstantiateBaricenter(BaricenterData baricenterData)
+		{
+			return new GameObject (baricenterData.Name);
+		}
+		public static GameObject InstantiatePlanet(PlanetData planetData)
+		{
+			return new GameObject(planetData.Name);
+		}
+		public static void InstantiateBody(string StartID, UnityEngine.Transform parent)
+		{
+			if (StartID[0] == 'S')
+				throw new ArgumentException("NO PUEDES HACER ESTO EN UN SECTOR ENTERO");
+			if (galaxyData == null)
+				if (!GalaxyData.TryToLoadGalaxy(out galaxyData))
+				{
+					throw new Exception("ERROR AL CARGAR GALAXIA");
+				}
+
+			CelestialBody body = null;
+			BodyID bodyID = BodyID.FromString(StartID);
+			if (!TryToLoadABody(bodyID, out body, out var celestialBodyType))
+				throw new Exception("ERROR CARGANDO");
+			GameObject gameObject = null;
+			switch (bodyID.GetCelestialBodyType())
+			{
+				case CelestialBodyType.None:
+					break;
+				case CelestialBodyType.Planet:
+					gameObject=InstantiatePlanet((PlanetData)body);
+					break;
+				case CelestialBodyType.Star:
+					gameObject=InstantiateStar((StarData)body);
+					break;
+				case CelestialBodyType.Baricenter:
+					gameObject=InstantiateBaricenter((BaricenterData)body);
+					break;
+				case CelestialBodyType.Nova:
+					gameObject = InstantiateNova((NovaData)body);
+					break;
+				case CelestialBodyType.Nebula:
+					gameObject = InstantiateNebula((NebulaData)body);
+					break;
+				case CelestialBodyType.Sector:
+					Debug.Log("NO");
+					throw new ArgumentException("NO SECTORES");
+				default:
+					break;
+			}
+			if (parent !=null)
+			gameObject.transform.parent = parent;
+			if (body.Children == null)
+			{
+
+			}
+			else if (body.Children.Count == 0)
+			{
+
+			}
+			else
+			{
+				foreach (var child in body.Children)
+				{
+					InstantiateBody(child,gameObject.transform);
+				}
+			}
+		}
+
+		private static GameObject InstantiateNebula(NebulaData body)
+		{
+			throw new NotImplementedException();//ni tengo forma de renderizar Nebulosas 
+		}
+
+		private static GameObject InstantiateNova(NovaData body)
+		{
+			throw new NotImplementedException();//ni tengo forma de renderizar Novas
+		}
+
+		public static void InstantiateSystem(string ParentId)
+		{
+			if (ParentId[0] == 'S')
+				throw new ArgumentException("NO PUEDES HACER ESTO EN UN SECTOR ENTERO");
+			if (galaxyData == null)
+				if (!GalaxyData.TryToLoadGalaxy(out galaxyData))
+				{
+					throw new Exception("ERROR AL CARGAR GALAXIA");
+				}
+
+			InstantiateBody(ParentId, null);
+		}
+		static bool TryToLoadABody(BodyID bodyID,out CelestialBody body, out CelestialBodyType d)
+		{
+			try
+			{
+				d = bodyID.GetCelestialBodyType();
+				body = d
+					switch
+				{
+					CelestialBodyType.Planet => galaxyData.LoadPlanet(bodyID.GetID()),
+					CelestialBodyType.Star => galaxyData.LookForStar(bodyID.GetID()),
+					CelestialBodyType.Baricenter => galaxyData.LookForBaricenter(bodyID.GetID()),
+					CelestialBodyType.Nova => galaxyData.LookForNova(bodyID.GetID()),
+					CelestialBodyType.Nebula => galaxyData.LookForNebula(bodyID.GetID()),
+					CelestialBodyType.Sector => throw new ArgumentException("TIPO INVALIDO"),
+					_ => throw new Exception("TIPO DESCONOCIDO"),
+				};
+				return true;
+			}
+			catch (Exception)
+			{
+				d = CelestialBodyType.None;
+				body = null;
+				return false;
+			}
+		}
 	}
 }
 //si Seria mas facil con Flags pero bueno no sabia de su existencia cuando hice el enum y no quiero cambiarlo por ahora

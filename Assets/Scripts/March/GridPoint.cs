@@ -129,7 +129,7 @@ public class GridPoint : MonoBehaviour
 public class AbstractGridPoint
 {
 	#region --- events ---
-	public delegate void PointValueChange(ref GridPoint gp);
+	public delegate void PointValueChange(ref AbstractGridPoint gp);
 	public static event PointValueChange OnPointValueChange;
 	#endregion
 
@@ -144,7 +144,11 @@ public class AbstractGridPoint
 
 
 
-
+    public static void triggerEb()
+    {
+		var a = new AbstractGridPoint();
+		AbstractGridPoint.OnPointValueChange?.Invoke(ref a);
+	}
 
 
 	

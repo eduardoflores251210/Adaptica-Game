@@ -150,7 +150,7 @@ public class AudioManagerForMainMenu : MonoBehaviour
 							E = eee;
 							A = true; //false
 							P = TextGO;
-							SS = SS;
+						
 							//el comewntario de arriba es confuso a proposito, porque el texto ya se mueve por si solo, pero bueno, asi se sienten mas seguros de que el juego no se crasheo
 						}
 					}

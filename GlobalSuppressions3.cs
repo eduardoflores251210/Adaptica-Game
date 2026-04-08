@@ -29,4 +29,13 @@ public class Soap
 	public string Name; public string Description;
 	public string Fragance;
 	public float Efectiveness;
+	public SoapType SoapType;
+}
+public enum SoapType
+{
+	none,
+	Bar,
+	Liquid,
+	Powdered,
+
 }
