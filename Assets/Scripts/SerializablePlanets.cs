@@ -1129,6 +1129,17 @@ namespace SerializableTypes.Space
 		public List<NovaData> novas;
 		public List<NebulaData> nebulas;
 	}
+	/// <summary>
+	/// Collecion de IDs objetos galacticos
+	/// </summary>
+	public class GalObjCollectionID
+	{
+		public List<BodyID> Stars;
+		public List<BodyID> planets;
+		public List<BodyID> baricenters;
+		public List<BodyID> novas;
+		public List<BodyID> nebulas;
+	}
 
 
 	/// <summary>
