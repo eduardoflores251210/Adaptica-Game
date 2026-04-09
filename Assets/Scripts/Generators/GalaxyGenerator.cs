@@ -13,6 +13,7 @@ using Random = System.Random;
 
 public class GalaxyGenerator : MonoBehaviour
 {
+	#region Campos 
 	[Header("Dependencias Opcionales")]
 	public StarVisualizer visualizer;
 	private Random Random;
@@ -20,7 +21,7 @@ public class GalaxyGenerator : MonoBehaviour
 	public float galaxyRadius = 15f; // radio de la galaxia
 	public Vector2Double sectorSize = new Vector2Double(1, 1); // tamaño de cada sector
 	public int starCountPerSector = 250;
-
+	byte numArms = 0; //numero de brazos en Espiral
 	public int totalSectoresX;
 	public int totalSectoresY;
 
@@ -63,7 +64,8 @@ public class GalaxyGenerator : MonoBehaviour
 	public float SpiralArmWidthMultiplier = 0.08f;
 	public float SpiralScaleMultiplier = 0.2f;
 	public float spiralAngularStretch = 0.35f;
-
+	#endregion
+	#region Unity Messages
 	void Start()
 	{
 
@@ -83,23 +85,6 @@ public class GalaxyGenerator : MonoBehaviour
 		}
 		CalculateTotalSectors();
 		//Debug.Log($"GalaxyGenerator init: totalSectoresX={totalSectoresX}, totalSectoresY={totalSectoresY}");
-	}
-	int GetSeed()
-	{
-		Span<byte> b = stackalloc byte[4];
-		System.Security.Cryptography.RandomNumberGenerator.Fill(b);
-		return BitConverter.ToInt32(b);
-	}
-	[ConsoleCommand(Name = "!reggal", Description = "Regenera la galaxia", IsEgg = true)]
-	public static void RegenGalaxy()
-	{
-		GalaxyGenerator generator = FindAnyObjectByType<GalaxyGenerator>();
-		if (generator != null)
-		{
-			Debug.Log("REGENERANDO GALAXIA");
-			generator.RegenNow = true;
-		}
-
 	}
 	void Update()
 	{
@@ -136,20 +121,24 @@ public class GalaxyGenerator : MonoBehaviour
 			}
 		}
 	}
-
-	private void CalculateTotalSectors()
+	int GetSeed()
 	{
-		float diametro = galaxyRadius * 2;
-		totalSectoresX = Mathf.Max(1, (int)Math.Round(diametro / sectorSize.x));
-		totalSectoresY = Mathf.Max(1, (int)Math.Round(diametro / sectorSize.y));
-
-		// Garantizar un único sector central (hacer impares)
-		if (totalSectoresX % 2 == 0) totalSectoresX += 1;
-		if (totalSectoresY % 2 == 0) totalSectoresY += 1;
-
-		//Debug.Log($"Total sectores calculados: X={totalSectoresX}, Y={totalSectoresY}");
+		Span<byte> b = stackalloc byte[4];
+		System.Security.Cryptography.RandomNumberGenerator.Fill(b);
+		return BitConverter.ToInt32(b);
 	}
+	#endregion
+	[ConsoleCommand(Name = "!reggal", Description = "Regenera la galaxia", IsEgg = true)]
+	public static void RegenGalaxy()
+	{
+		GalaxyGenerator generator = FindAnyObjectByType<GalaxyGenerator>();
+		if (generator != null)
+		{
+			Debug.Log("REGENERANDO GALAXIA");
+			generator.RegenNow = true;
+		}
 
+	}
 	private bool GalaxyExists()
 	{
 		try
@@ -174,68 +163,6 @@ public class GalaxyGenerator : MonoBehaviour
 			return false;
 		}
 	}
-
-
-	/// <summary>
-	/// Genera posiciones de sectores en anillos, en ORDEN HORARIO (clockwise),
-	/// asegurando que cada anillo cierre completamente (en el orden angular),
-	/// y respetando los límites startX..endX, startY..endY.
-	/// </summary>
-	private List<Vector2Int> GenerateSectorPositionsInRingsClockwise(int startX, int endX, int startY, int endY)
-	{
-		var result = new List<Vector2Int>();
-		int centerX = (startX + endX) / 2;
-		int centerY = (startY + endY) / 2;
-
-		int maxRadius = Math.Max(Math.Max(Math.Abs(startX - centerX), Math.Abs(endX - centerX)),
-								 Math.Max(Math.Abs(startY - centerY), Math.Abs(endY - centerY)));
-
-		// r = 0 -> centro (si está dentro de la caja)
-		if (centerX >= startX && centerX <= endX && centerY >= startY && centerY <= endY)
-			result.Add(new Vector2Int(centerX, centerY));
-
-		// Para cada radio r>0:
-		for (int r = 1; r <= maxRadius; r++)
-		{
-			var ringCells = new List<(Vector2Int pos, float angle)>();
-
-			// Recoger todas las celdas con max(|dx|,|dy|) == r
-			for (int dx = -r; dx <= r; dx++)
-			{
-				for (int dy = -r; dy <= r; dy++)
-				{
-					if (Mathf.Max(Math.Abs(dx), Math.Abs(dy)) != r) continue; // sólo la periferia del anillo
-					int x = centerX + dx;
-					int y = centerY + dy;
-					if (x < startX || x > endX || y < startY || y > endY) continue;
-
-					// calcular ángulo relativo para orden horario empezando en el Este (0 rad)
-					// Atan2 devuelve ángulo en [-PI,PI] donde 0 es en el Este; convertimos a [0,2PI)
-					float ang = Mathf.Atan2(dy, dx);
-					if (ang < 0f) ang += Mathf.PI * 2f;
-					// Convertir a orden horario empezando en East: clockwiseAngle = (2PI - ang) % 2PI
-					float cwAng = (Mathf.PI * 2f - ang) % (Mathf.PI * 2f);
-
-					ringCells.Add((new Vector2Int(x, y), cwAng));
-				}
-			}
-
-			// ordenar por cwAng ascendente (esto produce secuencia clockwise empezando en East)
-			ringCells.Sort((a, b) => a.angle.CompareTo(b.angle));
-
-			// añadir al resultado en orden (sin duplicados)
-			foreach (var item in ringCells)
-			{
-				// evitar duplicados accidentales
-				if (!result.Contains(item.pos))
-					result.Add(item.pos);
-			}
-		}
-
-		return result;
-	}
-
-	byte numArms = 0; //numero de brazos en Espiral
 	public IEnumerator GenerateGalaxy()
 	{
 		IsGenerating = true;
@@ -378,17 +305,19 @@ public class GalaxyGenerator : MonoBehaviour
 		}
 		OnGalaxyGenerated?.Invoke();
 	}
-
-	private void EnsureDirectoriesAreReal()
+	#region Generation Functions
+	private void CalculateTotalSectors()
 	{
-		Directory.CreateDirectory(Paths.Galaxy);
-		Directory.CreateDirectory(Paths.GalaxySectors);
-		Directory.CreateDirectory(Paths.Planets);
-		Directory.CreateDirectory(Paths.Baricenters);
-		Directory.CreateDirectory(Paths.MiscGalaxy);
-		Directory.CreateDirectory(Paths.SaveFiles);
-	}
+		float diametro = galaxyRadius * 2;
+		totalSectoresX = Mathf.Max(1, (int)Math.Round(diametro / sectorSize.x));
+		totalSectoresY = Mathf.Max(1, (int)Math.Round(diametro / sectorSize.y));
 
+		// Garantizar un único sector central (hacer impares)
+		if (totalSectoresX % 2 == 0) totalSectoresX += 1;
+		if (totalSectoresY % 2 == 0) totalSectoresY += 1;
+
+		//Debug.Log($"Total sectores calculados: X={totalSectoresX}, Y={totalSectoresY}");
+	}
 	private GalaxySector CreateCentralSector(string galaxyName, int sectorIndex, Vector2 sectorSize, GalaxyTypes type)
 	{
 		int totalStars = starCountPerSector;
@@ -463,16 +392,68 @@ public class GalaxyGenerator : MonoBehaviour
 
 		return sector;
 	}
-	bool IsInsideSector(Vector3 pos, Vector3 origin, Vector3 size)
+
+	/// <summary>
+	/// Genera posiciones de sectores en anillos, en ORDEN HORARIO (clockwise),
+	/// asegurando que cada anillo cierre completamente (en el orden angular),
+	/// y respetando los límites startX..endX, startY..endY.
+	/// </summary>
+	private List<Vector2Int> GenerateSectorPositionsInRingsClockwise(int startX, int endX, int startY, int endY)
 	{
-		return pos.x >= origin.x - size.x / 2f &&
-			   pos.x <= origin.x + size.x / 2f &&
-			   pos.z >= origin.z - size.z / 2f &&
-			   pos.z <= origin.z + size.z / 2f;
+		var result = new List<Vector2Int>();
+		int centerX = (startX + endX) / 2;
+		int centerY = (startY + endY) / 2;
+
+		int maxRadius = Math.Max(Math.Max(Math.Abs(startX - centerX), Math.Abs(endX - centerX)),
+								 Math.Max(Math.Abs(startY - centerY), Math.Abs(endY - centerY)));
+
+		// r = 0 -> centro (si está dentro de la caja)
+		if (centerX >= startX && centerX <= endX && centerY >= startY && centerY <= endY)
+			result.Add(new Vector2Int(centerX, centerY));
+
+		// Para cada radio r>0:
+		for (int r = 1; r <= maxRadius; r++)
+		{
+			var ringCells = new List<(Vector2Int pos, float angle)>();
+
+			// Recoger todas las celdas con max(|dx|,|dy|) == r
+			for (int dx = -r; dx <= r; dx++)
+			{
+				for (int dy = -r; dy <= r; dy++)
+				{
+					if (Mathf.Max(Math.Abs(dx), Math.Abs(dy)) != r) continue; // sólo la periferia del anillo
+					int x = centerX + dx;
+					int y = centerY + dy;
+					if (x < startX || x > endX || y < startY || y > endY) continue;
+
+					// calcular ángulo relativo para orden horario empezando en el Este (0 rad)
+					// Atan2 devuelve ángulo en [-PI,PI] donde 0 es en el Este; convertimos a [0,2PI)
+					float ang = Mathf.Atan2(dy, dx);
+					if (ang < 0f) ang += Mathf.PI * 2f;
+					// Convertir a orden horario empezando en East: clockwiseAngle = (2PI - ang) % 2PI
+					float cwAng = (Mathf.PI * 2f - ang) % (Mathf.PI * 2f);
+
+					ringCells.Add((new Vector2Int(x, y), cwAng));
+				}
+			}
+
+			// ordenar por cwAng ascendente (esto produce secuencia clockwise empezando en East)
+			ringCells.Sort((a, b) => a.angle.CompareTo(b.angle));
+
+			// añadir al resultado en orden (sin duplicados)
+			foreach (var item in ringCells)
+			{
+				// evitar duplicados accidentales
+				if (!result.Contains(item.pos))
+					result.Add(item.pos);
+			}
+		}
+
+		return result;
 	}
 
 
-	
+
 
 	public List<StarData> GenStarsInSector(
 		int sectorId,
@@ -1080,6 +1061,18 @@ public class GalaxyGenerator : MonoBehaviour
 			_ => "Un planeta que desafía toda imaginación. Cada visita revela un misterio inesperado. o es un bug",
 		};
 	}
+	#endregion
+	#region Misc
+	private void EnsureDirectoriesAreReal()
+	{
+		Directory.CreateDirectory(Paths.Galaxy);
+		Directory.CreateDirectory(Paths.GalaxySectors);
+		Directory.CreateDirectory(Paths.Planets);
+		Directory.CreateDirectory(Paths.Baricenters);
+		Directory.CreateDirectory(Paths.MiscGalaxy);
+		Directory.CreateDirectory(Paths.SaveFiles);
+	}
+	#endregion
 }
 
 
