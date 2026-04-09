@@ -60335,7 +60335,7 @@ MonoBehaviour:
   ForceArms: 0
   ForcedArms: 0
   AllowRogues: 1
-  Probability: 0.05
+  Probability: 0.6
   planetDataList: []
   ellipseRatio: 1
   ellipseEdgeFalloff: 6
@@ -73915,7 +73915,7 @@ RectTransform:
   m_GameObject: {fileID: 2030201383}
   m_LocalRotation: {x: -0, y: -0, z: 0.28464007, w: 0.9586345}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.0961375, y: 1.0961375, z: 1.0961375}
+  m_LocalScale: {x: 1.0995317, y: 1.0995317, z: 1.0995317}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1336602438}
@@ -73940,7 +73940,7 @@ MonoBehaviour:
   PulseSpeed: 8.13
   PulseAmplitude: 0.1
   ChangeTimeInMinutes: 0.5
-  timer: 24.631277
+  timer: 2.3291368
   text: {fileID: 2030201386}
   Override: 0
   idx: 0
@@ -73965,7 +73965,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: The quik brown Fox jumps over the lazy Dog
+  m_text: She sings dog.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1f251fab3f3063343aa12b35ff14bc77, type: 2}
   m_sharedMaterial: {fileID: -4311610417880198931, guid: 1f251fab3f3063343aa12b35ff14bc77, type: 2}
@@ -73992,7 +73992,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 19.9
+  m_fontSize: 32.75
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1

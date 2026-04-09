@@ -12,9 +12,9 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
+using EP = UnityEngine.ParticleSystem.EmitParams;
 using Debug = UnityEngine.Debug;
 using System.Collections.Concurrent;
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "UNT0022:Inefficient position/rotation assignment", Justification = "<pendiente>")]
 public class StarVisualizer : MonoBehaviour
 {
 	[Header("Opciones de visualización")]
@@ -36,7 +36,7 @@ public class StarVisualizer : MonoBehaviour
 	public ConcurrentBag<GalaxySector> Bag;
 	[HideInInspector]
 	[NonSerialized]
-	public List<GalaxySector> list;
+
 	public ConcurrentBag<quequeElement> QueQue; // bolsa concurrente para pasar estrellas desde el hilo de carga a la corutina de visualización sin bloquear
 	public int BatchSize = 50;
 	public bool IsInMainMenu = false;
@@ -108,40 +108,37 @@ public class StarVisualizer : MonoBehaviour
 
 		if (data == null) yield break;
 
-		list = new List<GalaxySector>();
+		Bag = new ConcurrentBag<GalaxySector>();
 		ParralelLOAD();
 		while (!isDoneLoading)
 		{
 			yield return null; // esperar a que el hilo de carga termine
 		}
-		if (list.Count == 0 && Bag.Count > 0)
+
+		if (Bag.Count > 0)
 		{
-			list = Bag.ToList();
-		}
-		if (list.Count > 0 || Bag.Count > 0)
-		{
-			yield return StartCoroutine(NEWPARARELVisualizeStars(Bag,data));
+			yield return StartCoroutine(VisualizeStars(Bag,data));
 		}
 	}
 	public GalaxyData galaxy = null;
 
 	//deveria ser un poquito mas rapido
-	public IEnumerator NEWPARARELVisualizeStars(ConcurrentBag<GalaxySector> sectors, GalaxyData data = null)
+	public IEnumerator VisualizeStars(ConcurrentBag<GalaxySector> sectors, GalaxyData data = null)
 	{
 		Debug.Log("Visuzlize");
-		List<ParticleSystem.EmitParams> particleX = new();
-		List<ParticleSystem.EmitParams> particleO = new();
-		List<ParticleSystem.EmitParams> particleB = new();
-		List<ParticleSystem.EmitParams> particleA = new();
-		List<ParticleSystem.EmitParams> particleF = new();
-		List<ParticleSystem.EmitParams> particleG = new();
-		List<ParticleSystem.EmitParams> particleK = new();
-		List<ParticleSystem.EmitParams> particleM = new();
-		List<ParticleSystem.EmitParams> particleL = new();
-		List<ParticleSystem.EmitParams> particleT = new();
-		List<ParticleSystem.EmitParams> particleEB = new();
-		List<ParticleSystem.EmitParams> particleEN = new();
-		List<ParticleSystem.EmitParams> particleNS = new();
+		List<EP> particleX = new();
+		List<EP> particleO = new();
+		List<EP> particleB = new();
+		List<EP> particleA = new();
+		List<EP> particleF = new();
+		List<EP> particleG = new();
+		List<EP> particleK = new();
+		List<EP> particleM = new();
+		List<EP> particleL = new();
+		List<EP> particleT = new();
+		List<EP> particleEB = new();
+		List<EP> particleEN = new();
+		List<EP> particleNS = new();
 		Debug.Log("STart");
 
 		if (starParent == null) starParent = this.transform;
@@ -195,19 +192,19 @@ public class StarVisualizer : MonoBehaviour
 		}
 
 		// Reservar capacidad basada en conteos
-		particleX = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.X, 0));
-		particleO = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.O, 0));
-		particleB = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.B, 0));
-		particleA = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.A, 0));
-		particleF = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.F, 0));
-		particleG = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.G, 0));
-		particleK = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.K, 0));
-		particleM = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.M, 0));
-		particleL = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.L, 0));
-		particleT = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.T, 0));
-		particleEB = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.EB, 0));
-		particleEN = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.EN, 0));
-		particleNS = new List<ParticleSystem.EmitParams>(typeCounts.GetValueOrDefault(StarTypes.NS, 0));
+		particleX = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.X, 0));
+		particleO = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.O, 0));
+		particleB = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.B, 0));
+		particleA = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.A, 0));
+		particleF = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.F, 0));
+		particleG = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.G, 0));
+		particleK = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.K, 0));
+		particleM = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.M, 0));
+		particleL = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.L, 0));
+		particleT = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.T, 0));
+		particleEB = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.EB, 0));
+		particleEN = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.EN, 0));
+		particleNS = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.NS, 0));
 
 		// --- Opciones de chunking/batching ---
 		int Batch = 0;
@@ -283,11 +280,10 @@ public class StarVisualizer : MonoBehaviour
 							case StarTypes.EB: particleEB.Add( element.emit); break;
 							case StarTypes.NS: particleNS.Add( element.emit); break;
 							case StarTypes.EN: particleEN.Add(element.emit); break;
-							case StarTypes.X:
+							case StarTypes.X: 
 							default: particleX.Add(element.emit); break;
 						}
 
-						bool T = false;
 						if (Use1FramesPerSecondMode)
 						{
 							// mantengo tu lógica original de throttling temporal si está activada
@@ -295,7 +291,7 @@ public class StarVisualizer : MonoBehaviour
 						}
 
 						Batch++;
-						if ((Batch >= BatchSize && !Use1FramesPerSecondMode) || T)
+						if ((Batch >= BatchSize && !Use1FramesPerSecondMode) )
 						{
 							Batch = 0;
 							yield return null;
@@ -344,7 +340,7 @@ public class StarVisualizer : MonoBehaviour
 
 							if (Particles.ContainsKey(StarTypes.EN))
 							{
-								ParticleSystem.EmitParams emit = new();
+								EP emit = new();
 								emit.position = planet.transform.Pos * GalaxyScale;
 								particleEN.Add(emit);
 							}
@@ -382,7 +378,7 @@ public class StarVisualizer : MonoBehaviour
 			var renderer = ps.GetComponent<ParticleSystemRenderer>();
 			if (Mats != null && Mats.ContainsKey(psKvp.Key)) renderer.material = Mats[psKvp.Key];
 
-			List<ParticleSystem.EmitParams> L = psKvp.Key switch
+			List<EP> L = psKvp.Key switch
 			{
 				StarTypes.X => particleX,
 				StarTypes.O => particleO,
@@ -397,7 +393,7 @@ public class StarVisualizer : MonoBehaviour
 				StarTypes.EB => particleEB,
 				StarTypes.NS => particleNS,
 				StarTypes.EN => particleEN,
-				_ => new List<ParticleSystem.EmitParams>(),
+				_ => new List<EP>(),
 			};
 
 			// Emitir en chunks para no bloquear un frame entero
@@ -440,8 +436,8 @@ public class StarVisualizer : MonoBehaviour
 		{
 			await System.Threading.Tasks.Task.Run(() =>
 			{
-				GalaxyData data = GalaxyData.LoadGalaxy();
-				if (data == null) return;
+				GalaxyData data = galaxy;
+				if (data == null) data = GalaxyData.LoadGalaxy();
 
 				Parallel.ForEach(data.SectorPositions, (st) => {
 					GalaxyData.LoadSector(st, out var Sec);
@@ -480,7 +476,7 @@ public class StarVisualizer : MonoBehaviour
 					// Si es nula, el "||" hace que pase a la siguiente sin ejecutar IsNull()
 					if (star == null || star.IsNull()) continue;
 
-					ParticleSystem.EmitParams emit = new();
+					EP emit = new();
 					emit.position = star.transform.Pos * GalaxyScale;
 
 					QueQue.Add(new quequeElement { star = star, emit = emit });
@@ -490,7 +486,7 @@ public class StarVisualizer : MonoBehaviour
 				{
 					if (token.IsCancellationRequested) return;
 					if (star == null || star.IsNull()) return;
-					ParticleSystem.EmitParams emit = new();
+					EP emit = new();
 					emit.position = star.transform.Pos * GalaxyScale;
 					QueQue.Add(new quequeElement { star = star, emit = emit });
 				});
@@ -514,7 +510,7 @@ public class StarVisualizer : MonoBehaviour
 	public struct quequeElement
 	{
 		public StarData star;
-		public ParticleSystem.EmitParams emit;
+		public EP emit;
 	}
 	public void ResetVisualizationIfNeeded()
 	{
@@ -533,7 +529,6 @@ public class StarVisualizer : MonoBehaviour
 
 		// Limpiar estructuras de datos
 		Bag = new ConcurrentBag<GalaxySector>();
-		list = new List<GalaxySector>();
 		QueQue = new ConcurrentBag<quequeElement>();
 
 		// Reset flags
