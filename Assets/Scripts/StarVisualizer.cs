@@ -55,6 +55,7 @@ public class StarVisualizer : MonoBehaviour
 			Sphere = tmp.GetComponent<MeshFilter>().mesh.CopyMesh();
 			Destroy(tmp);
 		}
+
 		// Crear materiales por tipo
 		foreach (StarTypes st in Enum.GetValues(typeof(StarTypes)))
 		{

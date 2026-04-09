@@ -10,6 +10,7 @@ public class LoadASYstem : MonoBehaviour
 	public Material BholMat; //este material brilla por que es el del disco de acrecion
 	public Material OpaceMat; //este material es opaco por que planetas y enanas negras
     public Material GasMaterial;
+    public Mesh SphereMesh;
     public string SolarSystemID = "";
     public bool LOADNOW = false;
     public SysData systemData;
@@ -29,6 +30,7 @@ public class LoadASYstem : MonoBehaviour
             bu.BaseMat = BasMat;
             bu.BholMat = BholMat;
             bu.BaseGasMaterial = GasMaterial;
+            bu.CacheSphere = SphereMesh;
 			bu.InstantiateSystem(SolarSystemID);
 
         }

@@ -27,404 +27,9 @@ using Vector3 = UnityEngine.Vector3;
 using Vector4 = UnityEngine.Vector4;
 
 
-public static class SpaceUtils
-{
 
-	/// <summary>
-	/// 🪐 NOMBRADORES GALÁCTICOS
-	/// </summary>
-	public static class Naming
-	{
-		public static System.Random Random = new();
-		public static string GenerateGalaxyName()
-		{
-			string[] Catalogues = {
-				"GCA",
-				"EGC",
-				"SGC",
-				"GCGC",
-				"VGE",
-				"G",
-				"S5GC"
-			};
-			// significados de Los catalogos:
-			//Galactic Catalogue A,      //NGC
-			//Extra Galactic Catalogue, //inspíracion LEDA y ESO a la vez
-			//SGC Super Galactic Catalogue, //isnpiracion PGC
-			//Global Clusters and Galaxies Catalogue,    //inspiracion CGCG
-			//VGE = Virgo Galactic Extention //inspiracion  VCC fusionado con NGC 
-			//Guadalupe             //insperacion Messier. si, MESSIER pero es una señora que amaba ver cometas pero solo encontró galaxias XD
-			//SHA512 Galactic Catalogue	//inspiracion NINGUNO, originalidad 100% XD 
-			string Catalogo = Catalogues[Random.Range(0, Catalogues.Length)];
-			int number1 = Random.Range(100, 9999);
-			int number2 = Random.Range(10, 999);
-			int number3 = Random.Range(1, 125);
-			int number4 = Random.Range(1, 9999);
-
-			string ShaIn = "" + Random.Range(int.MinValue, int.MaxValue);
-			string SHAOUT = "";
-
-			using SHA512 SHA512 = SHA512.Create();
-			{
-				byte[] hashBytes = SHA512.ComputeHash(Encoding.UTF8.GetBytes(ShaIn));
-
-				// Convertir a hexadecimal solo Los primeros  128
-				StringBuilder sb = new StringBuilder();
-				int i = 1;
-				foreach (byte b in hashBytes)
-				{
-					sb.Append(b.ToString("x2"));
-					i++;
-					if (i >= 128)
-						break;
-				}
-				SHAOUT = sb.ToString();
-			}
-			switch (Catalogo)
-			{
-				case "VGE":
-
-					return $"{Catalogo} {number3}-{number4}";
-				case "G":
-					return $"{Catalogo} {number3}";
-				case "GCGC":
-					return $"{Catalogo} {number3}:{number1}";
-				case "SGC":
-					return $"{Catalogo} {number4}";
-				case "S5GC":
-					return "S5GC " + SHAOUT ;
-				default:
-					return $"{Catalogo} {number1}-{number2}";
-					
-			}
-
-			//funfact: NGC es el catalogo de galaxias mas famoso y usado en la vida real, pero no lo uso por que es muy obvio XD
-			//2 VGE se iba a llamar VGA pero VGA es un cable 
-			//3 S5GC era algo random que se me ocurio despues de tener la decimo cuarta crisis creativa del año 2026
-		}
-
-		public static string GenerateStarName_NASAStyle()
-		{
-			int catalogNumber = Random.Range(10000, 999999);
-			List<string> Catalogues = new List<string>()
-			{
-				"SC",//Clasico 1 aka Star Catalog
-				"SL",//Clasico 2 //Star List // oh wow Comentario en un comentario X3
-				"Krumpler", //si Keppler pero inspirado en krampus... si el de la navidad XD
-				"HUP", //Hipparcos pero ahora es Hupparcus XD
-				"FHD", //jaja FHD en vez de HD // que significa Full HD  pregintaras? pues Flores-Hernandez-Diaz catalogo de estrellas       si es un nombre largo XD
-				"DESS" //ups referencia implicita accidental a deltarune (dess la hermana mayor de Noelle la que esta desaparecida) auque originamente esto era referencia a TESS. pero aqui DESS significa Deep Extra Stellar Survey no December Holiday (aka la Hermana de Noelle XD)
-			};
-			//favor de ignorar el infodump de DESS pls, no quiero cambiar el nombre por que ya lo use en varios lados XD
-			string catalogPrefix = Catalogues[Random.Range(0,Catalogues.Count)];
-			return $"{catalogPrefix} {catalogNumber}";
-		}
-
-		public static string GeneratePlanetName_NASAStyle(string systemName, int idx)
-		{
-			//Debug.Log(idx.ToString());
-			char suffix = (char)('b' + idx); // b, c, d, etc.
-			return $"{systemName}{suffix}";
-		}
-		
-		public static string GenerateMoonName_NASAStyle(string PlanetName, int idx)
-		{
-			//Debug.Log(idx.ToString());
-
-			return $"{PlanetName} {idx.ToRoman()}";
-		}
-
-	}
-	public static void AddTooltipManipulators(UIDocument uiDocument)
-	{
-		if (uiDocument == null || uiDocument.rootVisualElement == null)
-			return;
-
-		System.Action<VisualElement> walk = null;
-		walk = (ve) =>
-		{
-			if (!string.IsNullOrEmpty(ve.tooltip))
-				ve.AddManipulator(new ToolTipManipulator());
-
-			foreach (var child in ve.Children())
-				walk(child);
-		};
-
-		walk(uiDocument.rootVisualElement);
-	}
-
-	public static class UnitConversion
-	{
-		public static float LightYearToParsec(float value) 
-		{
-			return value * 3.26156f;
-
-		}
-		public static float ParsecToLightYear(float value)
-		{
-			return (value / 3.26156f);
-		}
-		public static float LightYearToAU(float value)
-		{
-			return value * 63241.1f;
-		}
-		public static float AuToLightYear(float value)
-		{
-			return ((value / 63241.1f));
-
-		}
-		/// <summary>
-		/// convierte kilometros a unidades astronomicas 
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		public static float KmToAU(float value)
-		{
-			return value / 149597870.7f; 
-		}
-		/// <summary>
-		/// convierte Unidades astronomicas a Kilometros
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		public static float AuToKm(float value)
-		{
-			return value * 149597870.7f;
-		}
-		/// <summary>
-		/// convierte kilometros a metros
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		public static float KmToM(float value)
-		{
-			return value * 1000;
-		}
-
-		public static float MeterToKm(float value)
-		{
-			return value / 1000;
-		}
-
-	}
-	//easter egg recursivo originalmentre pense que era un coinflip pero uego me di cuenta que era recursivo XD
-	static void a(bool f)
-	{
-		if (f) 
-		a(Random.Range(0,2)==0);
-	}
-	/// <summary>
-	/// Convierte un numero entero a numero romano
-	/// </summary>
-	/// <param name="number"> el numero</param>
-	/// <returns></returns>
-	public static string ToRoman(this int number)
-	{
-		if (number > 3999) return "0"; // límites clásicos del sistema romano
-		if (number == 0)
-			return "O";
-		bool isNEg = false;
-		if (number< 0 )
-			isNEg = true;
-		var romanNumerals = new[]
-		{
-		new { Value = 1000, Symbol = "M" },
-		new { Value = 900, Symbol = "CM" },
-		new { Value = 500, Symbol = "D" },
-		new { Value = 400, Symbol = "CD" },
-		new { Value = 100, Symbol = "C" },
-		new { Value = 90, Symbol = "XC" },
-		new { Value = 50, Symbol = "L" },
-		new { Value = 40, Symbol = "XL" },
-		new { Value = 10, Symbol = "X" },
-		new { Value = 9, Symbol = "IX" },
-		new { Value = 5, Symbol = "V" },
-		new { Value = 4, Symbol = "IV" },
-		new { Value = 1, Symbol = "I" }
-	};
-
-		string result = "";
-		foreach (var item in romanNumerals)
-		{
-			while (number >= item.Value)
-			{
-				result += item.Symbol;
-				number -= item.Value;
-			}
-		}
-		if (isNEg)
-			result = '-' + result;
-
-		return result;
-	}
-	/// <summary>
-	/// Instancia un sistema solar... ¡AHORA CON POSICIONES BASADAS EN ÍNDICE! 
-	/// </summary>
-	public static class SystemObjectsBuilder
-	{
-		public static Material BaseMat;
-		public static Material BholMat;
-		public static Material BaseGasMaterial;
-		public static Material OpaceMat;
-		public static Dictionary<StarTypes, Material> Mats = new Dictionary<StarTypes, Material>();
-		public static GalaxyData galaxyData;
-		public static InstantiatedSystemData systemData;
-		public static Mesh SphereMesh;
-		private static bool Inited;
-		private static UnityEngine.Mesh CacheSphere;
-
-		public static void InitStuf()
-		{
-			foreach (StarTypes st in Enum.GetValues(typeof(StarTypes)))
-			{
-				Material material = new Material(BaseMat);
-				material.SetFloat("_Temp_K", StarData.Temperatures[st]);
-				Mats[st] = material;
-				if (st == StarTypes.X) Mats[st] = BholMat;
-				else if (st == StarTypes.EN) Mats[st] = OpaceMat;
-			}
-            SphereMesh = JsonUtility.FromJson<Mesh>(JSONMESHES.Sphere);
-			Inited = true;
-		}
-
-		static void GiveSphere(GameObject @object, Material mat)
-		{
-			if (CacheSphere == null) CacheSphere = (UnityEngine.Mesh)SphereMesh;
-			@object.AddComponent<MeshFilter>().mesh = CacheSphere;
-			@object.AddComponent<MeshRenderer>().material = mat;
-			@object.AddComponent<MeshCollider>();
-		}
-
-		public static GameObject InstantiateStar(StarData starData)
-		{
-			GameObject starGO = new GameObject(starData.Name);
-			GiveSphere(starGO, Mats[starData.type]);
-			starGO.transform.localScale = Vector3.one * 5f; // Placeholder de radio estelar
-
-			systemData.IDS.Stars.Add(BodyID.FromString(starData.id));
-			systemData.Datas.Stars.Add(starData);
-			systemData.ObjAndIDS.Add(starGO, starData.id);
-			return starGO;
-		}
-
-		public static GameObject InstantiateBaricenter(BaricenterData baricenterData)
-		{
-			var gol = new GameObject(baricenterData.Name);
-			systemData.IDS.baricenters.Add(BodyID.FromString(baricenterData.id));
-			systemData.Datas.baricenters.Add(baricenterData);
-			systemData.ObjAndIDS.Add(gol, baricenterData.id);
-			return gol;
-		}
-
-		public static GameObject InstantiatePlanet(PlanetData planetData)
-		{
-			GameObject planetGO = new GameObject(planetData.Name);
-			Material Mat = OpaceMat;
-
-			if (planetData.type == PlanetTypes.BasicGas || planetData.type == PlanetTypes.IceGas)
-			{
-				if (planetData.GasColors != null && planetData.GasColors.Count >= 5 && BaseGasMaterial != null)
-				{
-					Mat = new Material(BaseGasMaterial);
-					Mat.SetColor("_PoloNorte", planetData.GasColors[0]);
-					Mat.SetColor("_Arriba", planetData.GasColors[1]);
-					Mat.SetColor("_Ecuador", planetData.GasColors[2]);
-					Mat.SetColor("_Abajo", planetData.GasColors[3]);
-					Mat.SetColor("_PoloSur", planetData.GasColors[4]);
-				}
-			}
-
-			GiveSphere(planetGO, Mat);
-			planetGO.transform.localScale = Vector3.one * planetData.radius;
-
-			systemData.IDS.planets.Add(BodyID.FromString(planetData.id));
-			systemData.Datas.planets.Add(planetData);
-			systemData.ObjAndIDS.Add(planetGO, planetData.id);
-			return planetGO;
-		}
-
-		public static void InstantiateBody(string StartID, UnityEngine.Transform parent, int index = 0)
-		{
-			if (StartID[0] == 'S') throw new ArgumentException("NO SECTORES");
-
-			if (galaxyData == null && !GalaxyData.TryToLoadGalaxy(out galaxyData))
-				throw new Exception("ERROR AL CARGAR GALAXIA");
-
-			BodyID bodyID = BodyID.FromString(StartID);
-			if (!TryToLoadABody(bodyID, out var body, out var celestialBodyType))
-				throw new Exception("ERROR CARGANDO");
-
-			GameObject gameObject = celestialBodyType switch
-			{
-				CelestialBodyType.Planet => InstantiatePlanet((PlanetData)body),
-				CelestialBodyType.Star => InstantiateStar((StarData)body),
-				CelestialBodyType.Baricenter => InstantiateBaricenter((BaricenterData)body),
-				CelestialBodyType.Nova => throw new NotImplementedException(),
-				CelestialBodyType.Nebula => throw new NotImplementedException(),
-				_ => null
-			};
-
-			if (gameObject != null)
-			{
-				gameObject.transform.SetParent(parent);
-				// POSICIONAMIENTO POR ÍNDICE: Separación de 20 unidades por nivel
-				float dist = (index + 1) * 20f;
-				gameObject.transform.localPosition = new Vector3(dist, 0, 0);
-			}
-
-			if (body.Children != null && body.Children.Count > 0)
-			{
-				for (int i = 0; i < body.Children.Count; i++)
-				{
-					InstantiateBody(body.Children[i], gameObject.transform, i);
-				}
-			}
-		}
-
-		public static void InstantiateSystem(string ParentId)
-		{
-			if (!Inited) InitStuf();
-
-			systemData = new InstantiatedSystemData
-			{
-				Datas = new GalObjCollection(),
-				IDS = new GalObjCollectionID(),
-				ObjAndIDS = new Dictionary<GameObject, string>()
-			};
-
-			InstantiateBody(ParentId, null);
-		}
-
-		static bool TryToLoadABody(BodyID bodyID, out CelestialBody body, out CelestialBodyType d)
-		{
-			try
-			{
-				d = bodyID.GetCelestialBodyType();
-				body = d switch
-				{
-					CelestialBodyType.Planet => galaxyData.LoadPlanet(bodyID.GetID()),
-					CelestialBodyType.Star => galaxyData.LookForStar(bodyID.GetID()),
-					CelestialBodyType.Baricenter => galaxyData.LookForBaricenter(bodyID.GetID()),
-					CelestialBodyType.Nova => galaxyData.LookForNova(bodyID.GetID()),
-					CelestialBodyType.Nebula => galaxyData.LookForNebula(bodyID.GetID()),
-					_ => throw new Exception("TIPO DESCONOCIDO"),
-				};
-				return true;
-			}
-			catch { body = null; d = CelestialBodyType.None; return false; }
-		}
-
-		[Serializable]
-		public struct InstantiatedSystemData
-		{
-			public GalObjCollection Datas;
-			public GalObjCollectionID IDS;
-			public Dictionary<GameObject, string> ObjAndIDS;
-		}
-	}
-}
 //si Seria mas facil con Flags pero bueno no sabia de su existencia cuando hice el enum y no quiero cambiarlo por ahora
-public enum MultiEje 
+public enum MultiEje
 {
 	X,
 	Y,
@@ -526,7 +131,7 @@ namespace SerializableTypes
 			this.isCPUEmpire = isCPUEmpire;
 			CurentStage = curentStage;
 			CreatureName = creatureName ?? throw new ArgumentNullException(nameof(creatureName) + "ES NULL!!!!!");
-			Actions = actions?? throw new ArgumentNullException(nameof(actions) + "ES NULL!!!!!!!!!"); 
+			Actions = actions ?? throw new ArgumentNullException(nameof(actions) + "ES NULL!!!!!!!!!");
 			CreatureDiet = creatureDiet;
 			this.ingameTime = ingameTime;
 		}
@@ -543,7 +148,7 @@ namespace SerializableTypes
 		}
 	}
 	[Serializable]
-	public struct CellGameData : IEquatable<CellGameData> 
+	public struct CellGameData : IEquatable<CellGameData>
 	{
 		public float DNA_Amount;
 		public float MaxDNA_Got;
@@ -563,17 +168,18 @@ namespace SerializableTypes
 
 		public bool Equals(CellGameData other)
 		{
-			return DNA_Amount == other.DNA_Amount && Progress == other.Progress &&  PlayerHealth == other.PlayerHealth && Gender == other.Gender && MaxDNA_Got == other.MaxDNA_Got ;
+			return DNA_Amount == other.DNA_Amount && Progress == other.Progress && PlayerHealth == other.PlayerHealth && Gender == other.Gender && MaxDNA_Got == other.MaxDNA_Got;
 		}
-		public override bool Equals (object o)
+		public override bool Equals(object o)
 		{
-			if (ReferenceEquals(this,o)) return true;
-			if (o is null ) return false;
+			if (ReferenceEquals(this, o)) return true;
+			if (o is null) return false;
 
 			if (o is CellGameData Cell)
 			{
 				return Equals((CellGameData)o);
-			}else return false;
+			}
+			else return false;
 		}
 
 		public override int GetHashCode()
@@ -685,7 +291,7 @@ namespace SerializableTypes
 		Transport_Bus_Stop = 36,
 		Transport_Bus_BigStation = 37,
 		Transport_Bus_Station = 38,
-		Transport_Taxi_Stop =39,
+		Transport_Taxi_Stop = 39,
 		Transport_Taxi_Base = 40,
 		Transport_Metro_Station = 41,
 		Transport_Metro_BigStation = 42,
@@ -712,8 +318,8 @@ namespace SerializableTypes
 	}
 	public enum HistoryPaths
 	{
-		Friendly =1,
-		Neutral =0,
+		Friendly = 1,
+		Neutral = 0,
 		Agressive = -1
 	}
 
@@ -752,7 +358,7 @@ namespace SerializableTypes
 		DiscoverThing,
 		ResearchTechnology,
 		FindEasterEgg,
-		 FightBoss,           //dudo que haya bosses en el juego pero bueno
+		FightBoss,           //dudo que haya bosses en el juego pero bueno
 		DestroyAllColonies,
 		BuySystem,
 		ConquerSystem,
@@ -761,13 +367,13 @@ namespace SerializableTypes
 		DomesticateSomething,
 		TerraformPlanet,
 		CreateColony,
-		PlayMusic,			//una de las fromas de imcrementar lreación en tribu
-		MakeAthemn,			
+		PlayMusic,          //una de las fromas de imcrementar lreación en tribu
+		MakeAthemn,
 		SPORE,                                              //esto deveria ser un logro no una acción
 		CrashGAME,                      //COMO LO LOGRASTE???      [sarcasmo]
 		Respuesta,
 		Suerte,
-		DessignClothesForCreature		//diseñar una nueva ropa
+		DessignClothesForCreature       //diseñar una nueva ropa
 	}
 	/// <summary>
 	/// aun no estoy seguro de si habra
@@ -796,7 +402,7 @@ namespace SerializableTypes
 		FavorDeNoHacerMartinCarrera, //desbloquea el metrobus en estadio de Nacion
 									 //¿QUE TIENE DE MALO MARTIN CARRERA? ay no la IA rara pantilan lo entiendo esta lleno siempre pero Martin carrera eso esta mas vacio que mis ideas para logros XD
 		HELLO_WORLD, //inventa el Ordenador y el código, desbloquea la informática en estadio de Nacion
-		
+
 		PorFavorNoAruinesTODO, // privatiza una empresa en estadio de Nacion
 		ABCDEF, // inventa un alfabeto, desbloquea la escritura en estadio tribal
 		HLL, //inventa un abjad, desbloquea la escritura en estadio de tribal
@@ -816,7 +422,7 @@ namespace SerializableTypes
 		imaginario, //inventa los numeros imaginarios, desbloquea la matematica avanzada en estadio de nacion
 		e, //inventa el numero e, desbloquea la matematica avanzada en estadio de nacion
 		π, //inventa el numero pi, desbloquea la matematica avanzada en estadio de nacion
-		
+
 
 
 		ArtistaMaestro, //diseña una bandera.
@@ -1427,7 +1033,7 @@ namespace SerializableTypes
 					SceneManager.LoadScene(6);
 					break;
 				case Stages.MainMenu:
-					LoadWithLoadingScreen.LoadScene(0,Stages.MainMenu);
+					LoadWithLoadingScreen.LoadScene(0, Stages.MainMenu);
 					break;
 				default:
 					Debug.LogWarning($"Stage {stage} no tiene escena asignada");
@@ -1513,17 +1119,17 @@ namespace SerializableTypes
 				}
 				else
 					Saver.TryToLoadLastMicrobeRevision(Saver.CurrentSaveName, out microbe);
-				if (microbe == null )
+				if (microbe == null)
 				{
 					Debug.LogWarning("SavedGame no tiene criatura válida, cargando microbio vacío");
 					LoadEmptyMicrobe(mailMan);
 					return;
 				}
 				microbe.CenterMicrobe();
-				microbe.RotateMicrobeEuler(new(0, 90, 0)); 
+				microbe.RotateMicrobeEuler(new(0, 90, 0));
 
 				mailMan.SendTypedPackage("StageLoader", "Player", microbe, new string[] { nameof(MicrobeData) });
-				LoadWithLoadingScreen.LoadScene(4,Stages.Microbe); // Microbe stage
+				LoadWithLoadingScreen.LoadScene(4, Stages.Microbe); // Microbe stage
 			}
 			catch (System.Exception ex)
 			{
@@ -1534,15 +1140,15 @@ namespace SerializableTypes
 		/// <summary>
 		/// cargara elestado correspondiente a la partida cargada en saver
 		/// </summary>
-		
+
 		public static void LoadCurrentStage()
 		{
-			if (Saver.CurrentSaveName == null|| Saver.CurrentGame == null)
+			if (Saver.CurrentSaveName == null || Saver.CurrentGame == null)
 			{
 				Debug.LogError("No hay partida cargada en Saver");
 				return;
 			}
-			switch(Saver.CurrentGame.CurentStage)
+			switch (Saver.CurrentGame.CurentStage)
 			{
 				case Stages.Microbe:
 					LoadMicrobeStage(CrossScenePackageSender.Instance, Saver.CurrentGame.CreatureName);
@@ -1578,7 +1184,7 @@ namespace SerializableTypes
 			}
 		}
 
-		[ConsoleCommand(Name ="!editarmic")]
+		[ConsoleCommand(Name = "!editarmic")]
 		public static void EditMicrobeCommand()
 		{
 			//asume que estas en el estadio celula 
@@ -1586,7 +1192,8 @@ namespace SerializableTypes
 			{
 				Debug.Log("ENTRANDO AL EDITOR, ADVERTENCIA ESTO NO ESTA PROVADO ASI QUE PODRIA CORROMPER TU HERMOSA CREACIÓN");
 				EditMicrobe();
-			}else
+			}
+			else
 			{
 				Debug.Log("ENTORNO INVALIDO");
 
@@ -1608,7 +1215,7 @@ namespace SerializableTypes
 				CrossScenePackageSender Mailman = CrossScenePackageSender.Instance;//No  puedo cambiar esos nombres de destinatario de MC yMain Camera CS por que el cartero No tiene codigo postal solo nombre de destinatario :(
 				Mailman.SendTypedPackage("EnterEdit", "CellSaver", true, new string[2] { nameof(Boolean), "LodStg" }); //avisarle a cellsaver QUE AL GUARDAR ENTRAREMOS AL ESTADIO CELULA DIGO MICROBIO SIN CREAR NUEVA PARTIDA
 				Mailman.SendTypedPackage("EditorLoader", "MC.SegmentManager", data, new string[2] { nameof(MicrobeData), "LodMic" }); //avisarle al segment manager que TIENE QUE CARGAR UNA CRIATRURA
-				LoadWithLoadingScreen.LoadScene(1,Stages.Microbe); // Microbe Editor
+				LoadWithLoadingScreen.LoadScene(1, Stages.Microbe); // Microbe Editor
 				return;
 			}
 		}
@@ -1713,7 +1320,7 @@ namespace SerializableTypes
 	}
 	public static class CreationLoader
 	{
-		public static bool TryToLoadMicrobe(string name,out MicrobeData data)
+		public static bool TryToLoadMicrobe(string name, out MicrobeData data)
 		{
 			var Jsons = Directory.GetFiles(Paths.Cells);
 			foreach (var json in Jsons)
@@ -1764,7 +1371,8 @@ namespace SerializableTypes
 				data = Revisions[revission];
 				return true;
 			}
-			else { 
+			else
+			{
 				data = MicrobeData.GetDefaultMicrobe();
 				return false;
 
@@ -1874,7 +1482,8 @@ namespace SerializableTypes
 				data = Revisions[revission];
 				return true;
 			}
-			else {
+			else
+			{
 				data =
 				 MicrobeData.GetDefaultMicrobe();
 				return false;
@@ -1889,9 +1498,11 @@ namespace SerializableTypes
 				{
 					var steam = File.CreateText(Path.Combine(MicrobeData.GenerateMicrobeID(microbe) + ".json"));
 					steam.Write(JsonUtility.ToJson(microbe));
-					
-				} catch(Exception ex) { Debug.LogError(ex);}
-			}else
+
+				}
+				catch (Exception ex) { Debug.LogError(ex); }
+			}
+			else
 			{ }
 		}
 		public static bool TryToBackUpMicrobe(string name)
@@ -1903,8 +1514,10 @@ namespace SerializableTypes
 					var steam = File.CreateText(Path.Combine(MicrobeData.GenerateMicrobeID(microbe) + ".json"));
 					steam.Write(JsonUtility.ToJson(microbe));
 					return true;
-				} catch(Exception ex) { Debug.LogError(ex);return false;}
-			}else
+				}
+				catch (Exception ex) { Debug.LogError(ex); return false; }
+			}
+			else
 			{ return false; }
 		}
 	}
@@ -2284,7 +1897,8 @@ namespace SerializableTypes
 				Settings a = JsonUtility.FromJson<Settings>(path);
 				Loaded = a;
 				return true;
-			} catch
+			}
+			catch
 			{
 				return false;
 			}
@@ -2482,7 +2096,7 @@ namespace ActualUtils
 				dir4 = @"\\?\" + dir3; // para rutas largas en windows
 			else
 				dir4 = dir3;
-			dir3 = dir4; 
+			dir3 = dir4;
 			try
 			{
 				if (!Directory.Exists(dir3)) Directory.CreateDirectory(dir3);
@@ -2533,7 +2147,7 @@ namespace ActualUtils
 				Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsServer)
 				dir4 = @"\\?\" + dir3; // para rutas largas en windows
 			else
-			dir4 = dir3;
+				dir4 = dir3;
 			//ahora a copiarlo A OTROS METODOS 
 
 			if (!Directory.Exists(dir4)) return false;
@@ -2636,7 +2250,7 @@ namespace ActualUtils
 				string json = JsonUtility.ToJson(CurrentGame, true);
 				File.WriteAllText(sav, json);
 			}
-				// 1773 lineas  segun wikipedia en 1773 17 de enero: el capitán James Cook se convierte en el primer explorador europeo en cruzar el círculo polar ártico.  (fuente: wikipedia) no no hablare del museo estadounidense que se inauguro ese año  XD
+			// 1773 lineas  segun wikipedia en 1773 17 de enero: el capitán James Cook se convierte en el primer explorador europeo en cruzar el círculo polar ártico.  (fuente: wikipedia) no no hablare del museo estadounidense que se inauguro ese año  XD
 			catch (Exception ex)
 			{
 				Debug.LogError(ex);
@@ -2684,7 +2298,7 @@ namespace ActualUtils
 				Debug.LogError("Tipo de criatura no válido para guardar");
 				return;
 			}
-					// 1821 Mexico se inependizo
+			// 1821 Mexico se inependizo
 			string fullDir = J(creDir, creatureFolder);
 			try
 			{
@@ -2703,7 +2317,7 @@ namespace ActualUtils
 				}
 				string filename = $"{nameSafe}.json"; //nombre basado en hash de tiempo y random para evitar colisiones
 				string full = Path.Combine(fullDir, filename);
-				File.WriteAllText(full, json); 
+				File.WriteAllText(full, json);
 			}
 			catch (Exception ex)
 			{
@@ -2742,7 +2356,7 @@ namespace ActualUtils
 Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsServer)
 					file = @"\\?\" + file;
 				SavedGame saved = JsonUtility.FromJson<SavedGame>(File.ReadAllText(file));
-				if (saved.CreatureName ==name )
+				if (saved.CreatureName == name)
 				{
 					return fil2;
 				}
@@ -2751,7 +2365,7 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 			return null;
 		}
 		public static bool HasLoadedAnySave() => !(CurrentGame == null || CurrentSaveName == null);
-		
+
 	}
 	[System.Serializable]
 	public class GameSavingException : System.Exception
@@ -2786,17 +2400,17 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 		public string Description;
 		public bool IsCheat;
 		public bool IsEgg;
-		public ConsoleCommandAttribute(string name) 
+		public ConsoleCommandAttribute(string name)
 		{
 			Name = name;
-			IsCheat = false; 
+			IsCheat = false;
 		}
 		public ConsoleCommandAttribute(string name, bool isCheat) : this(name)
 		{
 			Name = name;
 			IsCheat = isCheat;
 		}
-		public ConsoleCommandAttribute() 
+		public ConsoleCommandAttribute()
 		{
 			Name = "MyCommand";
 			IsCheat = false;
@@ -2823,7 +2437,7 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 			else
 				throw new ArgumentException("ERROR jugador no es del tipo correcto");
 		}
-		public static void RegisterEditor(MonoBehaviour	 @object,Editors editor)
+		public static void RegisterEditor(MonoBehaviour @object, Editors editor)
 		{
 			bool Correct = editor switch
 			{
@@ -2848,20 +2462,20 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 		}
 		public static void UnregisterEditor()
 		{
-			if(isInEditor) Player = null;
+			if (isInEditor) Player = null;
 		}
 	}
 	public static class PrimitivesOBJ
 	{
-        public static readonly string Sphere = @"";
+		public static readonly string Sphere = @"";
 
 
 
-			
+
 	}
 	public static class JSONMESHES
 	{
-        public static readonly string Sphere = @"{
+		public static readonly string Sphere = @"{
     ""Vertices"": [
       {
         ""x"": -28.782712936401367,
@@ -10177,7 +9791,7 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 
 
 
-			
+
 	}
 }
 

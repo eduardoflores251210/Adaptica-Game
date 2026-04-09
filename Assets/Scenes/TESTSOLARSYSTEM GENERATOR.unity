@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 245279582}
   - component: {fileID: 245279586}
   - component: {fileID: 245279585}
+  - component: {fileID: 245279587}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -229,6 +230,7 @@ MonoBehaviour:
   BholMat: {fileID: 2100000, guid: b45f94f763cbdc5418038dd2d3f35652, type: 2}
   OpaceMat: {fileID: 2100000, guid: f40717f437e95f54288c72287c000658, type: 2}
   GasMaterial: {fileID: 2100000, guid: d236d145e09d20a44966cfdc88e1236e, type: 2}
+  SphereMesh: {fileID: -2691253722911300359, guid: a8d60c4e7bdf2084ea4f93cfa4b1fa8e, type: 3}
   SolarSystemID: E0
   LOADNOW: 0
 --- !u!114 &245279586
@@ -275,6 +277,34 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!114 &245279587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 245279581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb4519d7895df72419abc81784e3d76f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target: {fileID: 245279584}
+  Camera: {fileID: 245279583}
+  Cursor: {fileID: 0}
+  ZoomSpeed: 5
+  ZoomLimits: {x: 2, y: 400}
+  Sensitivity: {x: 1, y: 1}
+  VerticalClamp: {x: -80, y: 80}
+  EnableZoom: 1
+  ZoomOutput: 0
+  CursorSpeed: 10
+  usandoMouse: 0
+  DisableCursor: 0
+  showCursorAviway: 0
+  inputActions: {fileID: -944628639613478452, guid: c4765c325f0af464799a1a764737ea39, type: 3}
+  currentZoom: 10
+  DisableChildCheck: 0
 --- !u!1 &1565001981
 GameObject:
   m_ObjectHideFlags: 0
