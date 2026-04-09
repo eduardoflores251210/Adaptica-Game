@@ -698,7 +698,7 @@ namespace SerializableTypes.Space
 				{
 					string parentID = $"S{id}";
 					foreach (var p in Plst.planets)
-						if (p != null && p.ParentID == parentID) list.Add(p);
+						if (p != null && (p.ParentID[0] == 's' || p.ParentID[0] == 'S')) list.Add(p);
 				}
 			}
 			else if (File.Exists(jsonPath))
@@ -708,7 +708,7 @@ namespace SerializableTypes.Space
 				{
 					string parentID = $"S{sectorIndex}";
 					foreach (var p in Plst.planets)
-						if (p != null && p.ParentID == parentID) list.Add(p);
+						if (p != null && (p.ParentID[0] == 's' || p.ParentID[0] == 'S')) list.Add(p);
 				}
 			}
 
@@ -978,7 +978,7 @@ namespace SerializableTypes.Space
 					throw new Exception($"Star {st.Name} id null");
 				if (string.IsNullOrEmpty(st.ParentID))
 					throw new Exception($"Star {st.Name} pid null");
-				if (BodyID.FromString(st.ParentID).GetCelestialBodyType() == CelestialBodyType.Sector)
+				if (st.id[0]== 's' || st.id[0] == 'S')
 					Stars.Add(st);
 			}
 			List<PlanetData> planets = LookForRougePlanetInThisSector(Sector);

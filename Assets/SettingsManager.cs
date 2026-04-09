@@ -129,7 +129,10 @@ MusicVolumeTextTag.gameObject.name
 
 		int currentLanguageIndex = 0;
 		string savedLanguageCode = PlayerPrefs.GetString("LanguageCode", CurrentLocaleCode);
-
+		if (String.IsNullOrEmpty(savedLanguageCode))
+		{
+			savedLanguageCode = LocalizationSettings.SelectedLocale.Identifier.Code;
+		}
 		for (int i = 0; i < availableLocales.Count; i++)
 		{
 

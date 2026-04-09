@@ -27,11 +27,13 @@ public class SectorTurnOnOffEr : MonoBehaviour
 			return;
 		Vector3 camPos = cam.transform.position;
 		Vector3 camForward = cam.transform.forward;
-
+		camPos.y = 0;
 
 		foreach (var sector in Sectors)
 		{
-			Vector3 toSector = sector.transform.position - camPos;
+			var sectorpos = sector.transform.position;
+			sectorpos.y = 0;
+			Vector3 toSector = sectorpos - camPos;
 
 			// --- distancia en XZ ---
 			Vector2 flat = new Vector2(toSector.x, toSector.z);

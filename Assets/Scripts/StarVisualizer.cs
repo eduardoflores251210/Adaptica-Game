@@ -4,17 +4,18 @@ using SerializableTypes.Space;
 using StandartUtilities.Extentions;
 using System;
 using System.Collections;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Unity.VisualScripting;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
-using EP = UnityEngine.ParticleSystem.EmitParams;
 using Debug = UnityEngine.Debug;
-using System.Collections.Concurrent;
+using EP = UnityEngine.ParticleSystem.EmitParams;
 public class StarVisualizer : MonoBehaviour
 {
 	[Header("Opciones de visualización")]
@@ -38,6 +39,8 @@ public class StarVisualizer : MonoBehaviour
 	[NonSerialized]
 
 	public ConcurrentBag<quequeElement> QueQue; // bolsa concurrente para pasar estrellas desde el hilo de carga a la corutina de visualización sin bloquear
+	public int Batch = 0;
+	public int QueQUeLength = 0;
 	public int BatchSize = 50;
 	public bool IsInMainMenu = false;
 	public bool HideRouguePlanets = true;
@@ -104,10 +107,10 @@ public class StarVisualizer : MonoBehaviour
 		GalaxyData data = null;
 #pragma warning restore IDE0059 // Asignación innecesaria de un valor
 		try { data = GalaxyData.LoadGalaxy(); }
-		catch (Exception ) {/* Debug.Log(e);*/ yield break; }
-
+		catch (Exception e) { Debug.Log(e); yield break; }
+		Debug.Log("Loaded ");
 		if (data == null) yield break;
-
+		galaxy = data;
 		Bag = new ConcurrentBag<GalaxySector>();
 		ParralelLOAD();
 		while (!isDoneLoading)
@@ -117,7 +120,7 @@ public class StarVisualizer : MonoBehaviour
 
 		if (Bag.Count > 0)
 		{
-			yield return StartCoroutine(VisualizeStars(Bag,data));
+			yield return StartCoroutine(VisualizeStars(Bag, data));
 		}
 	}
 	public GalaxyData galaxy = null;
@@ -140,7 +143,7 @@ public class StarVisualizer : MonoBehaviour
 		List<EP> particleEN = new();
 		List<EP> particleNS = new();
 		Debug.Log("STart");
-
+		QueQue = new();
 		if (starParent == null) starParent = this.transform;
 		galaxy = data;
 
@@ -207,166 +210,71 @@ public class StarVisualizer : MonoBehaviour
 		particleNS = new List<EP>(typeCounts.GetValueOrDefault(StarTypes.NS, 0));
 
 		// --- Opciones de chunking/batching ---
-		int Batch = 0;
-		int emitChunk = 1024; // ajustar según memoria/frametime objetivo
+
+
 		Debug.Log("STAR Counted " + totalStars.ToString());
 
-		foreach (var sector in sectors)
+		// 1. PRE-CREACIÓN DE SECTORES (Rápido y furioso)
+		Dictionary<Vector2Int, Transform> sectorMap = new();
+		if (needTemplates)
 		{
-			if (sector == null) continue;
-
-			GameObject SectorGO = null;
-			if (needTemplates)
+			foreach (var sector in sectors)
 			{
-				// Clonar plantilla sector (más barato que CreatePrimitive por sector repetido)
-				SectorGO = Instantiate(sectorTemplate);
-				SectorGO.name = $"Sector_{sector.Position}";
-				SectorGO.transform.position = (((Vector3)sector.Position.To3DXZ()).Multiply3d(((Vector2)Generator.sectorSize).To3DXZ())) * GalaxyScale;
-				SectorGO.transform.localScale = Vector3.one;
-				SectorGO.GetComponent<MeshRenderer>().enabled = IsDebug;
+				GameObject sGO = Instantiate(sectorTemplate);
+				sGO.name = $"Sector_{sector.Position}";
+				sGO.transform.position = (((Vector3)sector.Position.To3DXZ()).Multiply3d(((Vector2)Generator.sectorSize).To3DXZ())) * GalaxyScale;
+				sGO.transform.parent = starParent;
+				sGO.GetComponent<MeshRenderer>().enabled = IsDebug;
+
+				sectorMap[sector.Position] = sGO.transform;
+
 				if (ChunckManager != null)
 				{
-					if (ChunckManager.Sectors == null) ChunckManager.Sectors = new List<GameObject>();
-					ChunckManager.Sectors.Add(SectorGO);
+					if (ChunckManager.Sectors == null) ChunckManager.Sectors = new();
+					ChunckManager.Sectors.Add(sGO);
 				}
 			}
-			SpawnedSector = false;
-			ParralelStarSpawn(sector);
-			while (!SpawnedSector)
+		}
+
+		// 2. DISPARAR EL PROCESAMIENTO PARALELO
+		SpawnedSector = false;
+		ParralelMassiveSpawn(sectors, data); // La función masiva que creamos antes
+
+		// 3. EL GRAN BUCLE DE VACIADO (Drenando la QueQue)
+		Batch = 0;
+		while (!SpawnedSector || !QueQue.IsEmpty)
+		{
+			// Mientras haya algo en la bolsa, lo sacamos sin piedad
+			while (QueQue.TryTake(out quequeElement element))
 			{
-				if (QueQue == null) yield return null; // esperar a que el hilo de carga inicialice la fila
-				if (QueQue.Count == 0) yield return null; // esperar a que el hilo de carga ponga elementos en la fila
-				int i = 0;
-				while (!QueQue.IsEmpty)
+				Transform parent = sectorMap.ContainsKey(element.SectorPostion) ? sectorMap[element.SectorPostion] : starParent;
+
+				// --- LÓGICA SEGÚN EL TIPO (Future Proofing) ---
+				switch (element.Type)
 				{
-					
+					case CelestialBodyType.Star:
+						ProcessStar(element, parent, needTemplates, particleO, particleB, particleA, particleF, particleG, particleK, particleM, particleL, particleT, particleEB, particleNS, particleEN, particleX, starTemplate);
+						break;
 
-					// En lugar de foreach + Clear, usamos un while que extrae
-					// Esto garantiza que no borramos estrellas que acaban de entrar
-					while (QueQue.TryTake(out quequeElement element))
-					{
-						var star = element.star;
-						if (star == null || star.IsNull()) continue;
+					case CelestialBodyType.Planet:
+						ProcessPlanet(element, parent, needTemplates, particleEN, planetTemplate);
+						break;
 
-						// 1. Instanciar (Tu lógica de templates)
-						if (needTemplates)
-						{
-							GameObject starGO = Instantiate(starTemplate);
-							starGO.name = star.id;
-							starGO.transform.position = star.transform.Pos * GalaxyScale;
-							starGO.transform.parent = SectorGO != null ? SectorGO.transform : starParent;
+						// Aquí puedes meter Nebulas, Novas, etc. ¡ZAZ!
+				}
 
-							var sps = starGO.GetComponent<SpaceStageStar>();
-							if (sps != null)
-							{
-								sps.ID = star.id;
-								sps.Type = star.type;
-							}
-							starGO.SetActive(true);
-						}
-
-						// 2. Partículas
-						switch (star.type)
-						{
-							case StarTypes.O: particleO.Add(element.emit); break;
-							case StarTypes.B: particleB.Add(element.emit); break;
-							case StarTypes.A: particleA.Add(element.emit); break;
-							case StarTypes.F: particleF.Add(element.emit); break;
-							case StarTypes.G: particleG.Add( element.emit); break; //usamos directamente el emit que viene del hilo de carga para evitar crear uno nuevo en cada iteracion
-							case StarTypes.K: particleK.Add( element.emit); break;
-							case StarTypes.M: particleM.Add( element.emit); break;
-							case StarTypes.L: particleL.Add( element.emit); break;
-							case StarTypes.T: particleT.Add(element.emit); break;
-							case StarTypes.EB: particleEB.Add( element.emit); break;
-							case StarTypes.NS: particleNS.Add( element.emit); break;
-							case StarTypes.EN: particleEN.Add(element.emit); break;
-							case StarTypes.X: 
-							default: particleX.Add(element.emit); break;
-						}
-
-						if (Use1FramesPerSecondMode)
-						{
-							// mantengo tu lógica original de throttling temporal si está activada
-							// (aquí no usamos stopwatch global para no agregar overhead por iteración)
-						}
-
-						Batch++;
-						if ((Batch >= BatchSize && !Use1FramesPerSecondMode) )
-						{
-							Batch = 0;
-							yield return null;
-						}
-						i++;
-					}
+				// Throttling para no matar al Nokia
+				Batch++;
+				if (Batch >= BatchSize && !Use1FramesPerSecondMode)
+				{
+					Batch = 0;
 					yield return null;
 				}
-
-
-				
-
-
-
-
 			}
-			yield return null;
+			yield return null; // Esperar a que el hilo de carga meta más cosas
+		}
 
-			if (!HideRouguePlanets)
-			{
-				// Esta llamada era marcada como costosa; la dejamos sólo si no estamos en modo menú ligero
-				if (!menuMode)
-				{
-					GalObjCollection collection = data.GetRougueStuffInThisSector(sector.Position);
-
-					if (collection != null && collection.planets != null && collection.planets.Count != 0)
-					{
-						foreach (var planet in collection.planets)
-						{
-							if (!IsInMainMenu)
-							{
-								GameObject PlanetGO = Instantiate(planetTemplate);
-								PlanetGO.name = planet.id;
-								PlanetGO.transform.position = planet.transform.Pos * GalaxyScale;
-								PlanetGO.transform.rotation = Quaternion.Euler(planet.transform.Rot);
-								PlanetGO.transform.parent = SectorGO != null ? SectorGO.transform : starParent;
-								PlanetGO.SetActive(true);
-								var SPPDATA = PlanetGO.GetComponent<SpaceStageRouguePlanet>();
-								if (SPPDATA != null)
-								{
-									SPPDATA.ID = planet.id;
-									SPPDATA.BinTransform = planet.transform;
-									SPPDATA.Type = planet.type;
-								}
-							}
-
-							if (Particles.ContainsKey(StarTypes.EN))
-							{
-								EP emit = new();
-								emit.position = planet.transform.Pos * GalaxyScale;
-								particleEN.Add(emit);
-							}
-
-							Batch++;
-							if ((Batch >= BatchSize) && !Use1FramesPerSecondMode)
-							{
-								Batch = 0;
-								yield return null;
-							}
-						}
-					}
-				}
-			}
-
-			if ((IsDebug || !IsInMainMenu) && SectorGO != null)
-			{
-				SectorGO.transform.parent = starParent;
-			}
-			if (ChunckManager != null && SectorGO != null)
-			{
-				SectorGO.SetActive(false);
-			}
-
-			yield return null;
-		} // end foreach sector
+		Debug.Log("¡GALAXIA COMPLETA!");
 
 		Debug.Log("STAR LOADED");
 
@@ -397,16 +305,17 @@ public class StarVisualizer : MonoBehaviour
 			};
 
 			// Emitir en chunks para no bloquear un frame entero
-			for (int i = 0; i < L.Count; i += emitChunk)
+			Batch = 0;
+			foreach (var l in L)
 			{
-				int c = Mathf.Min(emitChunk, L.Count - i);
-				for (int j = 0; j < c; j++)
+				ps.Emit(l,1);
+				Batch++;
+				if (Batch >= BatchSize && !Use1FramesPerSecondMode)
 				{
-					ps.Emit(L[i + j], 1);
+					Batch = 0;
+					yield return null;
 				}
-				yield return null;
 			}
-
 			if (psKvp.Key == StarTypes.X)
 			{
 				renderer.material = BholMat;
@@ -424,6 +333,72 @@ public class StarVisualizer : MonoBehaviour
 		yield break;
 	}
 	bool isDoneLoading = false;
+	// --- Procesador de Estrellas ---
+	private void ProcessStar(quequeElement el, Transform parent, bool needTemplates,
+		List<EP> pO, List<EP> pB, List<EP> pA, List<EP> pF, List<EP> pG,
+		List<EP> pK, List<EP> pM, List<EP> pL, List<EP> pT, List<EP> pEB,
+		List<EP> pNS, List<EP> pEN, List<EP> pX, GameObject starTemplate)
+	{
+		var star = el.Star;
+		if (star == null || star.IsNull()) return;
+
+		// 1. Instanciar GameObject si es necesario
+		if (needTemplates)
+		{
+			// Nota: starTemplate debe ser accesible aquí
+			GameObject starGO = Instantiate(starTemplate);
+			starGO.name = star.id;
+			starGO.transform.position = star.transform.Pos * GalaxyScale;
+			starGO.transform.parent = parent;
+
+			var sps = starGO.GetComponent<SpaceStageStar>();
+			if (sps != null) { sps.ID = star.id; sps.Type = star.type; }
+			starGO.SetActive(true);
+		}
+
+		// 2. Clasificar Partícula (¡ZAZ! Directo a la lista correspondiente)
+		switch (star.type)
+		{
+			case StarTypes.O: pO.Add(el.emit); break;
+			case StarTypes.B: pB.Add(el.emit); break;
+			case StarTypes.A: pA.Add(el.emit); break;
+			case StarTypes.F: pF.Add(el.emit); break;
+			case StarTypes.G: pG.Add(el.emit); break;
+			case StarTypes.K: pK.Add(el.emit); break;
+			case StarTypes.M: pM.Add(el.emit); break;
+			case StarTypes.L: pL.Add(el.emit); break;
+			case StarTypes.T: pT.Add(el.emit); break;
+			case StarTypes.EB: pEB.Add(el.emit); break;
+			case StarTypes.NS: pNS.Add(el.emit); break;
+			case StarTypes.EN: pEN.Add(el.emit); break;
+			case StarTypes.X:
+			default: pX.Add(el.emit); break;
+		}
+	}
+
+	// --- Procesador de Planetas ---
+	private void ProcessPlanet(quequeElement el, Transform parent, bool needTemplates, List<EP> pEN, GameObject planetTemplate = null)
+	{
+		var planet = el.Planet;
+		if (planet == null) return;
+
+		if (needTemplates && !IsInMainMenu)
+		{
+			// Nota: planetTemplate debe ser accesible aquí
+			GameObject planetGO = Instantiate(planetTemplate);
+			planetGO.name = planet.id;
+			planetGO.transform.position = planet.transform.Pos * GalaxyScale;
+			planetGO.transform.rotation = Quaternion.Euler(planet.transform.Rot);
+			planetGO.transform.parent = parent;
+
+			var spp = planetGO.GetComponent<SpaceStageRouguePlanet>();
+			if (spp != null) { spp.ID = planet.id; spp.Type = planet.type; }
+			planetGO.SetActive(true);
+		}
+
+		// También le toca partícula de "Enana Negra/Planeta" para que brille en el mapa
+		pEN.Add(el.emit);
+	}
 	async void ParralelLOAD()
 	{
 		_cts = new CancellationTokenSource(); // Inicializar antes de empezar
@@ -441,14 +416,14 @@ public class StarVisualizer : MonoBehaviour
 
 				Parallel.ForEach(data.SectorPositions, (st) => {
 					GalaxyData.LoadSector(st, out var Sec);
-					if (Sec != null) Bag.Add(Sec); // 'list' debe ser ConcurrentBag
+					if (Sec != null) Bag.Add(Sec);
 				});
 				isDoneLoading = true;
 			}, token);
 		}
 		catch (OperationCanceledException) { /* Tarea cancelada con éxito */ }
 	}
-	bool SpawnedSector= false;
+	bool SpawnedSector = false;
 	private CancellationTokenSource _cts;
 	async void ParralelStarSpawn(GalaxySector sector)
 	{
@@ -488,13 +463,63 @@ public class StarVisualizer : MonoBehaviour
 					if (star == null || star.IsNull()) return;
 					EP emit = new();
 					emit.position = star.transform.Pos * GalaxyScale;
-					QueQue.Add(new quequeElement { star = star, emit = emit });
+					QueQue.Add(new quequeElement { Star = star, emit = emit });
 				});
 				SpawnedSector = true;
 			}, token);
 		}
 		catch (Exception e) { Debug.LogError(e); }
 	}
+	async void ParralelMassiveSpawn(ConcurrentBag<GalaxySector> Sectors, GalaxyData data)
+	{
+		var token = _cts.Token;
+		if (QueQue == null) QueQue = new();
+		try
+		{
+			await Task.Run(() => {
+				Parallel.ForEach(Sectors, (sector) => {
+					if (token.IsCancellationRequested) return;
+
+					// 1. Estrellas del sector
+					foreach (var star in sector.Stars)
+					{
+						if (star == null || star.IsNull()) continue;
+						EP emit = new EP { position = star.transform.Pos * GalaxyScale };
+						QueQue.Add(new quequeElement
+						{
+							Star = star,
+							emit = emit,
+							SectorPostion = sector.Position,
+							Type = CelestialBodyType.Star
+						});
+					}
+
+					// 2. ¡EL TRUCO! Buscamos los planetas errantes AQUÍ, en el hilo secundario
+					if (!HideRouguePlanets)
+					{
+						var collection = data.GetRougueStuffInThisSector(sector.Position);
+						if (collection?.planets != null)
+						{
+							foreach (var planet in collection.planets)
+							{
+								EP emit = new EP { position = planet.transform.Pos * GalaxyScale };
+								QueQue.Add(new quequeElement
+								{
+									Planet = planet,
+									emit = emit,
+									SectorPostion = sector.Position,
+									Type = CelestialBodyType.Planet
+								});
+							}
+						}
+					}
+				});
+				SpawnedSector = true;
+			}, token);
+		}
+		catch (Exception e) { Debug.LogError(e); }
+	}
+
 	private void OnDisable()
 	{
 		if (_cts != null)
@@ -509,8 +534,20 @@ public class StarVisualizer : MonoBehaviour
 	}
 	public struct quequeElement
 	{
-		public StarData star;
+
 		public EP emit;
+		public CelestialBodyType Type;
+		public StarData Star;
+		public PlanetData Planet;
+		public NebulaData Nebula;
+		public NovaData Nova;
+		public BaricenterData Baricenter;
+		public Vector2Int SectorPostion;
+	}
+	private void Update()
+	{
+		if (QueQue != null) 
+			QueQUeLength = QueQue.Count;
 	}
 	public void ResetVisualizationIfNeeded()
 	{
