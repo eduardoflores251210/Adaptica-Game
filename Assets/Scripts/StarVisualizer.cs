@@ -81,6 +81,7 @@ public class StarVisualizer : MonoBehaviour
 			main.playOnAwake = true;
 			main.startSize = 1f;
 			main.startLifetime = Mathf.Infinity;
+			main.maxParticles = int.MaxValue;
 			ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
 #pragma warning disable CS0618 // El tipo o el miembro están obsoletos
 			ps.startSpeed = 0;

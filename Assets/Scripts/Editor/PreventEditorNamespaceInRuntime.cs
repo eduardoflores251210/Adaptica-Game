@@ -15,7 +15,8 @@ public sealed class ForbiddenUnityEditorNamespaceGuard : IPreprocessBuildWithRep
 	private static readonly string[] ForbiddenFragments =
 	{
 		"using UnityEditor.Localization.Plugins",
-		"using UnityEditor.Localization"
+		"using UnityEditor.Localization",
+		"using UnityEditor.Experimental.GraphView",
 	};
 
 	public void OnPreprocessBuild(BuildReport report)
@@ -29,7 +30,7 @@ public sealed class ForbiddenUnityEditorNamespaceGuard : IPreprocessBuildWithRep
 		}
 
 		var message =
-			"Build bloqueado: se encontraron usings de UnityEditor.Localization en scripts que no son de Editor:\n" +
+			"Build bloqueado: se encontraron usings en scripts que no son de Editor:\n" +
 			string.Join("\n", hits.Select(p => " - " + p));
 
 		Debug.LogError(message);

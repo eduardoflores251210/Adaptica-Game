@@ -462,8 +462,8 @@ public class GalaxyGenerator : MonoBehaviour
 		Vector3 sectorOrigin,
 		Vector3 sectorSize,
 		Vector2Int SectorPos,
-		int starCount,
-		GalaxyTypes galaxy, int sectorIndex = 0
+		long starCount,
+		GalaxyTypes galaxy, long sectorIndex = 0
 	)
 	{
 		var stars = new List<StarData>();
