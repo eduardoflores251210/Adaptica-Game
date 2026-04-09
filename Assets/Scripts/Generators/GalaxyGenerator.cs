@@ -128,6 +128,7 @@ public class GalaxyGenerator : MonoBehaviour
 		return BitConverter.ToInt32(b);
 	}
 	#endregion
+	#region Main
 	[ConsoleCommand(Name = "!reggal", Description = "Regenera la galaxia", IsEgg = true)]
 	public static void RegenGalaxy()
 	{
@@ -213,7 +214,7 @@ public class GalaxyGenerator : MonoBehaviour
 			// central
 			if (sectorPos == Vector2Int.zero)
 			{
-				sector = CreateCentralSector(galaxy.Name, sectorIndex, (Vector2)sectorSize,galaxy.Type);
+				sector = CreateCentralSector(galaxy.Name, sectorIndex, (Vector2)sectorSize, galaxy.Type);
 
 				globalStarId += sector.Stars.Count(s => s != null);
 
@@ -305,6 +306,7 @@ public class GalaxyGenerator : MonoBehaviour
 		}
 		OnGalaxyGenerated?.Invoke();
 	}
+	#endregion
 	#region Generation Functions
 	private void CalculateTotalSectors()
 	{
