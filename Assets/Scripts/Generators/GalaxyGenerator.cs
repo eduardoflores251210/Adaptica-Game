@@ -62,6 +62,14 @@ public class GalaxyGenerator : MonoBehaviour
 	public float SpiralArmWidthMultiplier = 0.08f;
 	public float SpiralScaleMultiplier = 0.2f;
 	public float spiralAngularStretch = 0.35f;
+	[Header("Irregular Settings")]
+	public float irregularNoiseScale = 0.08f;
+	public float irregularNoiseOffsetX = 123.45f;
+	public float irregularNoiseOffsetY = 678.9f;
+	public float irregularNoiseOffsetZ = 1011.12f;
+	public float irregularClumpScale = 0.03f;
+	public float irregularCoreFalloff = 1.6f;
+	public float irregularVoidScale = 0.015f;
 	#endregion
 	#region Unity Messages
 	void Start()
@@ -451,8 +459,111 @@ public class GalaxyGenerator : MonoBehaviour
 
 		return result;
 	}
+	public static float PerlinNoise3D(float x, float y, float z)
+	{
+		float xy = Mathf.PerlinNoise(x, y);
+		float xz = Mathf.PerlinNoise(x, z);
+		float yz = Mathf.PerlinNoise(y, z);
+		float yx = Mathf.PerlinNoise(y, x);
+		float zx = Mathf.PerlinNoise(z, x);
+		float zy = Mathf.PerlinNoise(z, y);
 
+		return (xy + xz + yz + yx + zx + zy) / 6;
+	}
 
+	Vector3 GenerateIrregularPosition(
+	Vector3 sectorOrigin,
+	float halfX,
+	float halfY,
+	float halfZ,
+	float galaxyRadius,
+	float noiseScale,
+	float noiseOffsetX,
+	float noiseOffsetZ,
+	float noiseOffsetY,
+	float clumpScale,
+	float coreFalloff,
+	float voidScale,
+	int maxTries, out bool Exeded
+)
+	{
+		Exeded = false;
+		Vector3 bestPos = sectorOrigin;
+		float bestScore = float.MinValue;
+
+		float safeGalaxyRadius = Mathf.Max(0.0001f, galaxyRadius);
+
+		for (int attempt = 0; attempt < maxTries; attempt++)
+		{
+			Vector3 localSample = new Vector3(
+				Random.Range(-halfX, halfX),
+				Random.Range(-halfY, halfY),
+				Random.Range(-halfZ, halfZ)
+			);
+
+			Vector3 worldSample = sectorOrigin + localSample;
+
+			float x = worldSample.x;
+			float z = worldSample.z;
+			float y = worldSample.y;
+
+			float distToCenter = Mathf.Sqrt(x * x + z * z);
+
+			// Núcleo suave: más densidad cerca del centro, pero sin forma fija
+			float core01 = Mathf.Exp(-Mathf.Pow(distToCenter / safeGalaxyRadius, 2f) * coreFalloff);
+
+			// Ruido de cúmulos grandes
+			float clumpNoise = PerlinNoise3D(
+				(worldSample.x + noiseOffsetX) * clumpScale,
+				(worldSample.y + noiseOffsetY) * clumpScale,
+				(worldSample.z + noiseOffsetZ) * clumpScale
+			);
+
+			// Ruido de detalle
+			float detailNoise = PerlinNoise3D(
+				(worldSample.x + noiseOffsetX * 1.37f) * noiseScale,
+				(worldSample.y + noiseOffsetY * 1.37f) * noiseScale,
+				(worldSample.z + noiseOffsetZ * 1.37f)* noiseScale
+			);
+
+			// Vacíos grandes para romper uniformidad
+			float voidNoise = PerlinNoise3D(
+				(worldSample.x - noiseOffsetZ) * voidScale,
+				(worldSample.y + noiseOffsetX) * voidScale,
+				(worldSample.z - noiseOffsetY) * voidScale
+			);
+
+			// Mezcla final de densidad
+			float density =
+				core01 * 0.45f +
+				clumpNoise * 0.35f +
+				detailNoise * 0.20f;
+
+			// Recorta zonas completas para que no sea una nube uniforme
+			density *= Mathf.SmoothStep(0.15f, 0.95f, voidNoise);
+
+			density = Mathf.Clamp01(density);
+
+			if (density > bestScore)
+			{
+				bestScore = density;
+				bestPos = worldSample;
+			}
+
+			if (Random.Value() < density)
+			{
+				if (Vector3.Distance(worldSample, Vector3.zero) > galaxyRadius * 0.85)
+				{
+					Exeded = true;
+				}
+				return worldSample;
+			}
+		}
+
+		// Si no aceptó ninguna muestra, devuelve la mejor encontrada
+		Exeded = true; //esto es por si quiero Eliminar los que se excedieron
+		return bestPos;
+	}
 
 
 	public List<StarData> GenStarsInSector(
@@ -808,7 +919,27 @@ public class GalaxyGenerator : MonoBehaviour
 			}
 			else
 			{
-				acceptedWorldPos = GenerateFallbackPosition();
+				acceptedWorldPos = GenerateIrregularPosition(
+	sectorOrigin,
+	halfX,
+	halfY,
+	halfZ,
+	galaxyRadius,
+	irregularNoiseScale,
+	irregularNoiseOffsetX,
+	irregularNoiseOffsetZ,
+	irregularNoiseOffsetY,
+	irregularClumpScale,
+	irregularCoreFalloff,
+	irregularVoidScale,
+	starPlacementMaxTries,
+	out Discard
+);
+
+				if (Vector3.Distance(acceptedWorldPos,Vector3.zero) > galaxyRadius*0.85)
+				{
+					Discard = true;	
+				}
 			}
 			if (Discard)
 				continue;
