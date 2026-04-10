@@ -32,9 +32,7 @@ public class GalaxyGenerator : MonoBehaviour
 	public bool RegenNow;
 
 	[Header("Depuración")]
-	/*
-	public string AAAAAAAAA;
-	public string BBBBBBBBB;*/
+	
 	public long globalStarId;
 	public long globalPlanetId;
 	public bool IsTestingGeneration;
@@ -481,7 +479,7 @@ public class GalaxyGenerator : MonoBehaviour
 		float invEllipseRadiusX = 1f / ellipseRadiusX;
 		float invEllipseRadiusZ = 1f / ellipseRadiusZ;
 
-		float spiralScale = Mathf.Max(0.0001f, galaxyRadius * 0.2f);
+		float spiralScale = Mathf.Max(0.0001f, galaxyRadius * SpiralScaleMultiplier);
 
 		float spiralCoreEpsilon = Mathf.Max(0.5f, galaxyRadius * 0.3f);
 		float spiralArmWidth = Mathf.Max(0.5f, galaxyRadius *  SpiralArmWidthMultiplier);
@@ -606,6 +604,7 @@ public class GalaxyGenerator : MonoBehaviour
 				Random.Range(-halfZ, halfZ)
 			);
 		}
+
 		Vector3 GenerateHaloPosition(
 	Vector3 sectorOrigin,
 	float halfX,
@@ -650,25 +649,33 @@ public class GalaxyGenerator : MonoBehaviour
 			fallback.y += galaxyRadius * 0.2f;
 			return fallback;
 		}
+
+
+		if (numArms == 0) numArms = 255;
 		int spiralHits = 0;
 		int spiralFallbacks = 0;
 		int CenterspiralFallbacks = 0;
 
 		float distToCenter = new Vector2(sectorOrigin.x, sectorOrigin.z).magnitude;
+		bool useSpiralLike = galaxy == GalaxyTypes.Spiral || galaxy == GalaxyTypes.Eliptical;
 
+		float localSpiralBackgroundDensity = galaxy == GalaxyTypes.Eliptical ? 0.01f : spiralBackgroundDensity;
+		float localSpiralTightness = galaxy == GalaxyTypes.Eliptical ? 0.35f : spiralTightness;
+		float localSpiralArmWidth = galaxy == GalaxyTypes.Eliptical ? Mathf.Max(0.0001f, galaxyRadius * 0.2f) : spiralArmWidth;
+		float localSpiralScale = galaxy == GalaxyTypes.Eliptical ? Mathf.Max(0.0001f, galaxyRadius * 0.2f) : spiralScale;
+		float localSpiralAngularStretch = galaxy == GalaxyTypes.Eliptical ? 7f : spiralAngularStretch;
+
+		byte localNumArms = galaxy == GalaxyTypes.Eliptical ? (byte)100 : numArms;
+		float localAnglePerArm = localNumArms > 0 ? (Mathf.PI * 2f / localNumArms) : (Mathf.PI * 2f);
 		for (long i = 0; i < starCount; i++)
 		{
 			bool generateRogue = AllowRogues && Random.Value() < Probability;
 			bool ImAlreadyAHaloStarPleaseGoAway = false;
 			Vector3 acceptedWorldPos = Vector3.zero;
 			bool Discard = false;
-			if (galaxy == GalaxyTypes.Spiral)
+			if (useSpiralLike)
 			{
-				/*
-				if (i == 0)
-					Debug.Log($"Sector {SectorPos} distToCenter={distToCenter} core={spiralCoreEpsilon}");
-				*/
-				if (distToCenter <= spiralCoreEpsilon)
+				if (distToCenter <= spiralCoreEpsilon && galaxy == GalaxyTypes.Spiral)
 				{
 					acceptedWorldPos = GenerateFallbackPosition();
 					CenterspiralFallbacks++;
@@ -696,27 +703,25 @@ public class GalaxyGenerator : MonoBehaviour
 						float angle = Mathf.Atan2(z, x);
 						if (angle < 0f) angle += Mathf.PI * 2f;
 
-						int armIndex = Mathf.FloorToInt(angle / anglePerArm);
-						int prevArm = (armIndex - 1 + numArms) % numArms;
-						int nextArm = (armIndex + 1) % numArms;
+						int armIndex = Mathf.FloorToInt(angle / localAnglePerArm);
+						int prevArm = (armIndex - 1 + (int)localNumArms) % (int)localNumArms;
+						int nextArm = (armIndex + 1) % (int)localNumArms;
 
 						int pick = Random.Range(0, 3);
 						int brazo = pick == 0 ? armIndex : (pick == 1 ? prevArm : nextArm);
 
-						float offsetBrazo = brazo * anglePerArm;
+						float offsetBrazo = brazo * localAnglePerArm;
 
-						// aquí sí entra el offset del brazo
 						float localAngle = angle - offsetBrazo;
 						if (localAngle < 0f) localAngle += Mathf.PI * 2f;
-						localAngle *= spiralAngularStretch;
+						localAngle *= localSpiralAngularStretch;
 
-						float expectedR = spiralScale * Mathf.Exp(spiralTightness * localAngle);
+						float expectedR = localSpiralScale * Mathf.Exp(localSpiralTightness * localAngle);
 
 						float distToArm = Mathf.Abs(r - expectedR);
-						float density = Mathf.Exp(-(distToArm * distToArm) / (2f * spiralArmWidth * spiralArmWidth));
+						float density = Mathf.Exp(-(distToArm * distToArm) / (2f * localSpiralArmWidth * localSpiralArmWidth));
 
-						// fondo tenue entre brazos
-						float acceptChance = Mathf.Clamp01(density + spiralBackgroundDensity);
+						float acceptChance = Mathf.Clamp01(density + localSpiralBackgroundDensity);
 
 						if (Random.Value() < acceptChance)
 						{
@@ -732,39 +737,34 @@ public class GalaxyGenerator : MonoBehaviour
 
 						if (roll < 0.95f)
 						{
-							continue; // ❌ descartar estrella completamente
+							continue;
 						}
 						else if (roll < 0.97f)
 						{
-							// 🌑 planeta errante
 							generateRogue = true;
 							acceptedWorldPos = GenerateFallbackPosition();
 						}
 						else if (roll < 0.975f)
 						{
-							// 🌌 entre brazos
-
-							// 🌌 entre brazos
 							acceptedWorldPos = GenerateInterArmPosition(
 								sectorOrigin,
 								halfX,
 								halfY,
 								halfZ,
-								spiralScale,
-								spiralTightness,
-								anglePerArm
+								localSpiralScale,
+								localSpiralTightness,
+								localAnglePerArm
 							);
 						}
 						else
 						{
-							// 🌀 halo
 							acceptedWorldPos = GenerateHaloPosition(
-		sectorOrigin,
-		halfX,
-		halfY,
-		halfZ,
-		galaxyRadius
-	);
+								sectorOrigin,
+								halfX,
+								halfY,
+								halfZ,
+								galaxyRadius
+							);
 							ImAlreadyAHaloStarPleaseGoAway = true;
 						}
 					}

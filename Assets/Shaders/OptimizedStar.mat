@@ -46,8 +46,8 @@ Material:
     - _QueueOffset: 0
     - _Temp_K: 16025
     m_Colors:
-    - _IntensityMax: {r: 0.2075472, g: 0.2075472, b: 0.2075472, a: 1}
-    - _IntensityMin: {r: 1, g: 1, b: 1, a: 1}
+    - _IntensityMax: {r: 2.5166616, g: 2.5166616, b: 2.5166616, a: 1}
+    - _IntensityMin: {r: 1.4980394, g: 1.4980394, b: 1.4980394, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &1083073181146087091
