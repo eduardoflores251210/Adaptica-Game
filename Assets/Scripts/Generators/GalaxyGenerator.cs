@@ -62,7 +62,7 @@ public class GalaxyGenerator : MonoBehaviour
 	public float SpiralArmWidthMultiplier = 0.08f;
 	public float SpiralScaleMultiplier = 0.2f;
 	public float spiralAngularStretch = 0.35f;
-	[Header("Irregular Settings")]
+	[Header("Eliptica Settings")]
 	public float irregularNoiseScale = 0.08f;
 	public float irregularNoiseOffsetX = 123.45f;
 	public float irregularNoiseOffsetY = 678.9f;
@@ -359,7 +359,7 @@ public class GalaxyGenerator : MonoBehaviour
 		List<PlanetData> allPlanets = new List<PlanetData> { controlPlanet };
 		for (int i = 1; i < totalStars; i++)
 		{
-			float Y = (type == GalaxyTypes.Irregular) ? Random.Range(-(float)sectorSize.x / 2f, (float)sectorSize.x / 2f) : 0;
+			float Y = (type == GalaxyTypes.Eliptica) ? Random.Range(-(float)sectorSize.x / 2f, (float)sectorSize.x / 2f) : 0;
 			Vector3 starLocalPos = new Vector3(
 				Random.Range(-(float)sectorSize.x / 2f, (float)sectorSize.x / 2f),
 				Y,
@@ -468,103 +468,41 @@ public class GalaxyGenerator : MonoBehaviour
 		float zx = Mathf.PerlinNoise(z, x);
 		float zy = Mathf.PerlinNoise(z, y);
 
-		return (xy + xz + yz + yx + zx + zy) / 6;
+		return (xy + xz + yz + yx + zx + zy) / 6f;
 	}
 
-	Vector3 GenerateIrregularPosition(
-	Vector3 sectorOrigin,
-	float halfX,
-	float halfY,
-	float halfZ,
-	float galaxyRadius,
-	float noiseScale,
-	float noiseOffsetX,
-	float noiseOffsetZ,
-	float noiseOffsetY,
-	float clumpScale,
-	float coreFalloff,
-	float voidScale,
-	int maxTries, out bool Exeded
+
+
+	Vector3 GenerateElipticalPosition(
+Vector3 sectorOrigin,
+float halfX,
+float halfY,
+float halfZ,
+float galaxyRadius, out bool Exeded
 )
 	{
 		Exeded = false;
-		Vector3 bestPos = sectorOrigin;
-		float bestScore = float.MinValue;
+	
 
-		float safeGalaxyRadius = Mathf.Max(0.0001f, galaxyRadius);
 
-		for (int attempt = 0; attempt < maxTries; attempt++)
-		{
+
+
 			Vector3 localSample = new Vector3(
 				Random.Range(-halfX, halfX),
 				Random.Range(-halfY, halfY),
 				Random.Range(-halfZ, halfZ)
 			);
 
-			Vector3 worldSample = sectorOrigin + localSample;
 
-			float x = worldSample.x;
-			float z = worldSample.z;
-			float y = worldSample.y;
-
-			float distToCenter = Mathf.Sqrt(x * x + z * z);
-
-			// Núcleo suave: más densidad cerca del centro, pero sin forma fija
-			float core01 = Mathf.Exp(-Mathf.Pow(distToCenter / safeGalaxyRadius, 2f) * coreFalloff);
-
-			// Ruido de cúmulos grandes
-			float clumpNoise = PerlinNoise3D(
-				(worldSample.x + noiseOffsetX) * clumpScale,
-				(worldSample.y + noiseOffsetY) * clumpScale,
-				(worldSample.z + noiseOffsetZ) * clumpScale
-			);
-
-			// Ruido de detalle
-			float detailNoise = PerlinNoise3D(
-				(worldSample.x + noiseOffsetX * 1.37f) * noiseScale,
-				(worldSample.y + noiseOffsetY * 1.37f) * noiseScale,
-				(worldSample.z + noiseOffsetZ * 1.37f)* noiseScale
-			);
-
-			// Vacíos grandes para romper uniformidad
-			float voidNoise = PerlinNoise3D(
-				(worldSample.x - noiseOffsetZ) * voidScale,
-				(worldSample.y + noiseOffsetX) * voidScale,
-				(worldSample.z - noiseOffsetY) * voidScale
-			);
-
-			// Mezcla final de densidad
-			float density =
-				core01 * 0.45f +
-				clumpNoise * 0.35f +
-				detailNoise * 0.20f;
-
-			// Recorta zonas completas para que no sea una nube uniforme
-			density *= Mathf.SmoothStep(0.15f, 0.95f, voidNoise);
-
-			density = Mathf.Clamp01(density);
-
-			if (density > bestScore)
-			{
-				bestScore = density;
-				bestPos = worldSample;
-			}
-
-			if (Random.Value() < density)
-			{
+			var worldSample = localSample+ sectorOrigin;
 				if (Vector3.Distance(worldSample, Vector3.zero) > galaxyRadius * 0.85)
 				{
 					Exeded = true;
 				}
 				return worldSample;
-			}
-		}
+			
 
-		// Si no aceptó ninguna muestra, devuelve la mejor encontrada
-		Exeded = true; //esto es por si quiero Eliminar los que se excedieron
-		return bestPos;
 	}
-
 
 	public List<StarData> GenStarsInSector(
 		int sectorId,
@@ -768,15 +706,15 @@ public class GalaxyGenerator : MonoBehaviour
 		int CenterspiralFallbacks = 0;
 
 		float distToCenter = new Vector2(sectorOrigin.x, sectorOrigin.z).magnitude;
-		bool useSpiralLike = galaxy == GalaxyTypes.Spiral || galaxy == GalaxyTypes.Eliptical;
+		bool useSpiralLike = galaxy == GalaxyTypes.Spiral || galaxy == GalaxyTypes.Lenticular;
 
-		float localSpiralBackgroundDensity = galaxy == GalaxyTypes.Eliptical ? 0.01f : spiralBackgroundDensity;
-		float localSpiralTightness = galaxy == GalaxyTypes.Eliptical ? 0.35f : spiralTightness;
-		float localSpiralArmWidth = galaxy == GalaxyTypes.Eliptical ? Mathf.Max(0.0001f, galaxyRadius * 0.2f) : spiralArmWidth;
-		float localSpiralScale = galaxy == GalaxyTypes.Eliptical ? Mathf.Max(0.0001f, galaxyRadius * 0.2f) : spiralScale;
-		float localSpiralAngularStretch = galaxy == GalaxyTypes.Eliptical ? 7f : spiralAngularStretch;
+		float localSpiralBackgroundDensity = galaxy == GalaxyTypes.Lenticular ? 0.01f : spiralBackgroundDensity;
+		float localSpiralTightness = galaxy == GalaxyTypes.Lenticular ? 0.35f : spiralTightness;
+		float localSpiralArmWidth = galaxy == GalaxyTypes.Lenticular ? Mathf.Max(0.0001f, galaxyRadius * 0.2f) : spiralArmWidth;
+		float localSpiralScale = galaxy == GalaxyTypes.Lenticular ? Mathf.Max(0.0001f, galaxyRadius * 0.2f) : spiralScale;
+		float localSpiralAngularStretch = galaxy == GalaxyTypes.Lenticular ? 7f : spiralAngularStretch;
 
-		byte localNumArms = galaxy == GalaxyTypes.Eliptical ? (byte)100 : numArms;
+		byte localNumArms = galaxy == GalaxyTypes.Lenticular ? (byte)100 : numArms;
 		float localAnglePerArm = localNumArms > 0 ? (Mathf.PI * 2f / localNumArms) : (Mathf.PI * 2f);
 		for (long i = 0; i < starCount; i++)
 		{
@@ -784,10 +722,10 @@ public class GalaxyGenerator : MonoBehaviour
 			bool ImAlreadyAHaloStarPleaseGoAway = false;
 			Vector3 acceptedWorldPos = Vector3.zero;
 			bool Discard = false;
-			// 🌀 GALACTIC JETS (compartido por Spiral y Eliptical)
+			// 🌀 GALACTIC JETS (compartido por Spiral y Lenticular)
 			if (useSpiralLike &&
 				distToCenter < galaxyRadius * 0.2f &&
-				Random.Value() < 0.0025f)
+				Random.Value() < 0.005f)
 			{
 				Vector3 localSample = new Vector3(
 					Random.Range(-halfX, halfX),
@@ -917,29 +855,21 @@ public class GalaxyGenerator : MonoBehaviour
 					else spiralFallbacks++;
 				}
 			}
-			else
+			else if(galaxy == GalaxyTypes.Eliptica)
 			{
-				acceptedWorldPos = GenerateIrregularPosition(
+				acceptedWorldPos = GenerateElipticalPosition(
 	sectorOrigin,
 	halfX,
 	halfY,
 	halfZ,
 	galaxyRadius,
-	irregularNoiseScale,
-	irregularNoiseOffsetX,
-	irregularNoiseOffsetZ,
-	irregularNoiseOffsetY,
-	irregularClumpScale,
-	irregularCoreFalloff,
-	irregularVoidScale,
-	starPlacementMaxTries,
 	out Discard
 );
 
-				if (Vector3.Distance(acceptedWorldPos,Vector3.zero) > galaxyRadius*0.85)
-				{
-					Discard = true;	
-				}
+
+			} else
+			{
+
 			}
 			if (Discard)
 				continue;
@@ -990,7 +920,7 @@ public class GalaxyGenerator : MonoBehaviour
 					ParentID = $"S{sectorIndex}"
 				};
 
-				if (galaxy != GalaxyTypes.Irregular)
+				if (galaxy != GalaxyTypes.Eliptica)
 				{
 					if (ImAlreadyAHaloStarPleaseGoAway)
 					{ }
@@ -1199,7 +1129,8 @@ public class GalaxyGenerator : MonoBehaviour
 		return type switch
 		{
 			GalaxyTypes.Spiral => "Una galaxia espiral clásica.",
-			GalaxyTypes.Eliptical => "Una galaxia elíptica, disco de estrellas y gas.",
+			GalaxyTypes.Lenticular => "Una galaxia lenticular, disco de estrellas y gas.",
+			GalaxyTypes.Eliptica => "Galaxia Eliptica tiene formaa esferoidal",// por algun motivo son esfericas
 			GalaxyTypes.Irregular => "Galaxia irregular, caótica y única.",// por algun motivo son raras
 			_ => "Galaxia desconocida, posiblemente corrupta." // [insertar Sonido Dial Up aquí]
 		};

@@ -1110,12 +1110,16 @@ namespace SerializableTypes.Space
 		/// <summary>
 		/// La prima de espiral, pero sin brazos definidos
 		/// </summary>
-		Eliptical,
+		Lenticular,
 		/// <summary>
-		/// Iregular la galaxia esferoidal sin una forma definida
+		/// Eliptica la galaxia esferoidal sin una forma definida
 		/// QUE CAUSA BAJONES DE FPS MASIVOS Esspoiler ya no era por mala optimización
 		/// </summary>
-		Irregular
+		Eliptica,
+		/// <summary>
+		/// Iregular la galaxia en forma de nube rara
+		/// </summary>
+		Irregular,
 	}
 
 	/// <summary>
