@@ -492,14 +492,14 @@ float galaxyRadius, out bool Exeded
 				Random.Range(-halfY, halfY),
 				Random.Range(-halfZ, halfZ)
 			);
+			
 
-
-			var worldSample = localSample+ sectorOrigin;
-				if (Vector3.Distance(worldSample, Vector3.zero) > galaxyRadius * 0.85)
-				{
-					Exeded = true;
-				}
-				return worldSample;
+				var worldSample = localSample+ sectorOrigin;
+					if (Vector3.Distance(worldSample, Vector3.zero) > galaxyRadius * Mathf.Lerp(0.85f, 0.90f, Random.Value()))
+					{
+						Exeded = true;
+					}
+					return worldSample;
 			
 
 	}
