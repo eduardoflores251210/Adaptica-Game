@@ -673,6 +673,39 @@ public class GalaxyGenerator : MonoBehaviour
 			bool ImAlreadyAHaloStarPleaseGoAway = false;
 			Vector3 acceptedWorldPos = Vector3.zero;
 			bool Discard = false;
+			// 🌀 GALACTIC JETS (compartido por Spiral y Eliptical)
+			if (useSpiralLike &&
+				distToCenter < galaxyRadius * 0.2f &&
+				Random.Value() < 0.0025f)
+			{
+				Vector3 localSample = new Vector3(
+					Random.Range(-halfX, halfX),
+					Random.Range(-halfY, halfY),
+					Random.Range(-halfZ, halfZ)
+				);
+
+				Vector3 worldSample = sectorOrigin + localSample;
+
+				float x = worldSample.x;
+				float z = worldSample.z;
+
+				float radial = Mathf.Sqrt(x * x + z * z);
+
+				// cono: y = ±√(x² + z²)
+				float y = radial;
+
+				if (Random.Value() < 0.5f)
+					y = -y;
+
+				worldSample.y = y;
+
+				acceptedWorldPos = worldSample;
+
+				ImAlreadyAHaloStarPleaseGoAway = true;
+
+				// saltar lógica espiral/elíptica
+			}
+			else
 			if (useSpiralLike)
 			{
 				if (distToCenter <= spiralCoreEpsilon && galaxy == GalaxyTypes.Spiral)
