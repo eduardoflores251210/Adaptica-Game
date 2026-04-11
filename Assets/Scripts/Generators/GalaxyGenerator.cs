@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -64,12 +65,15 @@ public class GalaxyGenerator : MonoBehaviour
 	public float spiralAngularStretch = 0.35f;
 	[Header("Eliptica Settings")]
 	public float irregularNoiseScale = 0.08f;
+	public float irregularNoiseIntensity= 0.08f;
+	public float irregularVoidNoiseIntensity= 0.08f;
 	public float irregularNoiseOffsetX = 123.45f;
 	public float irregularNoiseOffsetY = 678.9f;
 	public float irregularNoiseOffsetZ = 1011.12f;
 	public float irregularClumpScale = 0.03f;
 	public float irregularCoreFalloff = 1.6f;
 	public float irregularVoidScale = 0.015f;
+	public float irregularDensityMin = 0.95f;
 	#endregion
 	#region Unity Messages
 	void Start()
@@ -92,6 +96,7 @@ public class GalaxyGenerator : MonoBehaviour
 		CalculateTotalSectors();
 		//Debug.Log($"GalaxyGenerator init: totalSectoresX={totalSectoresX}, totalSectoresY={totalSectoresY}");
 	}
+	public int Seed = 0;
 	void Update()
 	{
 		if (RegenNow)
@@ -110,6 +115,7 @@ public class GalaxyGenerator : MonoBehaviour
 				RegenNow = false;
 				int seed = GetSeed();
 				Random = new Random(seed);
+				
 			}
 		}
 
@@ -131,7 +137,8 @@ public class GalaxyGenerator : MonoBehaviour
 	{
 		Span<byte> b = stackalloc byte[4];
 		System.Security.Cryptography.RandomNumberGenerator.Fill(b);
-		return BitConverter.ToInt32(b);
+		Seed = BitConverter.ToInt32(b);
+		return Seed;
 	}
 	#endregion
 	#region Main
@@ -211,7 +218,27 @@ public class GalaxyGenerator : MonoBehaviour
 		globalStarId = 0;
 		globalPlanetId = 0;
 		int sectorIndex = 0;
+		if (galaxy.Type == GalaxyTypes.Irregular)
+		{
+			var Sha = SHA512.Create();
+			var Xbytes = BitConverter.GetBytes((long)(Seed)+ (long)irregularNoiseOffsetX);
+			var Ybytes = BitConverter.GetBytes(Seed + (long)irregularNoiseOffsetY);
+			var Zbytes = BitConverter.GetBytes(Seed + (long)irregularNoiseOffsetZ);
+			var XSHA = Sha.ComputeHash(Xbytes);
+			var YSHA = Sha.ComputeHash(Ybytes);
+			var ZSHA = Sha.ComputeHash(Zbytes);
+			var ClippedXSHA = new byte[2] { XSHA[0], XSHA[9] };
+			var ClippedYSHA = new byte[2] { YSHA[2], YSHA[9] };
+			var ClippedZSHA = new byte[2] { ZSHA[5], ZSHA[6] };
+			var XA = BitConverter.ToInt16(ClippedXSHA) ^ 5; 
+			var YA = BitConverter.ToInt16(ClippedYSHA) ^ 2; 
+			var ZA = BitConverter.ToInt16(ClippedZSHA) ^ 7; 
 
+
+			CalculatedIrregularNoiseOffsetX = ((XA) * 20.1f) + 5.2f;
+			CalculatedIrregularNoiseOffsetY = ((YA) * 20.1f) + 5.2f;
+			CalculatedIrregularNoiseOffsetZ = ((ZA) * 20.1f) + 5.2f;
+		}
 		foreach (var sectorPos in sectorPositions)
 		{
 			Vector3 origin = new Vector3(sectorPos.x * (float)sectorSize.x, 0f, sectorPos.y * (float)sectorSize.y);
@@ -461,18 +488,41 @@ public class GalaxyGenerator : MonoBehaviour
 	}
 	public static float PerlinNoise3D(float x, float y, float z)
 	{
-		float xy = Mathf.PerlinNoise(x, y);
-		float xz = Mathf.PerlinNoise(x, z);
-		float yz = Mathf.PerlinNoise(y, z);
-		float yx = Mathf.PerlinNoise(y, x);
-		float zx = Mathf.PerlinNoise(z, x);
-		float zy = Mathf.PerlinNoise(z, y);
+		y += 1;
+		z += 2;
+		float xy = _perlin3DFixed(x, y);
+		float xz = _perlin3DFixed(x, z);
+		float yz = _perlin3DFixed(y, z);
+		float yx = _perlin3DFixed(y, x);
+		float zx = _perlin3DFixed(z, x);
+		float zy = _perlin3DFixed(z, y);
 
-		return (xy + xz + yz + yx + zx + zy) / 6f;
+		return xy * xz * yz * yx * zx * zy;
+	}
+
+	static float _perlin3DFixed(float a, float b)
+	{
+		return Mathf.Sin(Mathf.PI * Mathf.PerlinNoise(a, b));
 	}
 
 
-
+	public static float FractalNoise(float x, float y, float z, int octaves = 4, float lacunarity = 2f, float gain = 0.5f) { float sum = 0f; float amp = 0.5f; float freq = 1f; float ampSum = 0f; for (int i = 0; i < octaves; i++) { float n = PerlinNoise3D(x * freq + i * 17.13f, y * freq + i * 31.77f, z * freq + i * 47.91f); sum += n * amp; ampSum += amp; freq *= lacunarity; amp *= gain; } return ampSum > 0f ? sum / ampSum : 0f; }
+	public static float FractalNoise(Vector3 Pos, int octaves = 4, float lacunarity = 2f, float gain = 0.5f) 
+	{
+		return FractalNoise(Pos.x, Pos.y, Pos.z, octaves, lacunarity, gain);
+	}
+	public static float FractalPerlinNoise3D (float x, float y, float z, int octaves = 4, float lacunarity = 2f, float gain = 0.5f) 
+	{ float sum = 0f;
+		float amp = 0.5f; 
+		float freq = 1f;
+		float ampSum = 0f;
+		for (int i = 0; i < octaves; i++)
+		{ 
+			float n = PerlinNoise3D(x * freq + i * 17.13f, y * freq + i * 31.77f, z * freq + i * 47.91f);
+			sum += n * amp; ampSum += amp; freq *= lacunarity; amp *= gain;
+		}
+		return ampSum > 0f ? sum / ampSum : 0f;
+	}
 	Vector3 GenerateElipticalPosition(
 Vector3 sectorOrigin,
 float halfX,
@@ -503,6 +553,110 @@ float galaxyRadius, out bool Exeded
 			
 
 	}
+
+	public Vector3 GenerateIrregularPosition(
+		Vector3 sectorOrigin,
+		float halfX,
+		float halfY,
+		float halfZ,
+		float galaxyRadius,
+		float noiseScale,
+		float noiseOffsetX,
+		float noiseOffsetZ,
+		float noiseOffsetY,
+		float clumpScale,
+		float coreFalloff,
+		float voidScale,
+		int maxTries,
+		out bool Exeded
+	)
+	{
+		Exeded = false;
+
+		Vector3 bestPos = sectorOrigin;
+		float bestScore = float.NegativeInfinity;
+
+		// Si tu galaxia NO está centrada en (0,0,0), cambia esto por tu centro real.
+		Vector3 galaxyCenter = Vector3.zero;
+
+		for (int i = 0; i < maxTries; i++)
+		{
+			float t = i + Random.Value();
+
+			// Generamos un punto "pseudoaleatorio" pero estable usando el sector y el índice
+			float rx = Hash01(sectorOrigin.x + noiseOffsetX, sectorOrigin.y + noiseOffsetY, sectorOrigin.z + noiseOffsetZ, t * 11.13f);
+			float ry = Hash01(sectorOrigin.x + noiseOffsetY, sectorOrigin.y + noiseOffsetZ, sectorOrigin.z + noiseOffsetX, t * 23.71f);
+			float rz = Hash01(sectorOrigin.x + noiseOffsetZ, sectorOrigin.y + noiseOffsetX, sectorOrigin.z + noiseOffsetY, t * 37.19f);
+
+			Vector3 candidate = new Vector3(
+				sectorOrigin.x - halfX + rx * (halfX * 2f),
+				sectorOrigin.y - halfY + ry * (halfY * 2f),
+				sectorOrigin.z - halfZ + rz * (halfZ * 2f)
+			);
+
+			// Distancia al centro de la galaxia
+			float dist = Vector3.Distance(candidate, galaxyCenter);
+
+			// Fuera del radio total: mala candidata
+			if (dist > galaxyRadius)
+				continue;
+
+			// Falloff radial: más densidad hacia el centro
+			float radial01 = 1f - Mathf.Clamp01(dist / galaxyRadius);
+			float core = Mathf.Pow(radial01, Mathf.Max(0.0001f, coreFalloff));
+
+			// Ruido para clumps (agrupaciones)
+			float clumpNoise = FractalPerlinNoise3D(
+				(candidate.x + noiseOffsetX) * noiseScale * clumpScale,
+				(candidate.y + noiseOffsetY) * noiseScale * clumpScale,
+				(candidate.z + noiseOffsetZ) * noiseScale * clumpScale,
+				4, 2f, 0.5f
+			);
+
+			// Ruido para vacíos / huecos
+			float voidNoise = FractalPerlinNoise3D(
+				(candidate.x - noiseOffsetX) * noiseScale * voidScale + 91.7f,
+				(candidate.y - noiseOffsetY) * noiseScale * voidScale + 53.3f,
+				(candidate.z - noiseOffsetZ) * noiseScale * voidScale + 17.9f,
+				3, 2f, 0.5f
+			);
+
+			// Convertimos ruido a máscara útil
+			float clumpMask = Mathf.SmoothStep(0.20f, 0.85f, clumpNoise);
+			float voidMask = Mathf.SmoothStep(0.60f, 0.92f, voidNoise);
+
+			// Densidad final
+			float density = core * (0.25f + 0.75f * (clumpMask *irregularNoiseIntensity) ) * (1f - voidMask);
+
+			// Guardamos la mejor candidata
+			if (density > bestScore)
+			{
+				bestScore = density;
+				bestPos = candidate;
+			}
+
+			// Umbral mínimo para aceptar una estrella
+			if (density >= irregularDensityMin)
+			{
+				Exeded = false;
+				return candidate;
+			}
+		}
+
+		// Si no encontró una buena posición, el caller la puede descartar
+		Exeded = true;
+		return bestPos;
+	}
+
+	private static float Hash01(float x, float y, float z, float seed)
+	{
+		float n = Mathf.Sin(x * 12.9898f + y * 78.233f + z * 37.719f + seed * 19.19f) * 43758.5453f;
+		return n - Mathf.Floor(n);
+	}
+
+	float CalculatedIrregularNoiseOffsetX,
+	CalculatedIrregularNoiseOffsetZ,
+	CalculatedIrregularNoiseOffsetY;
 
 	public List<StarData> GenStarsInSector(
 		int sectorId,
@@ -867,9 +1021,23 @@ float galaxyRadius, out bool Exeded
 );
 
 
-			} else
+			} 
+			else
 			{
-
+				acceptedWorldPos = GenerateIrregularPosition(
+	sectorOrigin,
+	halfX, halfY, halfZ,
+	galaxyRadius,
+	irregularNoiseScale,
+	CalculatedIrregularNoiseOffsetX,
+	CalculatedIrregularNoiseOffsetZ,
+	CalculatedIrregularNoiseOffsetY,
+	irregularClumpScale,
+	irregularCoreFalloff,
+	irregularVoidScale,
+	8,
+	out Discard
+);
 			}
 			if (Discard)
 				continue;
@@ -920,7 +1088,7 @@ float galaxyRadius, out bool Exeded
 					ParentID = $"S{sectorIndex}"
 				};
 
-				if (galaxy != GalaxyTypes.Eliptica)
+				if (galaxy != GalaxyTypes.Eliptica && galaxy != GalaxyTypes.Irregular)
 				{
 					if (ImAlreadyAHaloStarPleaseGoAway)
 					{ }

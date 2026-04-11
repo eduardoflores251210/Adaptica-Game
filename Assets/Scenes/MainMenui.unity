@@ -60329,9 +60329,9 @@ MonoBehaviour:
   RegenNow: 0
   globalStarId: 0
   globalPlanetId: 0
-  IsTestingGeneration: 1
-  ForceType: 1
-  ForcedType: 2
+  IsTestingGeneration: 0
+  ForceType: 0
+  ForcedType: 3
   ForceArms: 0
   ForcedArms: 0
   AllowRogues: 1
@@ -60345,12 +60345,17 @@ MonoBehaviour:
   SpiralArmWidthMultiplier: 0.05
   SpiralScaleMultiplier: 0.2
   spiralAngularStretch: 1.08
-  irregularNoiseScale: 0.08
+  irregularNoiseScale: 0.006
+  irregularNoiseIntensity: 2.94
+  irregularVoidNoiseIntensity: 1.25
   irregularNoiseOffsetX: 123.45
-  irregularNoiseOffsetZ: 678.9
-  irregularClumpScale: 0.03
-  irregularCoreFalloff: 1.6
-  irregularVoidScale: 0.015
+  irregularNoiseOffsetY: 678.9
+  irregularNoiseOffsetZ: 1011.12
+  irregularClumpScale: 4
+  irregularCoreFalloff: 1.5
+  irregularVoidScale: 3.5
+  irregularDensityMin: 0.1
+  Seed: 0
 --- !u!114 &1498985393
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73923,7 +73928,7 @@ RectTransform:
   m_GameObject: {fileID: 2030201383}
   m_LocalRotation: {x: -0, y: -0, z: 0.28464007, w: 0.9586345}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9915923, y: 0.9915923, z: 0.9915923}
+  m_LocalScale: {x: 0.9662798, y: 0.9662798, z: 0.9662798}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1336602438}
@@ -73948,7 +73953,7 @@ MonoBehaviour:
   PulseSpeed: 8.13
   PulseAmplitude: 0.1
   ChangeTimeInMinutes: 0.5
-  timer: 23.544167
+  timer: 17.002546
   text: {fileID: 2030201386}
   Override: 0
   idx: 0
@@ -73973,7 +73978,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Now with 100% more triangles
+  m_text: "La pi\xF1a tolero Noticias."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1f251fab3f3063343aa12b35ff14bc77, type: 2}
   m_sharedMaterial: {fileID: -4311610417880198931, guid: 1f251fab3f3063343aa12b35ff14bc77, type: 2}

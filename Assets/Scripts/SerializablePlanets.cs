@@ -1109,6 +1109,7 @@ namespace SerializableTypes.Space
 		Spiral,
 		/// <summary>
 		/// La prima de espiral, pero sin brazos definidos
+		/// originalmente llame a este tipo Eliptica por que no sabia la diferencia ahora que lo se son 2 distitnos
 		/// </summary>
 		Lenticular,
 		/// <summary>
@@ -1117,7 +1118,7 @@ namespace SerializableTypes.Space
 		/// </summary>
 		Eliptica,
 		/// <summary>
-		/// Iregular la galaxia en forma de nube rara
+		/// Iregular la galaxia en forma de nube
 		/// </summary>
 		Irregular,
 	}
@@ -1148,7 +1149,8 @@ namespace SerializableTypes.Space
 
 	/// <summary>
 	/// Guarda las criaturas que hay en el planeta 
-	/// se syoibe qye decia Polination pero typo
+	/// se suponia que decia Polination pero typo
+	/// asi que accidentalmente la vida ahora es Contaminación
 	/// </summary>
 	[Serializable]
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0251:Convertir el miembro en 'readonly'", Justification = "<pendiente>")]
