@@ -1122,7 +1122,7 @@ namespace SerializableTypes.Space
 		/// </summary>
 		Irregular,
 	}
-
+	[Serializable]
 	/// <summary>
 	/// Collecion de objetos galacticos
 	/// </summary>
@@ -1134,6 +1134,8 @@ namespace SerializableTypes.Space
 		public List<NovaData> novas;
 		public List<NebulaData> nebulas;
 	}
+	[Serializable]
+
 	/// <summary>
 	/// Collecion de IDs objetos galacticos
 	/// </summary>

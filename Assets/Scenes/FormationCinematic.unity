@@ -294,6 +294,7 @@ GameObject:
   - component: {fileID: 257186603}
   - component: {fileID: 257186602}
   - component: {fileID: 257186604}
+  - component: {fileID: 257186605}
   m_Layer: 0
   m_Name: Star
   m_TagString: Untagged
@@ -5203,72 +5204,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Stardata:
     Name: sdasdadsa
-    Id: 0
     Description: 
-    type: 0
-    Planets:
-    - Name: AA
-      Description: AA
-      Mesh:
-        Vertices: []
-        Triangles: []
-      id: 0
-      StarId: 0
-      IsSaveFile: 0
-      PlType: 0
-      radius: 0.69
-      GasColors: []
-      Seed: 0
-    - Name: dffdsdsf
-      Description: AA
-      Mesh:
-        Vertices: []
-        Triangles: []
-      id: 1
-      StarId: 0
-      IsSaveFile: 0
-      PlType: 9
-      radius: 1.16
-      GasColors: []
-      Seed: 0
-    - Name: gffdggfddfgh
-      Description: AA
-      Mesh:
-        Vertices: []
-        Triangles: []
-      id: 2
-      StarId: 0
-      IsSaveFile: 0
-      PlType: 3
-      radius: 1.55
-      GasColors:
-      - {r: 0.41509432, g: 0.15076537, b: 0.15076537, a: 1}
-      - {r: 0.122718945, g: 0.8113208, b: 0, a: 1}
-      - {r: 0.8117647, g: 0.2453269, b: 0, a: 1}
-      - {r: 0.8117647, g: 0, b: 0.663178, a: 1}
-      - {r: 0.24719423, g: 0.1003916, b: 0.4528302, a: 1}
-      Seed: 0
-    - Name: gffdggfddfgh
-      Description: AA
-      Mesh:
-        Vertices: []
-        Triangles: []
-      id: 2
-      StarId: 0
-      IsSaveFile: 0
-      PlType: 3
-      radius: 1.55
-      GasColors:
-      - {r: 0.6509434, g: 0.4206568, b: 0.4206568, a: 1}
-      - {r: 0.7075472, g: 0.63980633, b: 0.49061057, a: 1}
-      - {r: 0.7830189, g: 0.7098826, b: 0.2622375, a: 1}
-      - {r: 0.5566038, g: 0.3270941, b: 0.1496529, a: 1}
-      - {r: 0.3490566, g: 0.17373757, b: 0.05762726, a: 1}
-      Seed: 0
     transform:
       Pos: {x: 0, y: 0, z: 0}
       Rot: {x: 0, y: 0, z: 0}
       Scale: {x: 0, y: 0, z: 0}
+    Children: []
+    id: 
+    ParentID: 
+    ExtraData:
+      stats: []
+    type: 0
   ProtoPlanetaryDisk: {fileID: 1913398470}
   SunBeam: {fileID: 257186603}
   starMat: {fileID: 2100000, guid: 56e4c5a3f865a8549b634a7e91da9ca9, type: 2}
@@ -5289,6 +5235,26 @@ MonoBehaviour:
   cameraMoveDuration: 3
   blck: {fileID: 2049320190}
   launcher: {fileID: 1439467079}
+  systemLoader: {fileID: 257186605}
+--- !u!114 &257186605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 257186597}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54403be7f4eef1645974cfd2e6b36194, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BasMat: {fileID: 0}
+  BholMat: {fileID: 0}
+  OpaceMat: {fileID: 0}
+  GasMaterial: {fileID: 0}
+  SphereMesh: {fileID: -2691253722911300359, guid: a8d60c4e7bdf2084ea4f93cfa4b1fa8e, type: 3}
+  SolarSystemID: 
+  LOADNOW: 0
 --- !u!1 &278746201
 GameObject:
   m_ObjectHideFlags: 0

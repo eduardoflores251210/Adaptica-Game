@@ -343,7 +343,7 @@ public class StarVisualizer : MonoBehaviour
 		if (star == null || star.IsNull()) return;
 
 		// 1. Instanciar GameObject si es necesario
-		if (needTemplates)
+		if (needTemplates && star.ParentID[0] == 'S')
 		{
 			// Nota: starTemplate debe ser accesible aquí
 			GameObject starGO = Instantiate(starTemplate);
@@ -352,7 +352,7 @@ public class StarVisualizer : MonoBehaviour
 			starGO.transform.parent = parent;
 
 			var sps = starGO.GetComponent<SpaceStageStar>();
-			if (sps != null) { sps.ID = star.id; sps.Type = star.type; }
+			if (sps != null) { sps.ID = star.id; sps.Type = star.type; sps.BinTransform = star.transform; sps.SectorPos = galaxy.SectorPositions[(int)BodyID.FromString(star.ParentID).GetID()]; }
 			starGO.SetActive(true);
 		}
 

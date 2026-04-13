@@ -7,6 +7,7 @@ using SerializableTypes.Biology;
 using SerializableTypes.Space;
 using StandartUtilities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -282,6 +283,7 @@ public static class SpaceUtils
 				if (st == StarTypes.X) Mats[st] = BholMat;
 				else if (st == StarTypes.EN) Mats[st] = OpaceMat;
 			}
+			galaxyData = GalaxyData.LoadGalaxy();
 			Inited = true;
 		}
 
@@ -378,9 +380,56 @@ public static class SpaceUtils
 				}
 			}
 		}
-
-		public static void InstantiateSystem(string ParentId)
+		public static IEnumerator InstantiateBodyCo(string StartID, UnityEngine.Transform parent, int index = 0)
 		{
+			if (StartID[0] == 'S') { Debug.Log("AAAA"); throw new ArgumentException("NO SECTORES");  }
+
+			if (galaxyData == null && !GalaxyData.TryToLoadGalaxy(out galaxyData))
+			{
+				Debug.Log("AAAA");
+				throw new Exception("ERROR AL CARGAR GALAXIA");
+			}
+			BodyID bodyID = BodyID.FromString(StartID);
+			if (!TryToLoadABody(bodyID, out var body, out var celestialBodyType))
+			{
+				Debug.Log("AAAA");
+				throw new Exception("ERROR CARGANDO");
+			}
+
+			GameObject gameObject = celestialBodyType switch
+			{
+				CelestialBodyType.Planet => InstantiatePlanet((PlanetData)body),
+				CelestialBodyType.Star => InstantiateStar((StarData)body),
+				CelestialBodyType.Baricenter => InstantiateBaricenter((BaricenterData)body),
+				CelestialBodyType.Nova => throw new NotImplementedException(),
+				CelestialBodyType.Nebula => throw new NotImplementedException(),
+				_ => null
+			};
+
+			if (gameObject != null)
+			{
+				gameObject.transform.SetParent(parent);
+				// POSICIONAMIENTO POR ÍNDICE: Separación de 5 unidades por nivel
+				float dist = (index + 1) * 5f;
+				gameObject.transform.localPosition = new Vector3(dist, 0, 0);
+			}
+
+			if (body.Children != null && body.Children.Count > 0)
+			{
+				for (int i = 0; i < body.Children.Count; i++)
+				{
+					yield return 
+					InstantiateBodyCo(body.Children[i], gameObject.transform, i);
+					
+				}
+			}
+		}
+		public static bool done = false;
+		public static void InstantiateSystem(string ParentId, bool useAnExistingStar = false, UnityEngine.Transform t = null)
+		{
+			done = false;
+			if (Inited )
+				CheckInit();
 			if (!Inited) InitStuf();
 
 			systemData = new InstantiatedSystemData
@@ -389,11 +438,112 @@ public static class SpaceUtils
 				IDS = new GalObjCollectionID() { Stars = new(), baricenters = new(), nebulas = new(), novas = new(), planets = new()},
 				ObjAndIDS = new Dictionary<GameObject, string>()
 			};
+			if (!useAnExistingStar)
+				InstantiateBody(ParentId, null);
+			else
+			{
+				if (TryToLoadABody(BodyID.FromString(ParentId), out var f, out _))
+				{
+					int i = 0;
+					foreach (var ch in f.Children)
+					{
+						InstantiateBody(ch, t, i);
+						i++;
+					}
+				}
+			}
+			done = true;
+		}
+		static bool CheckInit()
+		{
+			if (galaxyData == null )
+				return false;
+			if (Mats == null)
+				return false;
+			if (Mats.Count == 0) return false;
 
-			InstantiateBody(ParentId, null);
+
+			return true;
+		}
+		public static IEnumerator InstantiateSystemCo(string ParentId, bool useAnExistingStar = false, UnityEngine.Transform t = null)
+		{
+			done = false;
+			if (!Inited) InitStuf();
+
+			systemData = new InstantiatedSystemData
+			{
+				Datas = new GalObjCollection() { Stars = new(), baricenters = new(), nebulas = new(), novas = new(), planets = new()},
+				IDS = new GalObjCollectionID() { Stars = new(), baricenters = new(), nebulas = new(), novas = new(), planets = new()},
+				ObjAndIDS = new Dictionary<GameObject, string>()
+			};
+			if (!useAnExistingStar)
+				InstantiateBody(ParentId, null);
+			else
+			{
+				if (TryToLoadABody(BodyID.FromString(ParentId), out var f, out _))
+				{
+					Debug.Log("chs: " + f.Children.Count);
+
+					int i = 0;
+					foreach (var ch in f.Children)
+					{
+						yield return
+						InstantiateBodyCo(ch, t, i);
+						i++;
+					}
+				}
+				else
+				{
+					Debug.Log("NO SE CARGO BUEN EL CUERPO CELESTE");
+					Debug.Log("Diagnosticando..");
+					bool ValidID = false; 
+					if (String.IsNullOrEmpty(ParentId))
+						Debug.Log("ID NULL");
+					else
+						Debug.Log("ID NOT NULL");
+					if (galaxyData == null)
+					{
+						Debug.Log("GALAXY NULL");
+						galaxyData = GalaxyData.LoadGalaxy();
+					}
+					else
+					{
+						Debug.Log("GAL NOT NULL");
+					}
+					try
+					{
+						BodyID.FromString(ParentId);
+						Debug.Log("EXITO");
+						ValidID = true;
+					}
+					catch
+					(Exception ex)
+					{
+						Debug.Log ("ERRR " + ex.ToString());
+					}
+					if (galaxyData != null)
+					{
+						if (ParentId != null && ValidID)
+						{
+							try
+							{
+								LoadBody(BodyID.FromString(ParentId), out var ñ);
+								Debug.Log("EXITO, " + ñ.ToString());
+							}
+							catch (Exception ex)
+							{
+								Debug.LogError (ex.ToString());
+							}
+						}
+					}
+				
+				}
+			}
+			done = true;
+
 		}
 
-		static bool TryToLoadABody(BodyID bodyID, out CelestialBody body, out CelestialBodyType d)
+		public static bool TryToLoadABody(GalaxyData galaxyData,BodyID bodyID, out CelestialBody body, out CelestialBodyType d)
 		{
 			try
 			{
@@ -410,6 +560,40 @@ public static class SpaceUtils
 				return true;
 			}
 			catch { body = null; d = CelestialBodyType.None; return false; }
+		}
+		public static bool TryToLoadABody(BodyID bodyID, out CelestialBody body, out CelestialBodyType d)
+		{
+			try
+			{
+				d = bodyID.GetCelestialBodyType();
+				body = d switch
+				{
+					CelestialBodyType.Planet => galaxyData.LoadPlanet(bodyID.GetID()),
+					CelestialBodyType.Star => galaxyData.LookForStar(bodyID.GetID()),
+					CelestialBodyType.Baricenter => galaxyData.LookForBaricenter(bodyID.GetID()),
+					CelestialBodyType.Nova => galaxyData.LookForNova(bodyID.GetID()),
+					CelestialBodyType.Nebula => galaxyData.LookForNebula(bodyID.GetID()),
+					_ => throw new Exception("TIPO DESCONOCIDO"),
+				};
+				return true;
+			}
+			catch { body = null; d = CelestialBodyType.None; return false; }
+		}
+		public static CelestialBody LoadBody(BodyID bodyID,  out CelestialBodyType d)
+		{
+
+			d = CelestialBodyType.None;
+				d = bodyID.GetCelestialBodyType();
+				return  d switch
+				{
+					CelestialBodyType.Planet => galaxyData.LoadPlanet(bodyID.GetID()),
+					CelestialBodyType.Star => galaxyData.LookForStar(bodyID.GetID()),
+					CelestialBodyType.Baricenter => galaxyData.LookForBaricenter(bodyID.GetID()),
+					CelestialBodyType.Nova => galaxyData.LookForNova(bodyID.GetID()),
+					CelestialBodyType.Nebula => galaxyData.LookForNebula(bodyID.GetID()),
+					_ => throw new Exception("TIPO DESCONOCIDO"),
+				};
+
 		}
 
 		[Serializable]

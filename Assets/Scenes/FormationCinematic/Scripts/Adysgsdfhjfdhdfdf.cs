@@ -35,6 +35,8 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 	public AsteroidLauncher launcher;
 	private bool inited = false;
 	private bool Part2Enable = false;
+	[SerializeField]
+	private SpaceUtils.SystemObjectsBuilder.InstantiatedSystemData systemData;
 	private Dictionary<string, GameObject> Planets_ID = new Dictionary<string, GameObject>();
 	private List<PlanetData> planets_Data = new List<PlanetData>();
 	void Start()
@@ -47,11 +49,21 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 		{
 			mainCamera = Camera.main;
 		}
-		mainCamera.transform.position = new(0,23,-50);
+		mainCamera.transform.position = new(0, 23, -50);
 		IsWaiting = true;
 		if (FastForward != null) FastForward.gameObject.SetActive(false);
 		if (SuperNova != null) SuperNova.localScale = Vector3.zero;
 		if (AcretionDisk != null) AcretionDisk.SetActive(false);
+
+
+		if (systemLoader != null)
+		{
+			systemLoader.BasMat = starMat;
+			systemLoader.OpaceMat = planetMaterial;
+			systemLoader.GasMaterial = GasMaterial;
+			systemLoader.BholMat = BlackHoleMat;
+		}
+
 	}
 	PlanetData ParentPlanetData;
 	bool IsRougueSon = false;
@@ -99,151 +111,55 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 		}
 		else if (!inited && !IsRougueSon)
 		{
-			GeneratePlanets();
+			systemLoader.SolarSystemID = Stardata.id; 
+			systemLoader.a(transform); // lo instancia como hijo
 			UpdateStarColor();
 			StartCoroutine(WaitAndGrowStar());
 			inited = true;
+			systemData = systemLoader.systemData;
+
 		}
 		else if (!inited && IsRougueSon)
 		{
-			GenerateMoons();
+			systemLoader.SolarSystemID = ParentPlanetData.id; 
+			systemLoader.a(transform); // lo instancia como hijo
 			UpdatePlanetColor();
 			StartCoroutine(WaitAndGrowPlanet());
 			inited = true;
+			systemData = systemLoader.systemData;
+
+
+		}
+
+		if (systemLoader.Done)
+		{
+			systemData = systemLoader.systemData;
+			if (systemLoader.systemData.Datas != null)
+			{
+				Planets_ID = new Dictionary<string, GameObject>();
+				if (systemData.ObjAndIDS != null)
+				foreach (var kvp in systemLoader.systemData.ObjAndIDS)
+				{
+					string id = kvp.Value;
+					GameObject obj = kvp.Key;
+
+					if (!Planets_ID.ContainsKey(id)) // evitar duplicados
+					{
+						Planets_ID.Add(id, obj);
+					}
+					else
+					{
+						Debug.LogWarning($"ID duplicado detectado: {id}");
+					}
+				}
+			}
 		}
 	}
 	GameObject GameMePlanet;
 	PlanetData GPdata = null;
 	GalaxyData g;
-	void GeneratePlanets()
-	{
-		if (Stardata == null || Stardata.Children == null) return;
-		if (g is null)
-			g = GalaxyData.LoadGalaxy(); //carga la galaxia 1 vez en vez de 1 trillon de veses OK es hiperbole
+	public LoadASYstem systemLoader;
 
-		foreach (var planeti in Stardata.Children)
-		{
-			var planet = g.LoadPlanet(BodyID.FromString(planeti).GetID());
-			planets_Data.Add(planet);
-			GameObject planetGO = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-			planetGO.transform.parent = transform;
-
-
-			// Posición aleatoria en x y z, manteniendo la y de la estrella
-			planetGO.transform.localPosition = new Vector3(
-				Random.Range(5f, 15f),
-				transform.position.y,
-				Random.Range(-3f, 3f)
-			);
-			if (planeti == GamePlanetID)
-				GPdata = planet;
-			planetGO.transform.localScale = Vector3.one * Random.Range(0.5f, 2f);
-
-			// Material básico o material gaseoso según tipo de planeta
-			if (planet.type == PlanetTypes.BasicGas || planet.type == PlanetTypes.IceGas)
-			{
-				if (planet.GasColors == null || planet.GasColors.Count < 5)
-				{
-					Debug.LogWarning($"Planeta gaseoso sin suficientes colores: {planet.Name ?? "Unnamed"}");
-					// Asignamos material básico como fallback para evitar crash
-					if (planetMaterial != null)
-						planetGO.GetComponent<Renderer>().material = planetMaterial;
-				}
-				else if (GasMaterial != null)
-				{
-					Material gasMatInstance = new Material(GasMaterial);
-					gasMatInstance.SetColor("_PoloNorte", planet.GasColors[0]);
-					gasMatInstance.SetColor("_Arriba", planet.GasColors[1]);
-					gasMatInstance.SetColor("_Ecuador", planet.GasColors[2]);
-					gasMatInstance.SetColor("_Abajo", planet.GasColors[3]);
-					gasMatInstance.SetColor("_PoloSur", planet.GasColors[4]);
-					planetGO.GetComponent<Renderer>().material = gasMatInstance;
-				}
-			}
-			else
-			{
-				if (planetMaterial != null)
-					planetGO.GetComponent<Renderer>().material = planetMaterial;
-			}
-
-			if (PlanetParent != null)
-				planetGO.transform.SetParent(PlanetParent);
-			if (planeti == GamePlanetID)
-				GameMePlanet = planetGO;
-			planetObjects.Add(planetGO);
-			Planets_ID.Add(planeti,planetGO);
-		}
-		if (GameMePlanet == null)
-		{
-			GamePlanetID = Stardata.Children[Random.Range(0, Stardata.Children.Count - 1)];
-
-			GameMePlanet = Planets_ID[GamePlanetID];
-		}
-	}
-	void GenerateMoons()
-	{
-		if (ParentPlanetData == null || ParentPlanetData.Children == null) return;
-		if (g is null)
-			g = GalaxyData.LoadGalaxy(); //carga una sola vez la galaxia en vez de 1 trillon de veses OK es hiperbole
-		foreach (var planeti in ParentPlanetData.Children)
-		{
-		   
-			var planet = g.LoadPlanet(BodyID.FromString(planeti).GetID());
-			planets_Data.Add(planet);
-			GameObject planetGO = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-			planetGO.transform.parent = transform;
-
-			// Posición aleatoria en x y z, manteniendo la y de la estrella
-			planetGO.transform.localPosition = new Vector3(
-				Random.Range(5f, 15f),
-				transform.position.y,
-				Random.Range(-3f, 3f)
-			);
-			if (planeti == GamePlanetID)
-				GPdata = planet;
-			planetGO.transform.localScale = Vector3.one * Random.Range(0.5f, 2f);
-
-			// Material básico o material gaseoso según tipo de planeta
-			if (planet.type == PlanetTypes.BasicGas || planet.type == PlanetTypes.IceGas)
-			{
-				if (planet.GasColors == null || planet.GasColors.Count < 5)
-				{
-					Debug.LogWarning($"Planeta gaseoso sin suficientes colores: {planet.Name ?? "Unnamed"}");
-					// Asignamos material básico como fallback para evitar crash
-					if (planetMaterial != null)
-						planetGO.GetComponent<Renderer>().material = planetMaterial;
-				}
-				else if (GasMaterial != null)
-				{
-					Material gasMatInstance = new Material(GasMaterial);
-					gasMatInstance.SetColor("_PoloNorte", planet.GasColors[0]);
-					gasMatInstance.SetColor("_Arriba", planet.GasColors[1]);
-					gasMatInstance.SetColor("_Ecuador", planet.GasColors[2]);
-					gasMatInstance.SetColor("_Abajo", planet.GasColors[3]);
-					gasMatInstance.SetColor("_PoloSur", planet.GasColors[4]);
-					planetGO.GetComponent<Renderer>().material = gasMatInstance;
-				}
-			}
-			else
-			{
-				if (planetMaterial != null)
-					planetGO.GetComponent<Renderer>().material = planetMaterial;
-			}
-
-			if (PlanetParent != null)
-				planetGO.transform.SetParent(PlanetParent);
-			if (planeti == GamePlanetID)
-				GameMePlanet = planetGO;
-			planetObjects.Add(planetGO);
-			Planets_ID.Add(planeti,planetGO);
-		}
-		if (GameMePlanet == null)
-		{
-			GamePlanetID = ParentPlanetData.Children[Random.Range(0, ParentPlanetData.Children.Count - 1)];
-
-			GameMePlanet = Planets_ID[GamePlanetID];
-		}
-	}
 
 	IEnumerator WaitAndGrowPlanet()
 	{

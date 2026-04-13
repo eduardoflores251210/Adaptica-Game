@@ -1,18 +1,21 @@
 using SerializableTypes;
+using SerializableTypes.Space; 
 using System;
-using Random = UnityEngine.Random; //para no confundir
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using SerializableTypes.Space; 
-using UnityEngine.UI;
 using System.IO;
+using System.Linq;
+using UnityEditor.Localization.Plugins.XLIFF.V12;
+using UnityEngine;
+using UnityEngine.UI;
+using Random = UnityEngine.Random; //para no confundir
 
 public class NewGameMaker : MonoBehaviour
 {
 	public GalaxyGenerator GalaxyGenerator;
+	public bool StartFromMenu = false; //mejor dicho inicias desde el inspector
 	public bool AllowStars = true;
+	public string thingID = "P0";
 	public bool AllowRouguePlanetsMoons = false;
 
 	private void Start()
@@ -21,6 +24,11 @@ public class NewGameMaker : MonoBehaviour
 		if (File.Exists(Paths.NewGameCache))
 			File.Delete(Paths.NewGameCache);
 		GetCache();
+	}
+	private void Update()
+	{
+		if (StartFromMenu)
+			NewGameMenu(thingID);
 	}
 
 	private void GeneratePlanetCache()
@@ -173,6 +181,59 @@ public class NewGameMaker : MonoBehaviour
 				cache.PlanetIds.Remove(planetID);
 			}
 			OverWriteCache(cache);
+			LoadWithLoadingScreen.LoadScene(3, Stages.Microbe); //aun no puedes iniciar en otras etapas por que solo es funcional Microbio.
+		}
+	}
+	public void NewGameMenu(string pid)
+	{
+
+		var ins = CrossScenePackageSender.Instance;
+
+		if (GalaxyData.TryToLoadGalaxy(out var es))
+		{
+
+
+
+			PlanetData chosenPlanet = null;
+
+
+
+			string planetID = pid;
+			if (!SpaceUtils.SystemObjectsBuilder.TryToLoadABody(es,BodyID.FromString(pid), out CelestialBody body, out CelestialBodyType d))
+			{
+				Debug.Log ("EEOE AL CARGAR " +pid);	
+
+				return;
+			}
+			if (d == CelestialBodyType.Planet)
+				chosenPlanet = (PlanetData)body;
+			PlanetData New = chosenPlanet;
+			if (New != null)
+			{
+				New.IsSaveFile = true;
+				es.UpdatePlanet(BodyID.FromString(planetID).GetID(), planetData => { planetData = New; });
+			}
+			if (body.ParentID.StartsWith("E"))
+			{
+				StarData star = es.LookForStar(BodyID.FromString(body.ParentID).GetID());
+
+				GC.Collect();
+
+				ins.SendTypedPackage<String>(gameObject.name, "Star", planetID, new string[1] { nameof(String) });
+				ins.SendTypedPackage<StarData>(gameObject.name, "Star", star, new string[1] { nameof(StarData) });
+				ins.SendTypedPackage<bool>(gameObject.name, "Star", false, new string[1] { nameof(Boolean) });
+			}
+			else if (body.ParentID.StartsWith("P"))
+			{
+				PlanetData Planet = es.LookForPlanet(BodyID.FromString(body.ParentID).GetID());
+
+				GC.Collect();
+
+				ins.SendTypedPackage<String>(gameObject.name, "Star", planetID, new string[1] { nameof(String) });
+				ins.SendTypedPackage(gameObject.name, "Star", Planet, new string[1] { nameof(PlanetData) });
+				ins.SendTypedPackage<bool>(gameObject.name, "Star", true, new string[1] { nameof(Boolean) });
+			}
+			StartFromMenu = false;
 			LoadWithLoadingScreen.LoadScene(3, Stages.Microbe); //aun no puedes iniciar en otras etapas por que solo es funcional Microbio.
 		}
 	}

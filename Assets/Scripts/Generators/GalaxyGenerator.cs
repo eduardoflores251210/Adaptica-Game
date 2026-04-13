@@ -153,6 +153,17 @@ public class GalaxyGenerator : MonoBehaviour
 		}
 
 	}
+	[ConsoleCommand(Name = "!newgal", Description = "Genera una galaxia con semilla", IsEgg = true)]
+	public static void RegenGalaxy(int Seed)
+	{
+		GalaxyGenerator generator = FindAnyObjectByType<GalaxyGenerator>();
+		if (generator != null)
+		{
+			generator.Random = new Random(Seed);
+			generator.DoesTheGalaxyExist = false;
+		}
+
+	}
 	private bool GalaxyExists()
 	{
 		try
@@ -375,16 +386,25 @@ public class GalaxyGenerator : MonoBehaviour
 			id = "E0",
 			Name = $"Center {galaxyName}",
 			Description = "Agujero negro masivo central",
-			Children = new List<string> { controlPlanet.id },
+			Children = new List<string> { controlPlanet.id, "E1" },
 			transform = new StdUtils.Serializable.Transform(Vector3.zero, Vector3.zero, Vector3.one),
 			type = StarTypes.X,
 			ParentID = $"S{sectorIndex}"
 		};
 
 		sector.Stars[0] = centralStar;
+		sector.Stars[1] = new StarData
+		{
+			id = "E1", Name = "AAAAAA",
+			Description ="AAAAAAAAAAAA",
+			Children = new(),
+			transform = new StdUtils.Serializable.Transform( Vector3.zero, Vector3.zero, Vector3.one),
+			type = StarTypes.A,
+			ParentID = "E0"
+		};
 
 		List<PlanetData> allPlanets = new List<PlanetData> { controlPlanet };
-		for (int i = 1; i < totalStars; i++)
+		for (int i = 2; i < totalStars; i++)
 		{
 			float Y = (type == GalaxyTypes.Eliptica) ? Random.Range(-(float)sectorSize.x / 2f, (float)sectorSize.x / 2f) : 0;
 			Vector3 starLocalPos = new Vector3(
@@ -1346,7 +1366,7 @@ float galaxyRadius, out bool Exeded
 /// <summary>
 /// inplemebnta metodos de Random de unity a Random de System
 /// </summary>
-public static class gdfdgfdfg
+public static class RandomExtentions
 {
 	public static float Value(this Random r)
 	{

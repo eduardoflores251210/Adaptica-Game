@@ -52836,6 +52836,7 @@ GameObject:
   - component: {fileID: 1121963184}
   - component: {fileID: 1121963183}
   - component: {fileID: 1121963182}
+  - component: {fileID: 1121963186}
   m_Layer: 0
   m_Name: Sphere (2)
   m_TagString: Untagged
@@ -52931,6 +52932,40 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1121963186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121963181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54403be7f4eef1645974cfd2e6b36194, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BasMat: {fileID: -876546973899608171, guid: 6b7b2c496e30148458b85dedf33acd7a, type: 3}
+  BholMat: {fileID: -876546973899608171, guid: 0a9a6d22288e3f049b1592fc5b112b66, type: 3}
+  OpaceMat: {fileID: 2100000, guid: f40717f437e95f54288c72287c000658, type: 2}
+  GasMaterial: {fileID: 2100000, guid: d236d145e09d20a44966cfdc88e1236e, type: 2}
+  SphereMesh: {fileID: -6593628751597493894, guid: 01fc7c984c011484dbbc1768a1f87a4a, type: 3}
+  SolarSystemID: E0
+  LOADNOW: 0
+  Done: 0
+  systemData:
+    Datas:
+      Stars: []
+      planets: []
+      baricenters: []
+      novas: []
+      nebulas: []
+    IDS:
+      Stars: []
+      planets: []
+      baricenters: []
+      novas: []
+      nebulas: []
+  tr: {fileID: 0}
 --- !u!1 &1123169094
 GameObject:
   m_ObjectHideFlags: 0
@@ -60369,7 +60404,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GalaxyGenerator: {fileID: 1498985392}
+  StartFromMenu: 0
   AllowStars: 1
+  thingID: P0
   AllowRouguePlanetsMoons: 1
 --- !u!114 &1498985394
 MonoBehaviour:
@@ -73928,7 +73965,7 @@ RectTransform:
   m_GameObject: {fileID: 2030201383}
   m_LocalRotation: {x: -0, y: -0, z: 0.28464007, w: 0.9586345}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9662798, y: 0.9662798, z: 0.9662798}
+  m_LocalScale: {x: 1.0301502, y: 1.0301502, z: 1.0301502}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1336602438}
@@ -73953,7 +73990,7 @@ MonoBehaviour:
   PulseSpeed: 8.13
   PulseAmplitude: 0.1
   ChangeTimeInMinutes: 0.5
-  timer: 17.002546
+  timer: 28.150896
   text: {fileID: 2030201386}
   Override: 0
   idx: 0
@@ -73978,7 +74015,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "La pi\xF1a tolero Noticias."
+  m_text: Simulates microbe politics
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1f251fab3f3063343aa12b35ff14bc77, type: 2}
   m_sharedMaterial: {fileID: -4311610417880198931, guid: 1f251fab3f3063343aa12b35ff14bc77, type: 2}

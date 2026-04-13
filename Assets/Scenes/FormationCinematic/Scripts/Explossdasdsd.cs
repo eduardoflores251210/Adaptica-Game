@@ -7,10 +7,10 @@ public class Explossdasdsd : MonoBehaviour //es solo para que la explosion se de
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(sdadsa());
+        StartCoroutine(Wait());
     }
 
-    IEnumerator sdadsa ()
+    IEnumerator Wait ()
     {
         yield return new WaitForSeconds(3);
         Destroy(gameObject);
