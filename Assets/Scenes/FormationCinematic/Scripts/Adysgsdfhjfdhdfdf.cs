@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
-[Obsolete("ESTO SE REEMPLAZARA CON UN VIDEO")]
+[Obsolete("ESTO SE REEMPLAZARA CON UN VIDEO pero lo soporto aun POR QUE ESO ES COSA DE LA ALPHA 3.2.0 no la 3.1.0 actual")]
 public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 {
 	public StarData Stardata; // para generar los planetas
@@ -112,24 +112,51 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 		else if (!inited && !IsRougueSon)
 		{
 			systemLoader.SolarSystemID = Stardata.id; 
-			systemLoader.a(transform); // lo instancia como hijo
+			var gol = 
+			systemLoader.a(); //espaciado correcto
+			var f = gol.transform;
+			// Guardamos primero porque vamos a modificar la jerarquía mientras iteramos
+			int childCount = f.childCount;
+
+			for (int i = childCount - 1; i >= 0; i--)
+			{
+				Transform child = f.GetChild(i);
+
+				// Mantener posición local
+				child.SetParent(transform, worldPositionStays: false);
+			}
+			Destroy(gol);// por que sino queda raro
 			UpdateStarColor();
 			StartCoroutine(WaitAndGrowStar());
 			inited = true;
 			systemData = systemLoader.systemData;
 
-		}
+		} //estrellas si tienen el codigo actualizado por que PRIORIDADES
 		else if (!inited && IsRougueSon)
 		{
-			systemLoader.SolarSystemID = ParentPlanetData.id; 
-			systemLoader.a(transform); // lo instancia como hijo
+			systemLoader.SolarSystemID = ParentPlanetData.id;
+			var gol = 
+			systemLoader.a(); //espaciado correcto
+			var f = gol.transform;
+			// Guardamos primero porque vamos a modificar la jerarquía mientras iteramos
+			int childCount = f.childCount;
+
+			for (int i = childCount - 1; i >= 0; i--)
+			{
+				Transform child = f.GetChild(i);
+
+				// Mantener posición local
+				child.SetParent(transform, worldPositionStays: false);
+			}
+			Destroy(gol);// por que sino queda raro
+
 			UpdatePlanetColor();
 			StartCoroutine(WaitAndGrowPlanet());
 			inited = true;
 			systemData = systemLoader.systemData;
 
 
-		}
+		} //no es posible llegar aqui a no ser que edityes la galaxia pero aun lo soporto
 
 		if (systemLoader.Done)
 		{

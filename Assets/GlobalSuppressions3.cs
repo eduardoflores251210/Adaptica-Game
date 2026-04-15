@@ -23,6 +23,9 @@ public class ñ
 	public string d; public string e;
 	public Soap soap;
 }
+/// <summary>
+/// Define una clase de Jabon
+/// </summary>
 public class Soap
 {
 	public string Brand;

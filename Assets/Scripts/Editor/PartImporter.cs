@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -5,6 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using EGL = UnityEditor.EditorGUILayout;
 using EGL2 = UnityEngine.GUILayout;
+using Random = UnityEngine.Random;
 /// <summary>
 /// Ventana para importar partes
 /// 
@@ -40,7 +42,7 @@ public class PartImporter :  EditorWindow
 		type = (PartTypes)EGL.EnumPopup("Tipo de parte:", type);
 		PärtPrefab = (GameObject)EGL.ObjectField("Prefab de la parte:", PärtPrefab, typeof(GameObject), false);
 		EGL.Space(20);
-		string SHA512first10hexdigits = System.BitConverter.ToString(System.Security.Cryptography.SHA512.Create().ComputeHash(System.Text.Encoding.UTF8.GetBytes(PartName + PartDescription + type.ToString()))).Replace("-", "").Substring(0, 10); //no se por si alguien hace tonterias con el nombre de la parte o la descripcion de la parte o el tipo de parte, asi que le pongo un hash para evitar problemas de colisiones de nombres o cosas asi
+		string SHA512first10hexdigits = System.BitConverter.ToString(System.Security.Cryptography.SHA512.Create().ComputeHash(System.Text.Encoding.UTF8.GetBytes(PartName + PartDescription + type.ToString()+Random.Range(1,11)+DateTime.Now.ToString("O")))).Replace("-", "").Substring(0, 10); //no se por si alguien hace tonterias con el nombre de la parte o la descripcion de la parte o el tipo de parte, asi que le pongo un hash para evitar problemas de colisiones de nombres o cosas asi
 																																																													//ahora solo falta el boton de guardar para que lo Guarde en Assets/Parts/Vehicle o Assets/Parts/Cell_creature o Assets/Parts/Plant dependiendo del tipo de parte que sea
 		if (EGL2.Button("Guardar parte"))
 		{                                                                                                                                                                                                                                       //con un boton de guardar que cree un asset con el nombre de la parte y la descripcion de la parte y el mesh de la parte en la carpeta correspondiente

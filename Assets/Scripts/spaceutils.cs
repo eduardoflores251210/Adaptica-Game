@@ -258,7 +258,9 @@ public static class SpaceUtils
 		return result;
 	}
 	/// <summary>
-	/// Instancia un sistema solar... ¡AHORA CON POSICIONES BASADAS EN ÍNDICE! 
+	/// Instancia un sistema solar
+	/// 
+	/// ESTE ES EL CAMPO MAS NUEVO
 	/// </summary>
 	public static class SystemObjectsBuilder
 	{
@@ -343,7 +345,7 @@ public static class SpaceUtils
 			return planetGO;
 		}
 
-		public static void InstantiateBody(string StartID, UnityEngine.Transform parent, int index = 0)
+		public static GameObject InstantiateBody(string StartID, UnityEngine.Transform parent, int index = 0)
 		{
 			if (StartID[0] == 'S') throw new ArgumentException("NO SECTORES");
 
@@ -379,6 +381,7 @@ public static class SpaceUtils
 					InstantiateBody(body.Children[i], gameObject.transform, i);
 				}
 			}
+			return gameObject;
 		}
 		public static IEnumerator InstantiateBodyCo(string StartID, UnityEngine.Transform parent, int index = 0)
 		{
@@ -453,6 +456,25 @@ public static class SpaceUtils
 				}
 			}
 			done = true;
+		}
+		public static GameObject InstantiateSystemRT(string ParentId)
+		{
+			done = false;
+			if (Inited)
+				CheckInit();
+			if (!Inited) InitStuf();
+
+			systemData = new InstantiatedSystemData
+			{
+				Datas = new GalObjCollection() { Stars = new(), baricenters = new(), nebulas = new(), novas = new(), planets = new() },
+				IDS = new GalObjCollectionID() { Stars = new(), baricenters = new(), nebulas = new(), novas = new(), planets = new() },
+				ObjAndIDS = new Dictionary<GameObject, string>()
+			};
+
+			var f = InstantiateBody(ParentId, null);
+
+			done = true;
+			return f;
 		}
 		static bool CheckInit()
 		{

@@ -1845,56 +1845,5 @@ namespace SerializableTypes
 		MidNight
 	}
 
-	[Serializable]
-	public struct Resolution
-	{
-		public ulong Width;
-		public ulong Height;
-		public Resolution(ulong height, ulong width)
-		{
-			Height = height;
-			Width = width;
-		}
 
-		public static Resolution FromUnityRes(UnityEngine.Resolution resolution)
-		{
-			return new((ulong)resolution.height, (ulong)resolution.width);
-		}
-		public UnityEngine.Resolution ToUnityRes()
-		{
-			return new UnityEngine.Resolution() { width = (int)Width, height = (int)Height };
-		}
-	}
-	[Serializable]
-	public class Settings
-	{
-		public string LAST_VERSION;
-		public bool UseFullScreen;
-		public bool UseAniwayControlls;
-		public Resolution Res;
-
-
-		public static Settings Loaded;
-		public static bool TryToload()
-		{
-			string path = Path.Join(Application.persistentDataPath, "STGS.JSON");
-			try
-			{
-				Settings a = JsonUtility.FromJson<Settings>(path);
-				Loaded = a;
-				return true;
-			}
-			catch
-			{
-				return false;
-			}
-		}
-
-		public static void Save()
-		{
-			string path = Path.Join(Application.persistentDataPath, "STGS.JSON");
-			string JSON = JsonUtility.ToJson(Loaded);
-			File.WriteAllText(path, JSON);
-		}
-	}
 }

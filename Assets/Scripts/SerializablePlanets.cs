@@ -1324,7 +1324,7 @@ namespace SerializableTypes.Space
 		/// <summary>
 		///agujero negro
 		/// </summary>
-		X = -1, //AH claro un agujero negro es un tipo de estrea por que siempre me despierto y el sol es Sagitario A*      (Sarcasmo)
+		X = -1, //AH claro un agujero negro es un tipo de estrella por que siempre me despierto y el sol es Sagitario A*      (Sarcasmo)
 		O, 
 		B,
 		A,

@@ -28,29 +28,23 @@ public class LoadASYstem : MonoBehaviour
     {
 		if (LOADNOW)
 		{
-			StartCoroutine(aaa() );
+			LOADNOW = false;
+			if (!Called)
+			{
+				bu.OpaceMat = OpaceMat;
+				bu.BaseMat = BasMat;
+				bu.BholMat = BholMat;
+				bu.BaseGasMaterial = GasMaterial;
+				bu.CacheSphere = SphereMesh;
+
+			}
+			bu.InstantiateSystem(SolarSystemID, tr != null, tr);
+
+			Done = true;
 		}
 	}
-	public IEnumerator aaa ()
-	{
-		LOADNOW = false;
-		if (!Called)
-		{
-			bu.OpaceMat = OpaceMat;
-			bu.BaseMat = BasMat;
-			bu.BholMat = BholMat;
-			bu.BaseGasMaterial = GasMaterial;
-			bu.CacheSphere = SphereMesh;
-			
-		}
-		yield return bu.InstantiateSystemCo(SolarSystemID, tr != null, tr);
-		while (!bu.done)
-		{
-			yield return null;
-		}
-		Done = true;
-	}
-    public void a ()
+
+    public GameObject a ()
     {
 		LOADNOW = true;
 		bu.OpaceMat = OpaceMat;
@@ -59,7 +53,7 @@ public class LoadASYstem : MonoBehaviour
 		bu.BaseGasMaterial = GasMaterial;
 		bu.CacheSphere = SphereMesh;
 		Called = false;
-
+		return bu.InstantiateSystemRT(SolarSystemID);
 	}
 	public void a (Transform transform)
     {

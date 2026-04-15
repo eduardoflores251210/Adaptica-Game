@@ -16,4 +16,9 @@ public class ConfigLoadScreen : ScriptableObject
 	public Sprite NationLoadImg;
 	public Sprite SpaceLoadImg;
 	public Sprite MainMenuLoadImg;
+	public string[] Tips = new[]
+	{
+		"El Estadio Microbio No tiene depredadores aun",
+		"ESTO ES UN PROTOTIPO",
+	};
 }

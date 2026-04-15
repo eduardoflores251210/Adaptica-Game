@@ -167,5 +167,6 @@ namespace Modding
 	public static class PartsContainer
 	{
 		public static List<CustomPart> customParts = new List<CustomPart>();
+		public static bool loaded = false;
 	}
 }
