@@ -276,8 +276,330 @@ namespace SerializableTypes.Space
 		}
 	}
 
+
+	/// <summary>
+	/// Tipo de galaxia
+	/// </summary>
+	public enum GalaxyTypes
+	{
+		/// <summary>
+		/// Una galaxia espiral comun y corriente como la via lactea
+		/// </summary>
+		Spiral,
+		/// <summary>
+		/// La prima de espiral, pero sin brazos definidos
+		/// originalmente llame a este tipo Eliptica por que no sabia la diferencia ahora que lo se son 2 distitnos
+		/// </summary>
+		Lenticular,
+		/// <summary>
+		/// Eliptica la galaxia esferoidal sin una forma definida
+		/// QUE CAUSA BAJONES DE FPS MASIVOS Esspoiler ya no era por mala optimización
+		/// </summary>
+		Eliptica,
+		/// <summary>
+		/// Iregular la galaxia en forma de nube
+		/// </summary>
+		Irregular,
+
+		//antes  de alphja 3.1.0 solo habia 3 Espiral aka PLANO Eliptica aka PLANO 2 e irregular aka Cubo 
+	}
 	[Serializable]
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0044:Convertir el miembro en 'readonly'", Justification = "<pendiente>")]
+	/// <summary>
+	/// Collecion de objetos galacticos
+	/// </summary>
+	public class GalObjCollection
+	{
+		public List<StarData> Stars;
+		public List<PlanetData> planets;
+		public List<BaricenterData> baricenters;
+		public List<NovaData> novas;
+		public List<NebulaData> nebulas;
+	}
+	[Serializable]
+
+	/// <summary>
+	/// Collecion de IDs objetos galacticos
+	/// </summary>
+	public class GalObjCollectionID
+	{
+		public List<BodyID> Stars;
+		public List<BodyID> planets;
+		public List<BodyID> baricenters;
+		public List<BodyID> novas;
+		public List<BodyID> nebulas;
+	}
+
+
+	/// <summary>
+	/// Guarda las criaturas que hay en el planeta 
+	/// se suponia que decia Polination pero typo
+	/// asi que accidentalmente la vida ahora es Contaminación
+	/// </summary>
+	[Serializable]
+	public struct PollutionPlanet
+	{
+		public Dictionary<PollutionEntry, int> CellStageF1Creatures;
+		public Dictionary<PollutionEntry, int> CellStageF2Creatures;
+		public Dictionary<PollutionEntry, int> CellStageF3Creatures;
+		public Dictionary<PollutionEntry, int> CellStageF4Creatures;
+		public Dictionary<PollutionEntry, int> CreatureStageOnwardCreatures;
+		public Dictionary<PollutionEntry, int> SpaceStageSimplifiedFauna;
+		public Dictionary<PollutionEntry, int> Flora;
+		public int AsociatedPlanetID;
+		/// <summary>
+		/// Inicializa un Polution file vacio
+		/// </summary>
+		/// <param name="f">ignora este parametro es solo para que C# no haga berinche</param>
+		public PollutionPlanet(bool f = false)
+		{
+			AsociatedPlanetID = 0;
+			CellStageF1Creatures = new Dictionary<PollutionEntry, int>();
+			CellStageF2Creatures = new Dictionary<PollutionEntry, int>();
+			CellStageF3Creatures = new Dictionary<PollutionEntry, int>();
+			CellStageF4Creatures = new Dictionary<PollutionEntry, int>();
+			CreatureStageOnwardCreatures = new Dictionary<PollutionEntry, int>();
+			SpaceStageSimplifiedFauna = new Dictionary<PollutionEntry, int>();
+			Flora = new Dictionary<PollutionEntry, int>();
+		}
+		/// <summary>
+		///  Genera un Polution file con todos las cosas especiicadas que quieras
+		/// </summary>
+		/// <param name="cellStageF1Creatures">celulas de la fase 1 de la etapa celula digo microbios</param>
+		/// <param name="cellStageF2Creatures">microbios de la ase 2 de la etapa</param>
+		/// <param name="cellStageF3Creatures">microbios de la fase 3</param>
+		/// <param name="cellStageF4Creatures">micobios de la fase 4</param>
+		/// <param name="creatureStageOnwardCreatures">Criaturas de la etapa ciratua en adelante</param>
+		/// <param name="spaceStageSimplifiedFauna">fauna simplificada usada en el estadio espacial</param>
+		/// <param name="asociatedPlanetID">OBLIGATORIO, id del planeta</param>
+		public PollutionPlanet(Dictionary<PollutionEntry, int> cellStageF1Creatures, Dictionary<PollutionEntry, int> cellStageF2Creatures, Dictionary<PollutionEntry, int> cellStageF3Creatures, Dictionary<PollutionEntry, int> cellStageF4Creatures, Dictionary<PollutionEntry, int> creatureStageOnwardCreatures, Dictionary<PollutionEntry, int> spaceStageSimplifiedFauna, Dictionary<PollutionEntry, int> flora, int asociatedPlanetID)
+		{
+			CellStageF1Creatures = cellStageF1Creatures ?? new();
+			CellStageF2Creatures = cellStageF2Creatures ?? new();
+			CellStageF3Creatures = cellStageF3Creatures ?? new();
+			CellStageF4Creatures = cellStageF4Creatures ?? new();
+			CreatureStageOnwardCreatures = creatureStageOnwardCreatures ?? new();
+			SpaceStageSimplifiedFauna = spaceStageSimplifiedFauna ?? new();
+			Flora = flora ?? new();
+			AsociatedPlanetID = asociatedPlanetID;
+		}
+
+		public static bool operator ==(PollutionPlanet a, PollutionPlanet b)
+		{
+			return
+				(StdUtils.Comparisons.DictionariesAreEqual(a.CellStageF1Creatures, b.CellStageF1Creatures)) &&
+				(StdUtils.Comparisons.DictionariesAreEqual(a.CellStageF2Creatures, b.CellStageF2Creatures)) &&
+				(StdUtils.Comparisons.DictionariesAreEqual(a.CellStageF3Creatures, b.CellStageF3Creatures)) &&
+				(StdUtils.Comparisons.DictionariesAreEqual(a.CellStageF4Creatures, b.CellStageF4Creatures)) &&
+				(StdUtils.Comparisons.DictionariesAreEqual(a.CreatureStageOnwardCreatures, b.CreatureStageOnwardCreatures)) &&
+				(StdUtils.Comparisons.DictionariesAreEqual(a.SpaceStageSimplifiedFauna, b.SpaceStageSimplifiedFauna)) &&
+				(a.AsociatedPlanetID == b.AsociatedPlanetID);
+		}
+		public static bool operator !=(PollutionPlanet a, PollutionPlanet b)
+		{
+			return !(a == b);
+		}
+
+
+		public override bool Equals(object obj)
+		{
+			if (obj == null) return false;
+			if (obj is PollutionPlanet PPTX)
+			{
+				return this == PPTX;
+			}
+			return base.Equals(obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return (base.GetHashCode() * (AsociatedPlanetID.GetHashCode() ^ CellStageF1Creatures.GetHashCode() ^ CellStageF2Creatures.GetHashCode() ^ CellStageF3Creatures.GetHashCode() ^ CellStageF4Creatures.GetHashCode() ^ CreatureStageOnwardCreatures.GetHashCode() ^ SpaceStageSimplifiedFauna.GetHashCode()));
+		}
+
+		public override string ToString()
+		{
+			return $"pppppp {AsociatedPlanetID}";
+		}
+	}
+	[Serializable]
+	///
+	///  <summary>
+	///  entrada de Pollution file
+	///  </summary>
+	///
+	public struct PollutionEntry
+	{
+		public string CreatureName;
+		public EntryTiers Tier;
+	}
+	/// <summary>
+	/// Representa los Tiers de las entradas:
+	/// 
+	/// Tier0, Celula: nivel 0 Criatura: Normal Tribal/Ciudad/Civilización/Espacio: Animal         Planta: hierba
+	/// Tier1, Celula: nivel 1 Criatura: Picaro Tribal/Ciudad/Civilización/Espacio: Animal Picaro  Planta: Helecho enano
+	/// Tier2, Celula: nivel 2 Criatura: Epico  Tribal/Ciudad/Civilización/Espacio: Epico          Planta: Helecho
+	/// Tier3, Celula: nivel 3 Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Ganado Normal  Planta: Arbusto
+	/// Tier4, Celula: nivel 4 Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Mascota Normal Planta: Árbol Enano
+	/// Tier5, Celula: N/A     Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Ganado Picaro  Planta: Árbol
+	/// Tier6, Celula: N/A     Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Mascota Picaro Planta: Árbol Enorme
+	/// </summary>
+	public enum EntryTiers
+	{
+		None = -1,
+		Tier0, //Celula: nivel 0 Criatura: Normal Tribal/Ciudad/Civilización/Espacio: Animal         Planta: hierba
+		Tier1, //Celula: nivel 1 Criatura: Picaro Tribal/Ciudad/Civilización/Espacio: Animal Picaro  Planta: Helecho enano
+		Tier2, //Celula: nivel 2 Criatura: Epico  Tribal/Ciudad/Civilización/Espacio: Epico          Planta: Helecho
+		Tier3, //Celula: nivel 3 Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Ganado Normal  Planta: Arbusto
+		Tier4, //Celula: nivel 4 Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Mascota Normal Planta: Árbol Enano
+		Tier5, //Celula: N/A     Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Ganado Picaro  Planta: Árbol
+		Tier6, //Celula: N/A     Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Mascota Picaro Planta: Árbol Enorme
+	}
+	#region Enum
+
+	public enum CelestialBodyType
+	{
+		None = -1,
+		Planet = 0,
+		Star = 1,
+		Baricenter = 2,
+		Nova = 3,
+		Nebula = 4,
+		Sector = 5,
+	}
+
+	public enum GalacticCloudShape
+	{
+		Sphere,
+		Iregular,
+		Mitosis //2 esferas                       (nebulosa sdel humnculo)
+	}
+	public enum NovaType
+	{
+		Nova,
+		Supernova,
+		Kionova,
+		Hipernova
+	}
+	/// <summary>
+	/// Clases de supernovas
+	/// </summary>
+	public enum NovaClass
+	{
+
+		None,
+		I,
+		Ia,
+		Ib,
+		Ic,
+		II,
+		II_P,
+		II_L,
+		r,
+
+	}
+	/// <summary>
+	/// Tipos de estrella
+	/// </summary>
+	public enum StarTypes
+	{
+		/// <summary>
+		///agujero negro
+		/// </summary>
+		X = -1, //AH claro un agujero negro es un tipo de estrella por que siempre me despierto y el sol es Sagitario A*      (Sarcasmo)
+		O,
+		B,
+		A,
+		F,
+		G,
+		K,
+		M,
+		L,
+		T,
+		/// <summary>
+		///enana blanca
+		/// </summary>
+		EB,
+		/// <summary>
+		/// estrella de neutrones o pulsar
+		/// </summary>
+		NS, //No se....... Es broma, es estrella de neutrones
+		/// <summary>
+		/// enana Negra aunque ni tiene sentido que existan junto a las otras pues estas tardarían MUCHO tiempo para existir al ser enanas blancas MUY frias	
+		/// </summary>
+		EN,
+	}
+	/// <summary>
+	/// version sin easter eggs
+	/// </summary>
+	public enum PlanetTypesNoEgg
+	{
+		/// <summary>
+		/// Sin tipo esto es posiblemente por una corupcion
+		/// </summary>
+		None = -1,
+		/// <summary>
+		/// Terra como la tierra real
+		/// </summary>
+		Terra,
+		Barren,
+		ExTerra,
+		BasicGas,
+		IceGas,
+		IceRock,
+		MarsLike,
+		VenusLike,
+		Toxic,
+		WaterWorld,
+		Jungle,
+		Deserted,
+		/// <summary>
+		/// Planeta similar a una luna o a mercurio,
+		/// Tiene muchos cráteres y poca o ninguna atmósfera
+		/// </summary>
+		MoonLike,
+
+
+	}
+	/// <summary>
+	/// Tipos de planeta
+	/// </summary>
+	public enum PlanetTypes
+	{
+		/// <summary>
+		/// Sin tipo esto es posiblemente por una corupcion
+		/// </summary>
+		None = -1,
+		/// <summary>
+		/// Terra como la tierra real
+		/// </summary>
+		Terra,
+		Barren,
+		ExTerra,
+		BasicGas,
+		IceGas,
+		IceRock,
+		MarsLike,
+		VenusLike,
+		Toxic,
+		WaterWorld,
+		Jungle,
+		Deserted,
+		/// <summary>
+		/// Planeta similar a una luna o a mercurio,
+		/// Tiene muchos cráteres y poca o ninguna atmósfera
+		/// </summary>
+		MoonLike,
+
+
+		SPAMTON = 9999, //asi es NO ESCAPAS DE LOS EASTER EGGS DE SPAMTON
+	}
+	#endregion
+
+
+	// ==========================================
+	// ========== COSAS MALDITAS ABAJO =========
+	// ==========================================
+	//aka galaxydata
+	[Serializable]
 	///<summary>
 	///almacena la informacion basica de una galaxia EffiGalaxy
 	///y tiene la API para cargar sectores y buscar cuerpos celestes
@@ -1097,322 +1419,6 @@ namespace SerializableTypes.Space
 		}
 	}
 
-
-	/// <summary>
-	/// Tipo de galaxia
-	/// </summary>
-	public enum GalaxyTypes
-	{
-		/// <summary>
-		/// Una galaxia espiral comun y corriente como la via lactea
-		/// </summary>
-		Spiral,
-		/// <summary>
-		/// La prima de espiral, pero sin brazos definidos
-		/// originalmente llame a este tipo Eliptica por que no sabia la diferencia ahora que lo se son 2 distitnos
-		/// </summary>
-		Lenticular,
-		/// <summary>
-		/// Eliptica la galaxia esferoidal sin una forma definida
-		/// QUE CAUSA BAJONES DE FPS MASIVOS Esspoiler ya no era por mala optimización
-		/// </summary>
-		Eliptica,
-		/// <summary>
-		/// Iregular la galaxia en forma de nube
-		/// </summary>
-		Irregular,
-	}
-	[Serializable]
-	/// <summary>
-	/// Collecion de objetos galacticos
-	/// </summary>
-	public class GalObjCollection
-	{
-		public List<StarData> Stars;
-		public List<PlanetData> planets;
-		public List<BaricenterData> baricenters;
-		public List<NovaData> novas;
-		public List<NebulaData> nebulas;
-	}
-	[Serializable]
-
-	/// <summary>
-	/// Collecion de IDs objetos galacticos
-	/// </summary>
-	public class GalObjCollectionID
-	{
-		public List<BodyID> Stars;
-		public List<BodyID> planets;
-		public List<BodyID> baricenters;
-		public List<BodyID> novas;
-		public List<BodyID> nebulas;
-	}
-
-
-	/// <summary>
-	/// Guarda las criaturas que hay en el planeta 
-	/// se suponia que decia Polination pero typo
-	/// asi que accidentalmente la vida ahora es Contaminación
-	/// </summary>
-	[Serializable]
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0251:Convertir el miembro en 'readonly'", Justification = "<pendiente>")]
-	public struct PollutionPlanet
-	{
-		public Dictionary<PollutionEntry, int> CellStageF1Creatures;
-		public Dictionary<PollutionEntry, int> CellStageF2Creatures;
-		public Dictionary<PollutionEntry, int> CellStageF3Creatures;
-		public Dictionary<PollutionEntry, int> CellStageF4Creatures;
-		public Dictionary<PollutionEntry, int> CreatureStageOnwardCreatures;
-		public Dictionary<PollutionEntry, int> SpaceStageSimplifiedFauna;
-		public Dictionary<PollutionEntry, int> Flora;
-		public int AsociatedPlanetID;
-		/// <summary>
-		/// Inicializa un Polution file vacio
-		/// </summary>
-		/// <param name="f">ignora este parametro es solo para que C# no haga berinche</param>
-		public PollutionPlanet(bool f = false)
-		{
-			AsociatedPlanetID = 0;
-			CellStageF1Creatures = new Dictionary<PollutionEntry, int>();
-			CellStageF2Creatures = new Dictionary<PollutionEntry, int>();
-			CellStageF3Creatures = new Dictionary<PollutionEntry, int>();
-			CellStageF4Creatures = new Dictionary<PollutionEntry, int>();
-			CreatureStageOnwardCreatures = new Dictionary<PollutionEntry, int>();
-			SpaceStageSimplifiedFauna = new Dictionary<PollutionEntry, int>();
-			Flora = new Dictionary<PollutionEntry, int>();
-		}
-		/// <summary>
-		///  Genera un Polution file con todos las cosas especiicadas que quieras
-		/// </summary>
-		/// <param name="cellStageF1Creatures">celulas de la fase 1 de la etapa celula digo microbios</param>
-		/// <param name="cellStageF2Creatures">microbios de la ase 2 de la etapa</param>
-		/// <param name="cellStageF3Creatures">microbios de la fase 3</param>
-		/// <param name="cellStageF4Creatures">micobios de la fase 4</param>
-		/// <param name="creatureStageOnwardCreatures">Criaturas de la etapa ciratua en adelante</param>
-		/// <param name="spaceStageSimplifiedFauna">fauna simplificada usada en el estadio espacial</param>
-		/// <param name="asociatedPlanetID">OBLIGATORIO, id del planeta</param>
-		public PollutionPlanet(Dictionary<PollutionEntry, int> cellStageF1Creatures, Dictionary<PollutionEntry, int> cellStageF2Creatures, Dictionary<PollutionEntry, int> cellStageF3Creatures, Dictionary<PollutionEntry, int> cellStageF4Creatures, Dictionary<PollutionEntry, int> creatureStageOnwardCreatures, Dictionary<PollutionEntry, int> spaceStageSimplifiedFauna, Dictionary<PollutionEntry, int> flora, int asociatedPlanetID)
-		{
-			CellStageF1Creatures = cellStageF1Creatures ?? new();
-			CellStageF2Creatures = cellStageF2Creatures ?? new();
-			CellStageF3Creatures = cellStageF3Creatures ?? new();
-			CellStageF4Creatures = cellStageF4Creatures ?? new();
-			CreatureStageOnwardCreatures = creatureStageOnwardCreatures ?? new();
-			SpaceStageSimplifiedFauna = spaceStageSimplifiedFauna ?? new();
-			Flora = flora ?? new();
-			AsociatedPlanetID = asociatedPlanetID;
-		}
-
-		public static bool operator ==(PollutionPlanet a, PollutionPlanet b)
-		{
-			return
-				(StdUtils.Comparisons.DictionariesAreEqual(a.CellStageF1Creatures, b.CellStageF1Creatures)) &&
-				(StdUtils.Comparisons.DictionariesAreEqual(a.CellStageF2Creatures, b.CellStageF2Creatures)) &&
-				(StdUtils.Comparisons.DictionariesAreEqual(a.CellStageF3Creatures, b.CellStageF3Creatures)) &&
-				(StdUtils.Comparisons.DictionariesAreEqual(a.CellStageF4Creatures, b.CellStageF4Creatures)) &&
-				(StdUtils.Comparisons.DictionariesAreEqual(a.CreatureStageOnwardCreatures, b.CreatureStageOnwardCreatures)) &&
-				(StdUtils.Comparisons.DictionariesAreEqual(a.SpaceStageSimplifiedFauna, b.SpaceStageSimplifiedFauna)) &&
-				(a.AsociatedPlanetID == b.AsociatedPlanetID);
-		}
-		public static bool operator !=(PollutionPlanet a, PollutionPlanet b)
-		{
-			return !(a == b);
-		}
-
-
-		public override bool Equals(object obj)
-		{
-			if (obj == null) return false;
-			if (obj is PollutionPlanet PPTX)
-			{
-				return this == PPTX;
-			}
-			return base.Equals(obj);
-		}
-
-		public override int GetHashCode()
-		{
-			return (base.GetHashCode() * (AsociatedPlanetID.GetHashCode() ^ CellStageF1Creatures.GetHashCode() ^ CellStageF2Creatures.GetHashCode() ^ CellStageF3Creatures.GetHashCode() ^ CellStageF4Creatures.GetHashCode() ^ CreatureStageOnwardCreatures.GetHashCode() ^ SpaceStageSimplifiedFauna.GetHashCode()));
-		}
-
-		public override string ToString()
-		{
-			return $"pppppp {AsociatedPlanetID}";
-		}
-	}
-	[Serializable]
-	///
-	///  <summary>
-	///  entrada de Pollution file
-	///  </summary>
-	///
-	public struct PollutionEntry
-	{
-		public string CreatureName;
-		public EntryTiers Tier;
-	}
-	/// <summary>
-	/// Representa los Tiers de las entradas:
-	/// 
-	/// Tier0, Celula: nivel 0 Criatura: Normal Tribal/Ciudad/Civilización/Espacio: Animal         Planta: hierba
-	/// Tier1, Celula: nivel 1 Criatura: Picaro Tribal/Ciudad/Civilización/Espacio: Animal Picaro  Planta: Helecho enano
-	/// Tier2, Celula: nivel 2 Criatura: Epico  Tribal/Ciudad/Civilización/Espacio: Epico          Planta: Helecho
-	/// Tier3, Celula: nivel 3 Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Ganado Normal  Planta: Arbusto
-	/// Tier4, Celula: nivel 4 Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Mascota Normal Planta: Árbol Enano
-	/// Tier5, Celula: N/A     Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Ganado Picaro  Planta: Árbol
-	/// Tier6, Celula: N/A     Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Mascota Picaro Planta: Árbol Enorme
-	/// </summary>
-	public enum EntryTiers
-	{
-		None = -1,
-		Tier0, //Celula: nivel 0 Criatura: Normal Tribal/Ciudad/Civilización/Espacio: Animal         Planta: hierba
-		Tier1, //Celula: nivel 1 Criatura: Picaro Tribal/Ciudad/Civilización/Espacio: Animal Picaro  Planta: Helecho enano
-		Tier2, //Celula: nivel 2 Criatura: Epico  Tribal/Ciudad/Civilización/Espacio: Epico          Planta: Helecho
-		Tier3, //Celula: nivel 3 Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Ganado Normal  Planta: Arbusto
-		Tier4, //Celula: nivel 4 Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Mascota Normal Planta: Árbol Enano
-		Tier5, //Celula: N/A     Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Ganado Picaro  Planta: Árbol
-		Tier6, //Celula: N/A     Criatura: N/A    Tribal/Ciudad/Civilización/Espacio: Mascota Picaro Planta: Árbol Enorme
-	}
-	#region Enum
-
-	public enum CelestialBodyType
-	{
-		None = -1,
-		Planet = 0,
-		Star = 1,
-		Baricenter = 2,
-		Nova = 3,
-		Nebula = 4,
-		Sector = 5,
-	}
-
-	public enum GalacticCloudShape
-	{
-		Sphere,
-		Iregular,
-		Mitosis //2 esferas
-	}
-	public enum NovaType
-	{
-		Nova,
-		Supernova,
-		Kionova,
-		Hipernova
-	}
-	/// <summary>
-	/// Clases de supernovas
-	/// </summary>
-	public enum NovaClass
-	{
-
-		None,
-		I,
-		Ia,
-		Ib,
-		Ic,
-		II,
-		II_P,
-		II_L,
-		r,
-
-	}
-	/// <summary>
-	/// Tipos de estrella
-	/// </summary>
-	public enum StarTypes
-	{
-		/// <summary>
-		///agujero negro
-		/// </summary>
-		X = -1, //AH claro un agujero negro es un tipo de estrella por que siempre me despierto y el sol es Sagitario A*      (Sarcasmo)
-		O, 
-		B,
-		A,
-		F,
-		G,
-		K,
-		M,
-		L,
-		T,
-		/// <summary>
-		///enana blanca
-		/// </summary>
-		EB,
-		/// <summary>
-		/// estrella de neutrones o pulsar
-		/// </summary>
-		NS, //No se....... Es broma, es estrella de neutrones
-		/// <summary>
-		/// enana Negra aunque ni tiene sentido que existan junto a las otras pues estas tardarían MUCHO tiempo para existir al ser enanas blancas MUY frias	
-		/// </summary>
-		EN,
-	}
-	/// <summary>
-	/// version sin easter eggs
-	/// </summary>
-	public enum PlanetTypesNoEgg
-	{
-		/// <summary>
-		/// Sin tipo esto es posiblemente por una corupcion
-		/// </summary>
-		None = -1,
-		/// <summary>
-		/// Terra como la tierra real
-		/// </summary>
-		Terra,
-		Barren,
-		ExTerra,
-		BasicGas,
-		IceGas,
-		IceRock,
-		MarsLike,
-		VenusLike,
-		Toxic,
-		WaterWorld,
-		Jungle,
-		Deserted,
-		/// <summary>
-		/// Planeta similar a una luna o a mercurio,
-		/// Tiene muchos cráteres y poca o ninguna atmósfera
-		/// </summary>
-		MoonLike,
-
-
-	}
-	/// <summary>
-	/// Tipos de planeta
-	/// </summary>
-	public enum PlanetTypes
-	{
-		/// <summary>
-		/// Sin tipo esto es posiblemente por una corupcion
-		/// </summary>
-		None = -1,
-		/// <summary>
-		/// Terra como la tierra real
-		/// </summary>
-		Terra,
-		Barren,
-		ExTerra,
-		BasicGas,
-		IceGas,
-		IceRock,
-		MarsLike,
-		VenusLike,
-		Toxic,
-		WaterWorld,
-		Jungle,
-		Deserted,
-		/// <summary>
-		/// Planeta similar a una luna o a mercurio,
-		/// Tiene muchos cráteres y poca o ninguna atmósfera
-		/// </summary>
-		MoonLike,
-
-
-		SPAMTON = 9999, //asi es NO ESCAPAS DE LOS EASTER EGGS DE SPAMTON
-	}
-	#endregion
 
 
 

@@ -46,7 +46,6 @@ public class LoadASYstem : MonoBehaviour
 
     public GameObject a ()
     {
-		LOADNOW = true;
 		bu.OpaceMat = OpaceMat;
 		bu.BaseMat = BasMat;
 		bu.BholMat = BholMat;
