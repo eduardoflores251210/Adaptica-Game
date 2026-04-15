@@ -592,7 +592,591 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 			if (isInEditor) Player = null;
 		}
 	}
+	//código hecho por ChatGPT probablemente es de pésima calidad
+	public static class StageLoader
+	{
+		public static void LoadStageFromSavePath(string PAth)
+		{
+			var Filepath = /*Path.Join(*/PAth/*)*/; //si  no
+			SavedGame game = JsonUtility.FromJson<SavedGame>(File.ReadAllText(Filepath));
+			Stages stage = game.CurentStage;
+			string creatureName = game.CreatureName;
 
+			CrossScenePackageSender mailMan = CrossScenePackageSender.Instance;
+
+			switch (stage)
+			{
+				case Stages.Microbe:
+					if (!string.IsNullOrEmpty(creatureName))
+						LoadMicrobeStage(mailMan, creatureName);
+					else
+						LoadEmptyMicrobe(mailMan);
+					break;
+
+				case Stages.Creature:
+				case Stages.tribal:
+				case Stages.City:
+				case Stages.Civilization:
+					Debug.Log($"Stage {stage} aún no implementado. Solo carga Space o Microbe por ahora.");
+					break;
+
+				case Stages.Space:
+					Debug.Log("Cargando Space Stage...");
+					SceneManager.LoadScene(6);
+					break;
+				case Stages.MainMenu:
+					LoadWithLoadingScreen.LoadScene(0, Stages.MainMenu);
+					break;
+				default:
+					Debug.LogWarning($"Stage {stage} no tiene escena asignada");
+					break;
+			}
+		}
+		public static void LoadStage(Stages stage, string creatureName = null)
+		{
+			CrossScenePackageSender mailMan = CrossScenePackageSender.Instance;
+
+			switch (stage)
+			{
+				case Stages.Microbe:
+					if (!string.IsNullOrEmpty(creatureName))
+						LoadMicrobeStage(mailMan, creatureName);
+					else
+						LoadEmptyMicrobe(mailMan);
+					break;
+
+				case Stages.Creature:
+				case Stages.tribal:
+				case Stages.City:
+				case Stages.Civilization:
+					Debug.Log($"Stage {stage} aún no implementado. Solo carga Space o Microbe por ahora.");
+					break;
+
+				case Stages.Space:
+					Debug.Log("Cargando Space Stage...");
+					LoadWithLoadingScreen.LoadScene(6, stage);
+					break;
+				case Stages.MainMenu:
+					LoadWithLoadingScreen.LoadScene(0, stage);
+					break;
+				default:
+					Debug.LogWarning($"Stage {stage} no tiene escena asignada");
+					break;
+			}
+		}
+
+		private static void LoadEmptyMicrobe(CrossScenePackageSender mailMan)
+		{
+			if (mailMan == null)
+			{
+				Debug.LogError("No se pudo obtener CrossScenePackageSender");
+				return;
+			}
+
+			MicrobeData emptyMicrobe = MicrobeData.GetDefaultMicrobe();
+
+			mailMan.SendTypedPackage("StageLoader", "Player", emptyMicrobe, new string[] { nameof(MicrobeData) });
+			LoadWithLoadingScreen.LoadScene(4, Stages.Microbe); // Microbe stage
+		}
+
+		public static void LoadMicrobeStage(CrossScenePackageSender mailMan, string creatureName)
+		{
+			if (mailMan == null)
+			{
+				Debug.LogError("No se pudo obtener CrossScenePackageSender");
+				return;
+			}
+			string filePath;
+			if (string.IsNullOrEmpty(Saver.CurrentSaveName))
+
+				filePath = Path.Combine(Paths.Cells, $"{creatureName}.json");
+			else
+				filePath = null;
+
+			if (!File.Exists(filePath) && string.IsNullOrEmpty(Saver.CurrentSaveName))
+			{
+				Debug.LogWarning($"Archivo no encontrado: {filePath} y no se esta cargando desde Saver, cargando microbio vacío");
+				LoadEmptyMicrobe(mailMan);
+				return;
+			}
+			MicrobeData microbe;
+			try
+			{
+				if (filePath != null)
+				{
+					string json = File.ReadAllText(filePath);
+
+					microbe = JsonUtility.FromJson<MicrobeData>(json);
+					Debug.Log("cargado el microbio " + filePath);
+				}
+				else
+					Saver.TryToLoadLastMicrobeRevision(Saver.CurrentSaveName, out microbe);
+				if (microbe == null)
+				{
+					Debug.LogWarning("SavedGame no tiene criatura válida, cargando microbio vacío");
+					LoadEmptyMicrobe(mailMan);
+					return;
+				}
+				microbe.CenterMicrobe();
+				microbe.RotateMicrobeEuler(new(0, 90, 0));
+
+				mailMan.SendTypedPackage("StageLoader", "Player", microbe, new string[] { nameof(MicrobeData) });
+				LoadWithLoadingScreen.LoadScene(4, Stages.Microbe); // Microbe stage
+			}
+			catch (System.Exception ex)
+			{
+				Debug.LogError($"Error al cargar microbio: {ex.Message}, cargando microbio vacío");
+				LoadEmptyMicrobe(mailMan);
+			}
+		}
+		/// <summary>
+		/// cargara elestado correspondiente a la partida cargada en saver
+		/// </summary>
+
+		public static void LoadCurrentStage()
+		{
+			if (Saver.CurrentSaveName == null || Saver.CurrentGame == null)
+			{
+				Debug.LogError("No hay partida cargada en Saver");
+				return;
+			}
+			switch (Saver.CurrentGame.CurentStage)
+			{
+				case Stages.Microbe:
+					LoadMicrobeStage(CrossScenePackageSender.Instance, Saver.CurrentGame.CreatureName);
+					break;
+				case Stages.Creature:
+					Debug.Log("por favor espera un momento aun no esta lo sufuciente desarrollado");
+					break;
+				case Stages.tribal:
+				case Stages.City:
+				case Stages.Civilization:
+					Debug.Log("no implementado aun");
+					break;
+				case Stages.Space:
+					Debug.Log("Cargando Space Stage...");
+					LoadWithLoadingScreen.LoadScene(6, Stages.Space);
+					break;
+				default:
+					throw new NotImplementedException($"Carga de estado {Saver.CurrentGame.CurentStage} no implementada");
+			}
+		}
+	}
+	public static class EditorLoader
+	{
+		public static void EditMicrobe(string Name, bool loadStage)
+		{
+			if (CreationLoader.TryToLoadMicrobe(Name, out var data))
+			{
+				CreationLoader.BackUpMicrobe(Name);
+				CrossScenePackageSender Mailman = CrossScenePackageSender.Instance;//No  puedo cambiar esos nombres de destinatario de MC yMain Camera CS por que el cartero No tiene codigo postal solo nombre de destinatario :(
+				Mailman.SendTypedPackage("EnterEdit", "CellSaver", loadStage, new string[2] { nameof(Boolean), "LodStg" }); //avisarle a cellsaver QUE AL GUARDAR ENTRAREMOS AL ESTADIO CELULA DIGO MICROBIO SIN CREAR NUEVA PARTIDA
+				Mailman.SendTypedPackage("EditorLoader", "MC.SegmentManager", data, new string[2] { nameof(MicrobeData), "LodMic" }); //avisarle al segment manager que TIENE QUE CARGAR UNA CRIATRURA
+				SceneManager.LoadScene(1); // Microbe Editor
+			}
+		}
+
+		[ConsoleCommand(Name = "!editarmic")]
+		public static void EditMicrobeCommand()
+		{
+			//asume que estas en el estadio celula 
+			if (Saver.HasLoadedAnySave())
+			{
+				Debug.Log("ENTRANDO AL EDITOR, ADVERTENCIA ESTO NO ESTA PROVADO ASI QUE PODRIA CORROMPER TU HERMOSA CREACIÓN");
+				EditMicrobe();
+			}
+			else
+			{
+				Debug.Log("ENTORNO INVALIDO");
+
+			}
+
+		}
+
+		public static void EditMicrobe()
+		{
+			if (!Saver.HasLoadedAnySave())
+			{
+				CrossScenePackageSender Mailman = CrossScenePackageSender.Instance;//No  puedo cambiar esos nombres de destinatario de MC yMain Camera CS por que el cartero No tiene codigo postal solo nombre de destinatario :(
+				Mailman.SendTypedPackage("EnterEdit", "CellSaver", false, new string[2] { nameof(Boolean), "LodStg" }); //avisarle a cellsaver QUE AL GUARDAR NO ENTRAREMOS AL ESTADIO CELULA DIGO MICROBIO
+				LoadWithLoadingScreen.LoadScene(1, Stages.Microbe); // Microbe Editor
+				return;
+			}
+			if (Saver.TryToLoadLastMicrobeRevision(Saver.CurrentSaveName, out var data)) //por error usaba el nombre de microbio no del archivo de guardado(eso es SHA) el nombre del microbio es lo que sea que escribio el Jugador;
+			{
+				CrossScenePackageSender Mailman = CrossScenePackageSender.Instance;//No  puedo cambiar esos nombres de destinatario de MC yMain Camera CS por que el cartero No tiene codigo postal solo nombre de destinatario :(
+				Mailman.SendTypedPackage("EnterEdit", "CellSaver", true, new string[2] { nameof(Boolean), "LodStg" }); //avisarle a cellsaver QUE AL GUARDAR ENTRAREMOS AL ESTADIO CELULA DIGO MICROBIO SIN CREAR NUEVA PARTIDA
+				Mailman.SendTypedPackage("EditorLoader", "MC.SegmentManager", data, new string[2] { nameof(MicrobeData), "LodMic" }); //avisarle al segment manager que TIENE QUE CARGAR UNA CRIATRURA
+				LoadWithLoadingScreen.LoadScene(1, Stages.Microbe); // Microbe Editor
+				return;
+			}
+		}
+		//simbologia:
+		//MC					: Marching Cubes
+		//Main Camera CS		: Basurero con componentes distintos que tambien renderiza la escena y guarda el microbio
+		//"EnterEdit"			: El Sender que le avisa a MicrobeSaver QUE YA HAY UNA PARTIDA Y NO TIENE QUE CREAR OTRA
+		//"CellSaver"			: Se añadio la capacidad que el Mailman te de paquetes basándote en un string en vez de game objects asi que ya no tengo que escribir el nombre de la cámara solo "CellSaver"
+		//"MC.SegmentManager"	: se especifica que es el segment manager de MC y no el componente de marching cubes
+		public static void EnterEditor(Editors editor)
+		{
+			switch (editor)
+			{
+				case Editors.Microbe:
+					EditMicrobe();
+					break;
+				case Editors.Animal:
+					break;
+				case Editors.TribeDresser:
+					break;
+				case Editors.FeudalCitizenDresser:
+					break;
+				case Editors.CitizenDresser:
+					break;
+				case Editors.SpaceCitizenDresser:
+					break;
+				case Editors.Plant:
+					SceneManager.LoadSceneAsync(5);
+					break;
+				case Editors.Planet:
+					break;
+				case Editors.Vehicles_Car:
+					break;
+				case Editors.Vehicles_Car_Religius:
+					break;
+				case Editors.Vehicles_Car_Economic:
+					break;
+				case Editors.Vehicles_Car_Military:
+					break;
+				case Editors.Vehicles_Car_Civilian:
+					break;
+				case Editors.Vehicles_Car_BUS:
+					break;
+				case Editors.Vehicles_Train_Steam_Civilian:
+					break;
+				case Editors.Vehicles_Train_Steam_Military:
+					break;
+				case Editors.Vehicles_Train_Steam_Economic:
+					break;
+				case Editors.Vehicles_Train_Electrical_Metro:
+					break;
+				case Editors.Vehicles_Train_Electrical_Tram:
+					break;
+				case Editors.Vehicles_Train_Electrical_Monorail:
+					break;
+				case Editors.Vehicles_Train_Electrical_MagLev:
+					break;
+				case Editors.Vehicles_Train_Electrical_LightTrain:
+					break;
+				case Editors.Vehicles_Train_Electrical_Suburban:
+					break;
+				case Editors.Vehicles_Train_Electrical_Bullet:
+					break;
+				case Editors.Vehicles_Train_TrainLike_CableCar:
+					break;
+				case Editors.Vehicles_Plane_Civilian:
+					break;
+				case Editors.Vehicles_Plane_Military:
+					break;
+				case Editors.Vehicles_Plane_Economic:
+					break;
+				case Editors.Vehicles_Plane_Religous:
+					break;
+				case Editors.Vehicles_Boat_Civilian:
+					break;
+				case Editors.Vehicles_Boat_Military:
+					break;
+				case Editors.Vehicles_Boat_Economic:
+					break;
+				case Editors.Vehicles_Boat_Religous:
+					break;
+				case Editors.Vehicles_Boat_Canoe:
+					break;
+				default:
+					break;
+			}
+		}
+
+		[ConsoleCommand(Name = "entereditor")] //esto no es debug solo es para que los creadores de contenido puedan entrar al editor sin necesidad de cargar una partida o algo asi, es un comando para facilitar la creación de contenido
+		public static void EnterEditorCommand(int editor)
+		{
+			if (Enum.IsDefined(typeof(Editors), editor))
+			{
+				EnterEditor((Editors)editor);
+			}
+			else
+			{
+				Debug.LogError($"Editor con ID {editor} no existe.");
+			}
+		}
+
+	}
+	public static class CreationLoader
+	{
+		public static bool TryToLoadMicrobe(string name, out MicrobeData data)
+		{
+			var Jsons = Directory.GetFiles(Paths.Cells);
+			foreach (var json in Jsons)
+			{
+				string Jsontex = File.ReadAllText(json);
+				try
+				{
+					MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(Jsontex);
+					if (microbe.Name == name)
+					{
+						data = microbe;
+						return true;
+					}
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError(ex);
+					continue;
+				}
+			}
+			data = MicrobeData.GetDefaultMicrobe();
+			return false;
+		}
+		public static bool TryToLoadMicrobe(string name, int revission, out MicrobeData data)
+		{
+			var files = Directory.GetFiles(Paths.BackUPCells);
+			// Ordenar por fecha de modificación ascendente (más antiguos primero)
+			var sortedFiles = files.OrderBy(f => File.GetLastWriteTime(f)).ToList();
+
+			List<MicrobeData> Revisions = new();
+			foreach (var json in sortedFiles)
+			{
+				string Jsontex = File.ReadAllText(json);
+				try
+				{
+					MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(Jsontex);
+					if (microbe.Name == name)
+						Revisions.Add(microbe);
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError(ex);
+					continue;
+				}
+			}
+			if (Revisions.Count > 0)
+			{
+				data = Revisions[revission];
+				return true;
+			}
+			else
+			{
+				data = MicrobeData.GetDefaultMicrobe();
+				return false;
+
+			}
+		}
+		public static MicrobeData LoadMicrobe(string name)
+		{
+			var Jsons = Directory.GetFiles(Paths.Cells);
+			foreach (var json in Jsons)
+			{
+				string Jsontex = File.ReadAllText(json);
+				try
+				{
+					MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(Jsontex);
+					if (microbe.Name == name)
+						return microbe;
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError(ex);
+					continue;
+				}
+			}
+			return MicrobeData.GetDefaultMicrobe();
+		}
+		public static MicrobeData LoadMicrobe(string name, int revission)
+		{
+			var files = Directory.GetFiles(Paths.BackUPCells);
+			// Ordenar por fecha de modificación ascendente (más antiguos primero)
+			var sortedFiles = files.OrderBy(f => File.GetLastWriteTime(f)).ToList();
+
+			List<MicrobeData> Revisions = new();
+			foreach (var json in sortedFiles)
+			{
+				string Jsontex = File.ReadAllText(json);
+				try
+				{
+					MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(Jsontex);
+					if (microbe.Name == name)
+						Revisions.Add(microbe);
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError(ex);
+					continue;
+				}
+			}
+			if (Revisions.Count > 0)
+				return Revisions[revission];
+			else return MicrobeData.GetDefaultMicrobe();
+		}
+		public static MicrobeData LoadLastMicrobeRevision(string name)
+		{
+			var files = Directory.GetFiles(Paths.BackUPCells);
+			// Ordenar por fecha de modificación ascendente (más antiguos primero)
+			var sortedFiles = files.OrderBy(f => File.GetLastWriteTime(f)).ToList();
+
+			List<MicrobeData> Revisions = new();
+			foreach (var json in sortedFiles)
+			{
+				string Jsontex = File.ReadAllText(json);
+				try
+				{
+					MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(Jsontex);
+					if (microbe.Name == name)
+						Revisions.Add(microbe);
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError(ex);
+					continue;
+				}
+			}
+			if (Revisions.Count > 0)
+			{
+				int revission = Revisions.Count - 1;
+				return Revisions[revission];
+			}
+			else return MicrobeData.GetDefaultMicrobe();
+
+		}
+		public static bool TryToLoadLastMicrobeRevision(string name, out MicrobeData data)
+		{
+			var files = Directory.GetFiles(Paths.BackUPCells);
+			// Ordenar por fecha de modificación ascendente (más antiguos primero)
+			var sortedFiles = files.OrderBy(f => File.GetLastWriteTime(f)).ToList();
+
+			List<MicrobeData> Revisions = new();
+			foreach (var json in sortedFiles)
+			{
+				string Jsontex = File.ReadAllText(json);
+				try
+				{
+					MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(Jsontex);
+					if (microbe.Name == name)
+						Revisions.Add(microbe);
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError(ex);
+					continue;
+				}
+			}
+			if (Revisions.Count > 0)
+			{
+				int revission = Revisions.Count - 1;
+				data = Revisions[revission];
+				return true;
+			}
+			else
+			{
+				data =
+				 MicrobeData.GetDefaultMicrobe();
+				return false;
+			}
+
+		}
+		public static void BackUpMicrobe(string name)
+		{
+			if (TryToLoadMicrobe(name, out MicrobeData microbe))
+			{
+				try
+				{
+					var steam = File.CreateText(Path.Combine(MicrobeData.GenerateMicrobeID(microbe) + ".json"));
+					steam.Write(JsonUtility.ToJson(microbe));
+
+				}
+				catch (Exception ex) { Debug.LogError(ex); }
+			}
+			else
+			{ }
+		}
+		public static bool TryToBackUpMicrobe(string name)
+		{
+			if (TryToLoadMicrobe(name, out MicrobeData microbe))
+			{
+				try
+				{
+					var steam = File.CreateText(Path.Combine(MicrobeData.GenerateMicrobeID(microbe) + ".json"));
+					steam.Write(JsonUtility.ToJson(microbe));
+					return true;
+				}
+				catch (Exception ex) { Debug.LogError(ex); return false; }
+			}
+			else
+			{ return false; }
+		}
+	}
+
+	public static class LoadWithLoadingScreen
+	{
+		public static async void LoadScene(int id, Stages Stage)
+		{
+			Debug.Log("Loading " + id + " related to " + Stage);
+			await CreateLoadingScreen(Stage);
+			await SceneManager.LoadSceneAsync(id);
+		}
+
+		public static async void LoadScene(string id, Stages Stage)
+		{
+			await CreateLoadingScreen(Stage);
+			await SceneManager.LoadSceneAsync(id);
+		}
+
+		private static async System.Threading.Tasks.Task CreateLoadingScreen(Stages Stage)
+		{
+			// 🔹 Cargar ConfigLoadScreen desde Addressables
+			var handle = Addressables.LoadAssetAsync<ConfigLoadScreen>("Assets/GLSS"); // "GLSS" es el Address que yo le puse
+			await handle.Task;
+			ConfigLoadScreen loadScreenConfig = handle.Result;
+
+			if (loadScreenConfig == null)
+			{
+				Debug.LogError("No se pudo cargar ConfigLoadScreen desde Addressables.");
+				return;
+			}
+
+			// 🔹 Crear Canvas
+			GameObject LoadSc = new("LoadingScreen");
+			Canvas C = LoadSc.AddComponent<Canvas>();
+			C.renderMode = RenderMode.ScreenSpaceOverlay;
+			C.sortingOrder = 999;
+			LoadSc.layer = 5;
+
+			// 🔹 Crear Image
+			GameObject ImageGO = new("IMG");
+			UnityEngine.UI.Image IMG = ImageGO.AddComponent<UnityEngine.UI.Image>();
+
+			IMG.sprite = Stage switch
+			{
+				Stages.Microbe => loadScreenConfig.CellLoadImg,
+				Stages.Creature => loadScreenConfig.CreatureLoadImg,
+				Stages.tribal => loadScreenConfig.TribeLoadImg,
+				Stages.City => loadScreenConfig.FeudalLoadImg,
+				Stages.Civilization => loadScreenConfig.NationLoadImg,
+				Stages.Space => loadScreenConfig.SpaceLoadImg,
+				Stages.MainMenu => loadScreenConfig.MainMenuLoadImg,
+				_ => loadScreenConfig.CellLoadImg,
+			};
+
+			IMG.color = Color.white;
+			IMG.rectTransform.SetParent(LoadSc.transform, false);
+			IMG.rectTransform.anchorMin = Vector2.zero;
+			IMG.rectTransform.anchorMax = Vector2.one;
+			IMG.rectTransform.offsetMin = Vector2.zero;
+			IMG.rectTransform.offsetMax = Vector2.zero;
+			if (Stage == Stages.MainMenu)
+				GameObject.DontDestroyOnLoad(LoadSc);
+			// 🔹 Liberar handle cuando ya no lo necesitamos
+			Addressables.Release(handle); // para no saturar la ram
+		}
+	}
 }
 
 //utilidades de genetica
