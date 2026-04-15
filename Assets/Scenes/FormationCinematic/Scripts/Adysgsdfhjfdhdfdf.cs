@@ -67,6 +67,7 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 	}
 	PlanetData ParentPlanetData;
 	bool IsRougueSon = false;
+	bool FFFFFFFFFFFF=false;
 
 	private void Update()
 	{
@@ -74,7 +75,7 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 		{
 			// Esperar hasta tener datos válidos
 			if (!IsRougueSon)
-			IsWaiting = Stardata == null || Stardata.Children == null || Stardata.Children.Count == 0;
+				IsWaiting = Stardata == null || Stardata.Children == null || Stardata.Children.Count == 0;
 			if (IsRougueSon)
 				IsWaiting = ParentPlanetData == null || ParentPlanetData.Children == null || ParentPlanetData.Children.Count == 0;
 			var Mailman = CrossScenePackageSender.Instance;
@@ -88,7 +89,7 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 				}
 				if (Mailman.IsThereAnyTypedMailForMe<PlanetData>(gameObject, out var PlanetMail))
 				{
-					ParentPlanetData=PlanetMail[0].Contents;
+					ParentPlanetData = PlanetMail[0].Contents;
 					Mailman.DeleteMyPackage(PlanetMail[0]);
 				}
 
@@ -111,8 +112,8 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 		}
 		else if (!inited && !IsRougueSon)
 		{
-			systemLoader.SolarSystemID = Stardata.id; 
-			var gol = 
+			systemLoader.SolarSystemID = Stardata.id;
+			var gol =
 			systemLoader.a(); //espaciado correcto
 			var f = gol.transform;
 			// Guardamos primero porque vamos a modificar la jerarquía mientras iteramos
@@ -135,7 +136,7 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 		else if (!inited && IsRougueSon)
 		{
 			systemLoader.SolarSystemID = ParentPlanetData.id;
-			var gol = 
+			var gol =
 			systemLoader.a(); //espaciado correcto
 			var f = gol.transform;
 			// Guardamos primero porque vamos a modificar la jerarquía mientras iteramos
@@ -163,21 +164,29 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 			systemData = systemLoader.systemData;
 			if (systemLoader.systemData.Datas != null)
 			{
-				Planets_ID = new Dictionary<string, GameObject>();
-				if (systemData.ObjAndIDS != null)
-				foreach (var kvp in systemLoader.systemData.ObjAndIDS)
+				if (!FFFFFFFFFFFF)
 				{
-					string id = kvp.Value;
-					GameObject obj = kvp.Key;
+					Planets_ID = new Dictionary<string, GameObject>();
+					if (systemData.ObjAndIDS != null)
+						foreach (var kvp in systemLoader.systemData.ObjAndIDS)
+						{
+							string id = kvp.Value;
+							GameObject obj = kvp.Key;
+							if (id == systemLoader.SolarSystemID)
+								obj = gameObject;
 
-					if (!Planets_ID.ContainsKey(id)) // evitar duplicados
-					{
-						Planets_ID.Add(id, obj);
-					}
-					else
-					{
-						Debug.LogWarning($"ID duplicado detectado: {id}");
-					}
+							if (!Planets_ID.ContainsKey(id)) // evitar duplicados
+							{
+								Planets_ID.Add(id, obj);
+								Debug.Log("ID " + id);
+								Debug.Log("GO " + obj.name);
+							}
+							else
+							{
+								Debug.LogWarning($"ID duplicado detectado: {id}");
+							}
+						}
+					FFFFFFFFFFFF = true;
 				}
 			}
 		}

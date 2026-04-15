@@ -52,7 +52,10 @@ public class LoadASYstem : MonoBehaviour
 		bu.BaseGasMaterial = GasMaterial;
 		bu.CacheSphere = SphereMesh;
 		Called = false;
-		return bu.InstantiateSystemRT(SolarSystemID);
+		var eturn = bu.InstantiateSystemRT(SolarSystemID);
+		Done = true;
+		systemData = bu.systemData;
+		return	eturn;
 	}
 	public void a (Transform transform)
     {
