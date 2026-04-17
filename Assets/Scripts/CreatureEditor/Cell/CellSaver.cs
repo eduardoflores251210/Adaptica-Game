@@ -18,6 +18,7 @@ public class CellSaver : MonoBehaviour
 	public PartManager partmanager;
 	public CompleteCellEditorUiManger phasemanager;
 	public SegmentManager segmentmanager;
+	
 
 	/// <summary>
 	/// Guarda el microbio
@@ -79,15 +80,17 @@ public class CellSaver : MonoBehaviour
                     }
                 }
             }
-
+			
             // Revisar paquetes tipados tipo PlanetData
             if (Mailman.IsThereAnyTypedMailForHim<PlanetData>("CellSaver", out var planetMail))
             {
                 planetfat = planetMail[0].Contents;
+				Debug.Log(planetMail[0].Contents.ToString());
                 Mailman.DeleteMyPackage(planetMail[0]);
             }
-        }
 
+        }
+		//aqui falla
         if (Load_Stage)
         {
             Mailman.SendTypedPackage(gameObject.name, "Player", microbe, new string[1] { nameof(MicrobeData) });

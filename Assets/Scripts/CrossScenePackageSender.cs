@@ -107,6 +107,7 @@ public class CrossScenePackageSender : MonoBehaviour
 }
 
 // INTERFAZ PARA TODOS LOS PAQUETES
+
 public interface IPackage
 {
     string Sender { get; }

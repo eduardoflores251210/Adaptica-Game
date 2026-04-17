@@ -31,7 +31,7 @@ public class SettingsManager : MonoBehaviour
 	[Header("Other Settings")]
 	public TMP_Dropdown LangDrop;
 	public string table;
-	private string CurrentLocaleCode = "nh"; // Nahuatl predeterminado
+	private string CurrentLocaleCode = "ES_MX"; //Español predeterminado
 	private Resolution[] resolutions;
 	public event Action OnLanguageChange;
 

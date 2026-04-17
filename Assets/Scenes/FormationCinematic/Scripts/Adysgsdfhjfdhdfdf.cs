@@ -187,6 +187,7 @@ public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 							}
 						}
 					FFFFFFFFFFFF = true;
+					GPdata = systemLoader.systemData.Datas.planets.Find(a => a.id == GamePlanetID); //CORRECION
 				}
 			}
 		}

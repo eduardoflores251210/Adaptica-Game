@@ -1,4 +1,5 @@
 ﻿using ModelosDeIdioma;
+using NUnit.Framework;
 using StandartUtilities;
 using System;
 using System.Collections.Generic;
@@ -306,6 +307,13 @@ public class SplashText : MonoBehaviour
 
 		//v3.1
 		"Kittens and puppies",
+
+		//v 3.2
+		"Now with namespace divorces",
+		"Galaxy data has been exiled",
+		"Load system works… probably",
+		"Refactor coming soon™",
+		"Adaptica!",
 	};
 	Idioma esp;//si español 
 	void Start()
@@ -315,7 +323,7 @@ public class SplashText : MonoBehaviour
 			if (Lines.Contains($"Made by [REPLACE IN RUNTIME]"))
 			{
 				Lines.Remove($"Made by [REPLACE IN RUNTIME]");
-				Lines.Add($"Made by {Application.companyName}");
+				Lines.Add($"Made by {Application.companyName}"); 
 			}
 		}
 		catch (Exception)

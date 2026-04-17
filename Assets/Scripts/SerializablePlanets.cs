@@ -41,6 +41,11 @@ namespace SerializableTypes.Space
 		public float radius;
 		public List<Color> GasColors; // Si no es Gas  el color de terreno es [0] y agua es [1]
 		public int Seed = 0x00; // Semilla para generación procedural del terreno
+
+		public override string ToString()
+		{
+			return $"p: {Name}, r{radius}, s{Seed},    ty {type.ToString()}";
+		}
 	}
 	[Serializable]
 	/// <summary>

@@ -75,8 +75,10 @@ namespace SerializableTypes
 		Vehicles_Plane_Civilian,//ok estos aviones de abajo a lo mejor si se usan
 		Vehicles_Plane_Military,
 		Vehicles_Plane_Economic,
-		Vehicles_Plane_Religous,
+		Vehicles_Plane_Religous, //este junto a economic y economuic y religious SI EXISten en spore 
 		Vehicles_Boat_Civilian,//ok estos barcos a lo mejor si se usan
+		Vehicles_Boat_Civilian_Ferry,
+		Vehicles_Boat_Civilian_Cruise,
 		Vehicles_Boat_Military,
 		Vehicles_Boat_Economic,
 		Vehicles_Boat_Religous,
@@ -151,11 +153,8 @@ namespace SerializableTypes
 		ChangeStage,        // metamorfosis nivel dios
 		LayEgg,             // reproduccion adorable
 		GetPregnant,        // biología manda
-		Miscarry,           // biología también golpea duro
-
-		// Interacciones generales
-
-		AdvanceStage,
+		Miscarry,           // biología también golpea duro 
+		AdvanceStage,        // ASI ES  EL QUE MAS FELIZ TE HACE 
 		BuildBuilding,
 		Gift,
 		FindBean,           // [bean es la criatura mas adorable del spore de Maxis]

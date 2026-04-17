@@ -6,6 +6,7 @@ public static class DevInfo
 	public static uint CurrentStagesPlanned = 6;
 	public static uint CurrentStagesRemaning = CurrentStagesPlanned-CurrentStagesDone;
 	public static AdapticaDevPhases CurrentDevPhase = AdapticaDevPhases.Alpha;
+	public static byte Year2Digit = 26; //CAMBIAR CADA AÑO NUEVO
 }
 public enum AdapticaDevPhases
 {
