@@ -199,7 +199,9 @@ public class GalaxyGenerator : MonoBehaviour
 			Type = StdUtils.Randomness.GetRandomEnumValue<GalaxyTypes>(),
 			NucleusColor = Random.ColorHSV(),
 			NebulaColor = Random.ColorHSV(),
-			SectorPositions = new List<Vector2Int>()
+			SectorPositions = new List<Vector2Int>(),
+			Seed = Seed,
+			CreatedWithVersion = Application.version,
 		};
 		if (ForceType)
 			galaxy.Type = ForcedType;

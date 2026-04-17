@@ -1,4 +1,5 @@
 using aaa;
+using AdapticaDebugStuff;
 using FixedMath; //ignorar eso era una prueba de un FixedPoint de 128 para un proyecto distinto con depuracion fa tal asi que tuve que usar unity por tener mejor depuracion 
 using StandartUtilities; //Ni me acuerdo que metodos uso de mi libreria estandar de proyectos de Unity pero bueno...
 using System;
@@ -619,7 +620,7 @@ namespace SerializableTypes.Space
 		public string Format = "EffiGalaxy";
 		public List<Vector2Int> SectorPositions; // Solo posiciones
 		public Int32 Seed; //Semilla 
-
+		public string CreatedWithVersion = "Alpha 0.0.0- 00n00a";
 		// --- Cachés en memoria (uno por tipo de sector) ---
 		private static Dictionary<Vector2Int, GalaxySector> sectorCache = new Dictionary<Vector2Int, GalaxySector>();
 		private static Dictionary<Vector2Int, BaricenterSector> baricenterCache = new Dictionary<Vector2Int, BaricenterSector>();
@@ -1320,6 +1321,11 @@ namespace SerializableTypes.Space
 		{
 			string aa = File.ReadAllText(Path.Combine(Paths.Galaxy, "Galaxy.Json"));
 			GalaxyData data = JsonUtility.FromJson<GalaxyData>(aa);
+			if (data.CreatedWithVersion == null)
+				data.CreatedWithVersion = "Alpha 0.0.0- 00n00a";
+			bool ISNEWER = MetaUtils.CompareVersions(Application.version,data.CreatedWithVersion) ==-1;
+			if (ISNEWER)
+				throw new Exception("VERSION INCOMATIBLE");
 			return data;
 		}
 

@@ -372,92 +372,130 @@ creado por {Application.companyName}";
 		/// </summary>
 		public static int CompareVersions(string version1, string version2)
 		{
-			if (ReferenceEquals(version1, version2))
-				return 0;
-			if (version1 is null)
-				return -1;
-			if (version2 is null)
-				return 1;
+			if (ReferenceEquals(version1, version2)) return 0;
+			if (version1 is null) return -1;
+			if (version2 is null) return 1;
 
 			string v1 = version1.Trim();
 			string v2 = version2.Trim();
 
-			// 1. Comparar fase principal (usa tu enum existente)
-			var phase1 = GetPhase(v1);
-			var phase2 = GetPhase(v2);
+			// 1. Extraer bases (lo que está antes del '-')
+			bool isSnap1 = v1.Contains("-");
+			bool isSnap2 = v2.Contains("-");
+
+			string base1 = isSnap1 ? v1.Split('-')[0].Trim() : v1;
+			string base2 = isSnap2 ? v2.Split('-')[0].Trim() : v2;
+
+			// 2. Comparar Fase Principal (Alpha/Beta/Release)
+			var phase1 = GetPhase(base1);
+			var phase2 = GetPhase(base2);
 
 			if (phase1 != phase2)
 				return phase1.CompareTo(phase2);
 
-			// 2. Misma fase → comparar subfase
+			// 3. Comparar Números de versión (3.1.0)
+			int numComparison = CompareNumericParts(base1, base2);
+			if (numComparison != 0)
+				return numComparison;
+
+			// 4. Si la base numérica y la fase son IGUALES, desempatamos por Subfase
 			var sub1 = GetSubPhase(v1);
 			var sub2 = GetSubPhase(v2);
 
 			if (sub1 != sub2)
 				return sub1.CompareTo(sub2);
 
-			// 3. Misma subfase → comparar versión numérica 1.2.3
-			var verRegex = new Regex(@"\d+(?:\.\d+)*");
+			// 5. Si AMBAS son Snapshots de la misma base, comparamos el código cronológico
+			if (isSnap1 && isSnap2)
+			{
+				return CompareSnapshotCodes(v1, v2);
+			}
 
+			return string.Compare(v1, v2, StringComparison.OrdinalIgnoreCase);
+		}
+
+		private static int CompareNumericParts(string v1, string v2)
+		{
+			var verRegex = new Regex(@"\d+(?:\.\d+)*");
 			var m1 = verRegex.Match(v1);
 			var m2 = verRegex.Match(v2);
 
-			if (m1.Success && m2.Success)
+			if (!m1.Success || !m2.Success)
+				return string.Compare(v1, v2, StringComparison.OrdinalIgnoreCase);
+
+			var parts1 = m1.Value.Split('.');
+			var parts2 = m2.Value.Split('.');
+
+			int maxLen = Math.Max(parts1.Length, parts2.Length);
+			for (int i = 0; i < maxLen; i++)
 			{
-				var parts1 = m1.Value.Split('.').Select(int.Parse).ToArray();
-				var parts2 = m2.Value.Split('.').Select(int.Parse).ToArray();
+				// Usamos TryParse para evitar errores si hay basura en el string
+				int p1 = (i < parts1.Length && int.TryParse(parts1[i], out int n1)) ? n1 : 0;
+				int p2 = (i < parts2.Length && int.TryParse(parts2[i], out int n2)) ? n2 : 0;
 
-				int maxLen = Math.Max(parts1.Length, parts2.Length);
+				if (p1 > p2) return 1;
+				if (p1 < p2) return -1;
+			}
+			return 0;
+		}
 
-				for (int i = 0; i < maxLen; i++)
-				{
-					int p1 = i < parts1.Length ? parts1[i] : 0;
-					int p2 = i < parts2.Length ? parts2[i] : 0;
+		private static int CompareSnapshotCodes(string v1, string v2)
+		{
+			var snapRegex = new Regex(@"(\d{2})n(\d+)([a-z]?)", RegexOptions.IgnoreCase);
+			var m1 = snapRegex.Match(v1);
+			var m2 = snapRegex.Match(v2);
 
-					if (p1 > p2) return 1;
-					if (p1 < p2) return -1;
-				}
+			// Si una no cumple el formato snapshot, la que SÍ cumple es considerada más nueva
+			if (m1.Success && !m2.Success) return 1;
+			if (!m1.Success && m2.Success) return -1;
+			if (!m1.Success && !m2.Success) return 0;
 
-				return 0;
+			// Comparar Año
+			if (int.TryParse(m1.Groups[1].Value, out int y1) && int.TryParse(m2.Groups[1].Value, out int y2))
+			{
+				if (y1 != y2) return y1.CompareTo(y2);
 			}
 
-			// 4. Fallback
-			return string.Compare(v1, v2, StringComparison.OrdinalIgnoreCase);
+			// Comparar Número
+			if (int.TryParse(m1.Groups[2].Value, out int n1) && int.TryParse(m2.Groups[2].Value, out int n2))
+			{
+				if (n1 != n2) return n1.CompareTo(n2);
+			}
+
+			// Comparar Letra
+			return string.Compare(m1.Groups[3].Value, m2.Groups[3].Value, StringComparison.OrdinalIgnoreCase);
+		}
+
+		private static AdapticaDevPhases GetPhase(string v)
+		{
+			if (v.StartsWith("Alpha", StringComparison.OrdinalIgnoreCase)) return AdapticaDevPhases.Alpha;
+			if (v.StartsWith("Beta", StringComparison.OrdinalIgnoreCase)) return AdapticaDevPhases.Beta;
+			return AdapticaDevPhases.Realese;
+		}
+
+		private static VersionSubPhase GetSubPhase(string v)
+		{
+			// Si tiene guion, es Snapshot (la fase más reciente post-release de esa versión)
+			if (v.Contains("-")) return VersionSubPhase.Snapshot;
+
+			bool hasPre = v.Contains("pre", StringComparison.OrdinalIgnoreCase);
+			bool hasRC = v.Contains("RC", StringComparison.OrdinalIgnoreCase);
+
+			if (hasPre && hasRC) return VersionSubPhase.PreRC;
+			if (hasPre) return VersionSubPhase.Pre;
+			if (hasRC) return VersionSubPhase.RC;
+
+			return VersionSubPhase.Normal;
 		}
 		private enum VersionSubPhase
 		{
 			Pre,
 			PreRC,
 			RC,
-			Normal
+			Normal,
+			Snapshot
 		}
-		private static AdapticaDevPhases GetPhase(string v)
-		{
-			if (v.StartsWith("Alpha", StringComparison.OrdinalIgnoreCase))
-				return AdapticaDevPhases.Alpha;
 
-			if (v.StartsWith("Beta", StringComparison.OrdinalIgnoreCase))
-				return AdapticaDevPhases.Beta;
-
-
-			return AdapticaDevPhases.Realese;
-		}
-		private static VersionSubPhase GetSubPhase(string v)
-		{
-			bool hasPre = v.Contains("pre", StringComparison.OrdinalIgnoreCase);
-			bool hasRC = v.Contains("RC", StringComparison.OrdinalIgnoreCase);
-
-			if (hasPre && hasRC)
-				return VersionSubPhase.PreRC;
-
-			if (hasPre)
-				return VersionSubPhase.Pre;
-
-			if (hasRC)
-				return VersionSubPhase.RC;
-
-			return VersionSubPhase.Normal;
-		}
 
 	}
 	enum minecraftGamemodes//solo para el comando de huevo de pascua /gamemodes
