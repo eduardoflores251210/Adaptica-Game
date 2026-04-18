@@ -83,6 +83,7 @@ namespace SerializableTypes
 		Vehicles_Boat_Economic,
 		Vehicles_Boat_Religous,
 		Vehicles_Boat_Canoe, //si el barco mas basico
+		GENERIC_BUILDING,
 	}
 
 	[Serializable]

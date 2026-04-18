@@ -1,4 +1,5 @@
 using ActualUtils;
+using SerializableTypes;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -34,6 +35,7 @@ public class TimelineUI : MonoBehaviour
 	private VisualElement root;
 	public PhisicalTimeline lineElement;
 	private Scroller Scroll;
+	public SavedGame EXPOSEDSAVER;
 
 	void Start()
 	{
@@ -68,6 +70,7 @@ public class TimelineUI : MonoBehaviour
 
 	void Update()
 	{
+		EXPOSEDSAVER = Saver.CurrentGame;
 		if (updateEveryFrame)
 			ManualUpdateTimeline();
 	}
@@ -80,19 +83,18 @@ public class TimelineUI : MonoBehaviour
 
 		if (lineElement == null)
 		{
-			if (lineElement == null)
-			{
+			Debug.Log("NULLELEMENT");
 				// si no está, no hacemos nada
 				return;
-			}
+			
 		}
 		if (Scroll == null)
 		{
-			if (Scroll == null)
-			{
-				// si no está, no hacemos nada
-				return;
-			}
+			Debug.Log("NULLSCROLL");
+
+			// si no está, no hacemos nada
+			return;
+			
 		}
 
 		// Recolectar datos

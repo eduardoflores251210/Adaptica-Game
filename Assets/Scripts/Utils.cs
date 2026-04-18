@@ -49,6 +49,117 @@ namespace ActualUtils
 	public static class Saver
 	{
 		/// <summary>
+		/// Crea una nueva partida guardada en la etapa especificafacon la siguiente estructura
+		/// pt.Savefiles
+		///		[partida nombre en SHA 512]
+		///			CreationPrivate
+		///				Creatures
+		///				Microbe
+		///				TribalClothes
+		///				FeudalCLothes 
+		///				NationClothes
+		///			Save.json
+		/// </summary>
+		/// <param name="CreatureName">Nombre de la ciratura</param>
+		/// <param name="PlanetID">ID del planeta </param>
+		/// <returns></returns>
+		public static SavedGame CreateSavefile(string CreatureName, ulong PlanetID, Stages st, out string NAME)
+		{
+			if (!Directory.Exists(pt.SaveFiles))
+			{
+				Directory.CreateDirectory(pt.SaveFiles);
+			}
+			string SHA = "";
+			using SHA512 sHA = SHA512.Create();
+			{
+				string inp = DateTime.Now.ToString("o") + Random.ColorHSV().ToHexString();
+				byte[] AA = Encoding.UTF8.GetBytes(inp);
+				byte[] BB = sHA.ComputeHash(AA);
+				var g = BB.OrderBy(x => Random.value).ToArray();
+				// Convertir a hexadecimal
+				StringBuilder sb = new StringBuilder();
+				foreach (byte b in g)
+					sb.Append(b.ToString("x2"));
+				SHA = sb.ToString();
+			}
+			NAME = SHA.Substring(0,15);
+			string fil = J(pt.SaveFiles, NAME);
+			string dir4;
+			if (Application.platform == RuntimePlatform.WindowsPlayer ||
+	Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsServer)
+				dir4 = @"\\?\" + fil; // para rutas largas en windows
+			else
+				dir4 = fil;
+			fil = dir4;
+			Directory.CreateDirectory(fil);
+			string CC = J(fil, "CreationPrivate");
+			Directory.CreateDirectory(CC);
+			Directory.CreateDirectory(J(CC, "Microbe"));
+			Directory.CreateDirectory(J(CC, "Creatures"));
+			Directory.CreateDirectory(J(CC, "TribalClothes"));
+			Directory.CreateDirectory(J(CC, "FeudalClothes"));
+			Directory.CreateDirectory(J(CC, "NationClothes"));
+			SavedGame game = null;
+			if (st == Stages.Microbe)
+			{
+				MicrobeData microbeData = null;
+				try
+				{
+					microbeData = JsonUtility.FromJson<MicrobeData>(File.ReadAllText(Path.Combine(Paths.Cells, CreatureName)));
+				}
+				catch { }
+				game = new()
+				{
+					CurentStage = Stages.Microbe,
+					CreatureName = CreatureName,
+					Actions = new(),
+					CreatureDiet = Diets.none,
+					ingameTime = 0,
+					isCPUEmpire = false,
+					PlanetID = PlanetID
+				};
+				if (microbeData != null)
+				{
+					game.CellGameData = new()
+					{
+						DNA_Amount = 0,
+						MaxDNA_Got = 0,
+						Gender = GéneroBiológico.Female,
+						PlayerHealth = 100,
+						Progress = 0,
+					};
+				}
+			}
+			else if (st == Stages.Space)
+			{
+				game = new()
+				{
+					CurentStage = Stages.Space,
+					CreatureName = CreatureName,
+					Actions = new() {
+						new() { Path = HistoryPaths.Neutral, Tipo = ActionType.AdvanceStage, propieties = new(), Tags = new string[] {} } , //micorbio -> cirATURA
+						new() { Path = HistoryPaths.Neutral, Tipo = ActionType.AdvanceStage, propieties = new(), Tags = new string[] {} },//CRIAtura --> Tribu
+						new() { Path = HistoryPaths.Neutral, Tipo = ActionType.AdvanceStage, propieties = new(), Tags = new string[] {} },// tribu--> feudal
+						new() { Path = HistoryPaths.Neutral, Tipo = ActionType.AdvanceStage, propieties = new(), Tags = new string[] {} },// feudal--> nacion
+						new() { Path = HistoryPaths.Neutral, Tipo = ActionType.AdvanceStage, propieties = new(), Tags = new string[] {} },// Nacion--> espacio
+
+					},
+					CellGameData = new() { },
+					CreatureDiet = Diets.Omnivore,
+					ingameTime = 50f,
+					isCPUEmpire = false,
+					PlanetID = PlanetID
+				};
+			}
+			else throw new NotImplementedException();
+			string SAV = J(fil, "Save.Json");
+
+			string JAV = JsonUtility.ToJson(game, true);
+			File.WriteAllText(SAV, JAV);
+
+			return game;
+		}
+		/// <summary>
 		/// Crea una nueva partida guardada con la siguiente estructura
 		/// pt.Savefiles
 		///		[partida nombre en SHA 512]
@@ -75,14 +186,15 @@ namespace ActualUtils
 				string inp = DateTime.Now.ToString("o") + Random.ColorHSV().ToHexString();
 				byte[] AA = Encoding.UTF8.GetBytes(inp);
 				byte[] BB = sHA.ComputeHash(AA);
+				var g = BB.OrderBy(x => Random.value).ToArray();
 				// Convertir a hexadecimal
 				StringBuilder sb = new StringBuilder();
-				foreach (byte b in BB)
+				foreach (byte b in g)
 					sb.Append(b.ToString("x2"));
 				SHA = sb.ToString();
 			}
-			NAME = SHA;
-			string fil = J(pt.SaveFiles, SHA);
+			NAME = SHA.Substring(0,15);
+			string fil = J(pt.SaveFiles, NAME);
 			string dir4;
 			if (Application.platform == RuntimePlatform.WindowsPlayer ||
 	Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsServer)

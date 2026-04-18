@@ -236,6 +236,9 @@ public static class Paths
 	public static string Cells = Path.Join(Application.persistentDataPath, "SavedCells");
 	public static string Plants = Path.Join(Application.persistentDataPath, "SavedPlants");
 	public static string Creatures = Path.Join(Application.persistentDataPath, "SavedCreatures");
+	public static string TribalCreatures = Path.Join(Application.persistentDataPath, "SavedTribes");
+	public static string FeudalCreatures = Path.Join(Application.persistentDataPath, "SavedFeudal");
+	public static string NationCreatures = Path.Join(Application.persistentDataPath, "SavedCitizen");
 	public static string Galaxy = Path.Join(Application.persistentDataPath, "Galaxy");
     public static string GalaxySectors = Path.Join(Galaxy, "Region");
     public static string Planets = Path.Join(Paths.GalaxySectors, "Planets");

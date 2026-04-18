@@ -1,6 +1,7 @@
 ﻿using ActualUtils;
 using SerializableTypes;
 using SerializableTypes.Biology;
+using StandartUtilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -283,8 +284,40 @@ creado por {Application.companyName}";
 				Debug.Log("Entando a editor " + (Editors )editor);
 				EditorLoader.EnterEditor((Editors)editor);
 			}
+			[ConsoleCommand("!newgamee", true)] //esto es un cheat
+			public static void EE(int Stage, ulong planet)
+			{
+				var a = (Stages)Stage;
+				string[] ls = a switch
+				{
+					Stages.Microbe => Directory.GetFiles(Paths.Cells),
+					Stages.Creature => Directory.GetFiles(Paths.Creatures),
+					Stages.tribal => Directory.GetFiles(Paths.Creatures).Concat(Directory.GetFiles(Paths.TribalCreatures)).ToArray(),
+					Stages.City => Directory.GetFiles(Paths.Creatures).Concat(Directory.GetFiles(Paths.TribalCreatures)).Concat(Directory.GetFiles(Paths.FeudalCreatures)).ToArray(),
+					Stages.Civilization => Directory.GetFiles(Paths.Creatures).Concat(Directory.GetFiles(Paths.TribalCreatures)).Concat(Directory.GetFiles(Paths.FeudalCreatures)).Concat(Directory.GetFiles(Paths.NationCreatures)).ToArray(),
+					Stages.Space => new[] { "" },
+					Stages.MainMenu => null,
+					_ => null,
 
-
+				};
+				if (a == Stages.Microbe)
+				{
+					if (ls != null)
+					{
+						string File = ls[Random.Range(0,ls.Length)];
+						string JSON = System.IO.File.ReadAllText(File);
+						MicrobeData microbe = JsonUtility.FromJson<MicrobeData>(JSON);
+						microbe = microbe == null ? microbe : MicrobeData.GetDefaultMicrobe();
+						Saver.CreateSavefile(microbe.Name, planet, out var sav);
+						Saver.SaveMicrobeRevision(sav, microbe);
+						Saver.LoadGameComplete(sav);
+					}
+				}else if (a == Stages.Space)
+				{
+					Saver.CreateSavefile("NO", planet,Stages.Space, out var sav);
+					Saver.LoadGameComplete(sav);
+				}
+			}
 		}
 		public static class EasterEggCommands
 		{
