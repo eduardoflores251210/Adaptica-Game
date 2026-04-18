@@ -1,6 +1,9 @@
-﻿using SerializableTypes.Space;
+﻿using ActualUtils;
+using NUnit.Framework;
+using SerializableTypes.Space;
 using StandartUtilities;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -122,9 +125,8 @@ public class SpaceshipCtr : MonoBehaviour
 		if (orbit == null)
 			orbit = FindAnyObjectByType<CameraOrbitController>();
 		var vis = FindAnyObjectByType<StarVisualizer>();
-
-		CreateBigStar(star, vis);
-		SpawnPlanets(star, vis);
+		var lod = FindAnyObjectByType<LoadASYstem>();
+		AddSystem(lod, star);
 
 		SaveCameraSettings(orbit);
 		SetupSystemCamera(orbit);
@@ -197,6 +199,15 @@ public class SpaceshipCtr : MonoBehaviour
 			planets.Add(planet);
 			index++;
 		}
+	}
+	private void AddSystem(LoadASYstem loader, SpaceStageStar star)
+	{
+		loader.SolarSystemID = star.ID;
+		bigStar = loader.a();
+		bigStar.transform.position = Vector3.one * 99999f;
+		var renderer = bigStar.GetComponent<MeshRenderer>();
+		if (star.Type == StarTypes.X)
+			CreateBlackHoleDisk(renderer);
 	}
 
 	#endregion
@@ -284,7 +295,7 @@ public class SpaceshipCtr : MonoBehaviour
 
 		if (acretionDisk != null)
 			Destroy(acretionDisk);
-
+		Destroy(bigStar);
 		zoomExitStarted = false;
 		zoomExitCount = 0;
 	}
@@ -314,4 +325,9 @@ public class SpaceshipCtr : MonoBehaviour
 	}
 
 	#endregion
+
+	public void exitMenu()
+	{
+		LoadWithLoadingScreen.LoadScene(0,SerializableTypes.Stages.MainMenu);
+	}
 }
