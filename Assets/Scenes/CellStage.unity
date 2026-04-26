@@ -1516,6 +1516,21 @@ MonoBehaviour:
   updateEveryFrame: 1
   POINTS_EXT: []
   lineElement: {fileID: 1722113754}
+  EXPOSEDSAVER:
+    PlanetID: 0
+    isCPUEmpire: 0
+    CurentStage: 0
+    CreatureName: 
+    Actions: []
+    CreatureDiet: 0
+    ingameTime: 0
+    CellGameData:
+      DNA_Amount: 0
+      MaxDNA_Got: 0
+      Progress: 0
+      PlayerHealth: 0
+      Gender: 0
+      Finished: 0
 --- !u!114 &1444000948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1749,6 +1764,7 @@ MonoBehaviour:
   CurrentGen: -1
   PlayTime: 0
   viewRadius: 0
+  SizeRespect: 0
 --- !u!23 &1561327409
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2190,6 +2206,7 @@ MonoBehaviour:
   SpawnWaitTime: 0.3141593
   CanSpawn: 1
   SpawnRadius: 100
+  DestroyMsg: razon desconocida
 --- !u!1 &2031897101
 GameObject:
   m_ObjectHideFlags: 0

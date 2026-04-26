@@ -430,24 +430,27 @@ namespace SerializableTypes.Biology
 					}
 				}
 			}
-
-			if (PartsM != null)
+			//evitamso rotar mas de 1 vez
+			if (StdUtils.Comparisons.ListsAreEqual(PartsF, PartsM))
 			{
-				foreach (var part in PartsM)
+				if (PartsM != null)
 				{
-					Vector3 worldPos = part.transform.Pos;
-					Vector3 rel = worldPos - pivot;
-					Vector3 relRot = RotateVectorLocal(rel);
-					part.transform.Pos = pivot + relRot;
-
-					if (part.transform.Rot != null)
+					foreach (var part in PartsM)
 					{
-						part.transform.Rot += eulerAngles;
-						part.transform.Rot = new Vector3(
-							Mathf.Repeat(part.transform.Rot.x + 180f, 360f) - 180f,
-							Mathf.Repeat(part.transform.Rot.y + 180f, 360f) - 180f,
-							Mathf.Repeat(part.transform.Rot.z + 180f, 360f) - 180f
-						);
+						Vector3 worldPos = part.transform.Pos;
+						Vector3 rel = worldPos - pivot;
+						Vector3 relRot = RotateVectorLocal(rel);
+						part.transform.Pos = pivot + relRot;
+
+						if (part.transform.Rot != null)
+						{
+							part.transform.Rot += eulerAngles;
+							part.transform.Rot = new Vector3(
+								Mathf.Repeat(part.transform.Rot.x + 180f, 360f) - 180f,
+								Mathf.Repeat(part.transform.Rot.y + 180f, 360f) - 180f,
+								Mathf.Repeat(part.transform.Rot.z + 180f, 360f) - 180f
+							);
+						}
 					}
 				}
 			}

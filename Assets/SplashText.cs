@@ -314,6 +314,7 @@ public class SplashText : MonoBehaviour
 		"Load system works… probably",
 		"Refactor coming soon™",
 		"Adaptica!",
+		"New galaxies... Almost real",
 	};
 	Idioma esp;//si español 
 	void Start()

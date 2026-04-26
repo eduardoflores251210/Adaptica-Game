@@ -253,11 +253,13 @@ public class StarVisualizer : MonoBehaviour
 				switch (element.Type)
 				{
 					case CelestialBodyType.Star:
+						if (element.Star.ParentID.StartsWith('S'))
 						ProcessStar(element, parent, needTemplates, particleO, particleB, particleA, particleF, particleG, particleK, particleM, particleL, particleT, particleEB, particleNS, particleEN, particleX, starTemplate);
 						break;
 
 					case CelestialBodyType.Planet:
-						ProcessPlanet(element, parent, needTemplates, particleEN, planetTemplate);
+						if (element.Planet.ParentID.StartsWith('S'))
+							ProcessPlanet(element, parent, needTemplates, particleEN, planetTemplate);
 						break;
 
 						// Aquí puedes meter Nebulas, Novas, etc. ¡ZAZ!

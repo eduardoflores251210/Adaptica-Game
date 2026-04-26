@@ -1442,7 +1442,7 @@ namespace SerializableTypes.Space
 	public static class BinaryGalaxySerializer
 	{
 		const string MAGIC = "EGAL"; // magic header
-		const int FORMAT_VERSION = 1;
+		const int FORMAT_VERSION = 2;
 
 		#region Public API
 
@@ -1466,7 +1466,7 @@ namespace SerializableTypes.Space
 			if (version != FORMAT_VERSION)
 				throw new InvalidDataException($"Versión de formato no soportada: {version}");
 
-			return ReadCelestialBody(reader);
+			return ReadCelestialBody(reader, version);
 		}
 
 		public static void SerializeList(Stream stream, List<CelestialBody> list)
@@ -1489,7 +1489,7 @@ namespace SerializableTypes.Space
 
 			int count = reader.ReadInt32();
 			var res = new List<CelestialBody>(count);
-			for (int i = 0; i < count; i++) res.Add(ReadCelestialBody(reader));
+			for (int i = 0; i < count; i++) res.Add(ReadCelestialBody(reader, version));
 			return res;
 		}
 
@@ -1534,19 +1534,19 @@ namespace SerializableTypes.Space
 			}
 		}
 
-		private static CelestialBody ReadCelestialBody(BinaryReader reader)
+		private static CelestialBody ReadCelestialBody(BinaryReader reader, int version)
 		{
 			byte typeMarker = reader.ReadByte();
 			if (typeMarker == 255) return null;
 
 			return typeMarker switch
 			{
-				(byte)CelestialBodyType.Planet => ReadPlanet(reader),
-				(byte)CelestialBodyType.Star => ReadStar(reader),
-				(byte)CelestialBodyType.Baricenter => ReadBaricenter(reader),
-				(byte)CelestialBodyType.Nebula => ReadNebula(reader),
-				(byte)CelestialBodyType.Nova => ReadNova(reader),
-				254 => ReadBaseCelestialBody(reader),
+				(byte)CelestialBodyType.Planet     => ReadPlanet    (reader, version),
+				(byte)CelestialBodyType.Star       => ReadStar      (reader, version),
+				(byte)CelestialBodyType.Baricenter => ReadBaricenter(reader, version),
+				(byte)CelestialBodyType.Nebula     => ReadNebula    (reader, version),
+				(byte)CelestialBodyType.Nova       => ReadNova      (reader, version),
+				254 => ReadBaseCelestialBody(reader, version),
 				_ => throw new InvalidDataException($"Tipo desconocido al leer CelestialBody: {typeMarker}"),
 			};
 		}
@@ -1563,9 +1563,10 @@ namespace SerializableTypes.Space
 			WriteStringList(w, b.Children);
 			WriteString(w, b.id);
 			WriteString(w, b.ParentID);
+			WriteStatList(w,b.ExtraData);
 		}
 
-		private static CelestialBody ReadBaseCelestialBody(BinaryReader r)
+		private static CelestialBody ReadBaseCelestialBody(BinaryReader r, int v)
 		{
 			var baseObj = new CelestialBody();
 			baseObj.Name = ReadString(r);
@@ -1574,6 +1575,8 @@ namespace SerializableTypes.Space
 			baseObj.Children = ReadStringList(r);
 			baseObj.id = ReadString(r);
 			baseObj.ParentID = ReadString(r);
+			if (v != 1)
+				baseObj.ExtraData = ReadStatList(r);
 			return baseObj;
 		}
 
@@ -1593,10 +1596,10 @@ namespace SerializableTypes.Space
 			w.Write(p.Seed);
 		}
 
-		private static PlanetData ReadPlanet(BinaryReader r)
+		private static PlanetData ReadPlanet(BinaryReader r, int ve)
 		{
 			var p = new PlanetData();
-			var baseTemp = ReadBaseCelestialBody(r);
+			var baseTemp = ReadBaseCelestialBody(r,ve);
 			CopyBaseFields(baseTemp, p);
 
 			p.HMapID = ReadString(r);
@@ -1615,10 +1618,10 @@ namespace SerializableTypes.Space
 			w.Write((int)s.type);
 		}
 
-		private static StarData ReadStar(BinaryReader r)
+		private static StarData ReadStar(BinaryReader r, int ve)
 		{
 			var s = new StarData();
-			var baseTemp = ReadBaseCelestialBody(r);
+			var baseTemp = ReadBaseCelestialBody(r, ve);
 			CopyBaseFields(baseTemp, s);
 			s.type = (StarTypes)r.ReadInt32();
 			return s;
@@ -1629,10 +1632,10 @@ namespace SerializableTypes.Space
 			WriteBaseCelestialBody(w, b);
 		}
 
-		private static BaricenterData ReadBaricenter(BinaryReader r)
+		private static BaricenterData ReadBaricenter(BinaryReader r, int ve)
 		{
 			var b = new BaricenterData();
-			var baseTemp = ReadBaseCelestialBody(r);
+			var baseTemp = ReadBaseCelestialBody(r, ve);
 			CopyBaseFields(baseTemp, b);
 			return b;
 		}
@@ -1644,10 +1647,10 @@ namespace SerializableTypes.Space
 			w.Write((int)n.Shape);
 		}
 
-		private static NebulaData ReadNebula(BinaryReader r)
+		private static NebulaData ReadNebula(BinaryReader r, int ve)
 		{
 			var n = new NebulaData();
-			var baseTemp = ReadBaseCelestialBody(r);
+			var baseTemp = ReadBaseCelestialBody(r, ve);
 			CopyBaseFields(baseTemp, n);
 			n.Color = ReadColor(r);
 			n.Shape = (GalacticCloudShape)r.ReadInt32();
@@ -1663,10 +1666,10 @@ namespace SerializableTypes.Space
 			w.Write((int)nv.Shape);
 		}
 
-		private static NovaData ReadNova(BinaryReader r)
+		private static NovaData ReadNova(BinaryReader r, int ve)
 		{
 			var nv = new NovaData();
-			var baseTemp = ReadBaseCelestialBody(r);
+			var baseTemp = ReadBaseCelestialBody(r, ve);
 			CopyBaseFields(baseTemp, nv);
 			nv.Color = ReadColor(r);
 			nv.Type = (NovaType)r.ReadInt32();
@@ -1687,6 +1690,7 @@ namespace SerializableTypes.Space
 			to.Children = from.Children;
 			to.id = from.id;
 			to.ParentID = from.ParentID;
+			to.ExtraData = from.ExtraData;
 		}
 
 		private static void WriteString(BinaryWriter w, string s)
@@ -1788,7 +1792,41 @@ namespace SerializableTypes.Space
 			t.Scale = ReadVector3(r);
 			return t;
 		}
+		private static void WriteStatList(BinaryWriter w, StatList list)
+		{
+			if (list == null || list.stats == null || list.stats.Count == 0)
+			{
+				w.Write(-1); // marker: no stats
+				return;
+			}
 
+			w.Write(list.stats.Count);
+
+			foreach (var stat in list.stats)
+			{
+				WriteString(w, stat.key);
+				WriteString(w, stat.value);
+			}
+		}
+		private static StatList ReadStatList(BinaryReader r)
+		{
+			int count = r.ReadInt32();
+
+			if (count < 0)
+				return new StatList(); // o null si prefieres nihilismo
+
+			var list = new StatList();
+
+			for (int i = 0; i < count; i++)
+			{
+				string key = ReadString(r);
+				string value = ReadString(r);
+
+				list.stats.Add(new Stat(key, value));
+			}
+
+			return list;
+		}
 		#endregion
 
 		// --- AÑADE ESTO A BinaryGalaxySerializer (dentro del mismo tipo) ---
@@ -1811,8 +1849,8 @@ namespace SerializableTypes.Space
 			var magic = Encoding.UTF8.GetString(reader.ReadBytes(MAGIC.Length));
 			if (magic != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
 			int version = reader.ReadInt32();
-			if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
-			return ReadPlanetSector(reader);
+			if (version > FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
+			return ReadPlanetSector(reader, version);
 		}
 
 		// BaricenterSector
@@ -1831,8 +1869,8 @@ namespace SerializableTypes.Space
 			var magic = Encoding.UTF8.GetString(reader.ReadBytes(MAGIC.Length));
 			if (magic != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
 			int version = reader.ReadInt32();
-			if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
-			return ReadBaricenterSector(reader);
+			if (version > FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
+			return ReadBaricenterSector(reader, version);
 		}
 
 		// MiscSector
@@ -1851,8 +1889,8 @@ namespace SerializableTypes.Space
 			var magic = Encoding.UTF8.GetString(reader.ReadBytes(MAGIC.Length));
 			if (magic != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
 			int version = reader.ReadInt32();
-			if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
-			return ReadMiscSector(reader);
+			if (version > FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
+			return ReadMiscSector(reader, version);
 		}
 
 		// GalaxySector
@@ -1871,8 +1909,8 @@ namespace SerializableTypes.Space
 			var magic = Encoding.UTF8.GetString(reader.ReadBytes(MAGIC.Length));
 			if (magic != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
 			int version = reader.ReadInt32();
-			if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
-			return ReadGalaxySector(reader);
+			if (version > FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
+			return ReadGalaxySector(reader, version);
 		}
 
 		#endregion
@@ -1894,7 +1932,7 @@ namespace SerializableTypes.Space
 			}
 		}
 
-		private static PlanetSector ReadPlanetSector(BinaryReader r)
+		private static PlanetSector ReadPlanetSector(BinaryReader r, int ver)
 		{
 			bool has = r.ReadBoolean();
 			if (!has) return null;
@@ -1903,7 +1941,7 @@ namespace SerializableTypes.Space
 			var arr = new PlanetData[len];
 			for (int i = 0; i < len; i++)
 			{
-				var obj = ReadCelestialBody(r); // puede devolver null o cualquier CelestialBody
+				var obj = ReadCelestialBody(r, ver); // puede devolver null o cualquier CelestialBody
 				if (obj == null) arr[i] = null;
 				else if (obj is PlanetData p) arr[i] = p;
 				else throw new InvalidDataException($"Se esperaba PlanetData en PlanetSector[{i}] pero vino {obj.GetType().Name}");
@@ -1923,7 +1961,7 @@ namespace SerializableTypes.Space
 				WriteCelestialBody(w, arr[i]);
 		}
 
-		private static BaricenterSector ReadBaricenterSector(BinaryReader r)
+		private static BaricenterSector ReadBaricenterSector(BinaryReader r, int ver)
 		{
 			bool has = r.ReadBoolean();
 			if (!has) return null;
@@ -1932,7 +1970,7 @@ namespace SerializableTypes.Space
 			var arr = new BaricenterData[len];
 			for (int i = 0; i < len; i++)
 			{
-				var obj = ReadCelestialBody(r);
+				var obj = ReadCelestialBody(r, ver);
 				if (obj == null) arr[i] = null;
 				else if (obj is BaricenterData b) arr[i] = b;
 				else throw new InvalidDataException($"Se esperaba BaricenterData en BaricenterSector[{i}] pero vino {obj.GetType().Name}");
@@ -1963,7 +2001,7 @@ namespace SerializableTypes.Space
 			}
 		}
 
-		private static MiscSector ReadMiscSector(BinaryReader r)
+		private static MiscSector ReadMiscSector(BinaryReader r, int ver)
 		{
 			bool has = r.ReadBoolean();
 			if (!has) return null;
@@ -1976,7 +2014,7 @@ namespace SerializableTypes.Space
 				nebulae = new NebulaData[nebLen];
 				for (int i = 0; i < nebLen; i++)
 				{
-					var obj = ReadCelestialBody(r);
+					var obj = ReadCelestialBody(r, ver);
 					if (obj == null) nebulae[i] = null;
 					else if (obj is NebulaData n) nebulae[i] = n;
 					else throw new InvalidDataException($"Se esperaba NebulaData en MiscSector.Nebulae[{i}] pero vino {obj.GetType().Name}");
@@ -1991,7 +2029,7 @@ namespace SerializableTypes.Space
 				sn = new NovaData[snLen];
 				for (int i = 0; i < snLen; i++)
 				{
-					var obj = ReadCelestialBody(r);
+					var obj = ReadCelestialBody(r, ver);
 					if (obj == null) sn[i] = null;
 					else if (obj is NovaData n) sn[i] = n;
 					else throw new InvalidDataException($"Se esperaba NovaData en MiscSector.Supernovae[{i}] pero vino {obj.GetType().Name}");
@@ -2024,7 +2062,7 @@ namespace SerializableTypes.Space
 			}
 		}
 
-		private static GalaxySector ReadGalaxySector(BinaryReader r)
+		private static GalaxySector ReadGalaxySector(BinaryReader r, int ver)
 		{
 			bool has = r.ReadBoolean();
 			if (!has) return null;
@@ -2041,7 +2079,7 @@ namespace SerializableTypes.Space
 				stars = new StarData[starLen];
 				for (int i = 0; i < starLen; i++)
 				{
-					var obj = ReadCelestialBody(r);
+					var obj = ReadCelestialBody(r, ver);
 					if (obj == null) stars[i] = null;
 					else if (obj is StarData s) stars[i] = s;
 					else throw new InvalidDataException($"Se esperaba StarData en GalaxySector.Stars[{i}] pero vino {obj.GetType().Name}");
@@ -2073,7 +2111,7 @@ namespace SerializableTypes.Space
 				int version = reader.ReadInt32();
 				if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión de formato no soportada: {version}");
 
-				return ReadCelestialBody(reader);
+				return ReadCelestialBody(reader, version);
 			}, cancellationToken).ConfigureAwait(false);
 		}
 
@@ -2094,7 +2132,7 @@ namespace SerializableTypes.Space
 				for (int i = 0; i < count; i++)
 				{
 					cancellationToken.ThrowIfCancellationRequested();
-					res.Add(ReadCelestialBody(reader));
+					res.Add(ReadCelestialBody(reader, version));
 				}
 				return res;
 			}, cancellationToken).ConfigureAwait(false);
@@ -2111,7 +2149,7 @@ namespace SerializableTypes.Space
 				if (magic != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
 				int version = reader.ReadInt32();
 				if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
-				return ReadPlanetSector(reader);
+				return ReadPlanetSector(reader, version);
 			}, cancellationToken).ConfigureAwait(false);
 		}
 
@@ -2126,7 +2164,7 @@ namespace SerializableTypes.Space
 				if (magic != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
 				int version = reader.ReadInt32();
 				if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
-				return ReadBaricenterSector(reader);
+				return ReadBaricenterSector(reader, version );
 			}, cancellationToken).ConfigureAwait(false);
 		}
 
@@ -2141,7 +2179,7 @@ namespace SerializableTypes.Space
 				if (magic != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
 				int version = reader.ReadInt32();
 				if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
-				return ReadMiscSector(reader);
+				return ReadMiscSector(reader, version);
 			}, cancellationToken).ConfigureAwait(false);
 		}
 
@@ -2156,7 +2194,7 @@ namespace SerializableTypes.Space
 				if (magic != MAGIC) throw new InvalidDataException("Archivo no reconocido (magic mismatch).");
 				int version = reader.ReadInt32();
 				if (version != FORMAT_VERSION) throw new InvalidDataException($"Versión no soportada: {version}");
-				return ReadGalaxySector(reader);
+				return ReadGalaxySector(reader, version);
 			}, cancellationToken).ConfigureAwait(false);
 		}
 

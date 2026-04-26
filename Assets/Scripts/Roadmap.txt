@@ -2,7 +2,7 @@
 
 ROAMAP  ACTUAL: 
 3.0.1 optimizar el visualizador de estrellas ✅
-3.1.0 Corregir la generación de galaxia y volver al sistema flexible ✅ (estamos en RC 3)
+3.1.0 Corregir la generación de galaxia y volver al sistema flexible ✅
 3.2.0 volver al editor de microbios parte del gameplay y no solo lo primero que usas hacer menos tonta la IA de los microbios la cual no toma en cuenta su tamaño ni sus partes encontrar comida ademas podria implementar la depredación entre microbios y que los microbios puedan comer a otros microbios
 3.3.0 Añadir colisiones al erstadio microbio y aplicar la escala  en relación al progreso ademas de conbinar lso puntos iguales en historia 
 3.4.0 optimizar la generación de planeta para  para manejar tamaño grandes  y añadir la evolución de partes

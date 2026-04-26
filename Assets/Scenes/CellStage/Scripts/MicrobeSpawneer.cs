@@ -98,7 +98,7 @@ public class MicrobeSpawneer : MonoBehaviour
 				MicrobeData microbe = Datas[Random.Range(0, Datas.Count)];
 				// Parche de emergencia elegante: centrar microbio y partes
 				microbe.CenterMicrobe();
-				microbe.RotateMicrobeEuler(new(0, 90, 0));
+
 				Mailman.SendTypedPackage(gameObject.name, sb.ToString(), microbe, new string[1] { nameof(MicrobeData) });
 				GO = Instantiate(CellPrefab);
 				GO.transform.position = (Vector3)pos + transform.position;

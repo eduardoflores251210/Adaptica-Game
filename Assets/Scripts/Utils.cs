@@ -726,6 +726,8 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 					break;
 
 				case Stages.Creature:
+					LoadCreatureStage();
+					break;
 				case Stages.tribal:
 				case Stages.City:
 				case Stages.Civilization:
@@ -758,6 +760,7 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 					break;
 
 				case Stages.Creature:
+					LoadCreatureStage(); break;
 				case Stages.tribal:
 				case Stages.City:
 				case Stages.Civilization:
@@ -859,6 +862,7 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 					break;
 				case Stages.Creature:
 					Debug.Log("por favor espera un momento aun no esta lo sufuciente desarrollado");
+					LoadCreatureStage();
 					break;
 				case Stages.tribal:
 				case Stages.City:
@@ -869,9 +873,178 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 					Debug.Log("Cargando Space Stage...");
 					LoadWithLoadingScreen.LoadScene(6, Stages.Space);
 					break;
+				case Stages.MainMenu:
+					LoadWithLoadingScreen.LoadScene(0,Stages.MainMenu);
+					break;
+
 				default:
 					throw new NotImplementedException($"Carga de estado {Saver.CurrentGame.CurentStage} no implementada");
 			}
+		}
+		//ESTO yo lo hize no el GPT dramatico
+		/// <summary>
+		/// EN FASE YTAN TEMPRANA DE DESAROLLO QUE NI SOPORTA PLANETAS PERSONALIZADOS SOLO UN SISTEMA HARDCODEADO
+		/// </summary>
+		private static void LoadCreatureStage()
+		{
+			CrossScenePackageSender.Instance.SendTypedPackage<StarData>("A", "SUN", new StarData() { Name = "Sol", id = "E9999", Children = new() { "P9991", "P9992", "P9993", "P9994", "P9995", "P9996", "P9997", "P9998" }, Description = "ES EL SOL", ExtraData = new(), ParentID = "S99", transform = new(), type = StarTypes.G }, new string[] { });
+			Color Saturnbeige = new Color(255, 240, 191);
+			Color OuranoosBlue = new Color(112, 207, 205);
+			List<PlanetData> plts = new List<PlanetData>
+			{
+				new PlanetData
+				{
+					id= "P9991",
+					Description = "Mercurio es el primer planeta",
+					Children = new(){ },
+					GasColors = new List<Color> { Color.gray}, // [0] = color superficio en rocosos  y mercurio es gris
+					HMapID = "MAPS:MERCURY", //no existe pero para que suene real
+					Seed = 1,
+					IsSaveFile = false,
+					ParentID = "E9999",
+					Name = "Mercurio",
+					radius =  0.1f,
+					ExtraData = new(),
+					transform = new(),
+					type = PlanetTypes.MoonLike,
+				},
+				new PlanetData
+				{
+					id= "P9992",
+					Description = "Venus es el Segundo planeta",
+					Children = new(){ },
+					GasColors = new List<Color> {  new Color (232, 195, 158) }, //beige
+					HMapID = "MAPS:Venus",
+					Seed = 1,
+					IsSaveFile = false,
+					ParentID = "E9999",
+					Name = "Venus",
+					radius =  0.5f,
+					ExtraData = new(),
+					transform = new(),
+					type = PlanetTypes.VenusLike,
+				},
+				new PlanetData
+				{
+					id= "P9993",
+					Description = "Hogar dulce hogar",
+					Children = new(){ },
+					GasColors = new List<Color> { new Color(155, 147, 59), new Color(115, 194, 251)}, //el segundo color es Color del mar en este caso use Azul Maya
+					HMapID = "MAPS:Earth",
+					Seed = 1,
+					IsSaveFile = true,
+					ParentID = "E9999",
+					Name = "Tierra",
+					radius =  0.5f,
+					ExtraData = new(),
+					transform = new(),
+					type = PlanetTypes.Terra,
+				},
+				new PlanetData
+				{
+					id= "P9994",
+					Description = "¿futuro? Hogar dulce hogar",
+					Children = new(){ },
+					GasColors = new List<Color> { new Color (228, 113, 122)},
+					HMapID = "MAPS:Mars",
+					Seed = 1,
+					IsSaveFile = false,
+					ParentID = "E9999",
+					Name = "Marte",
+					radius =  0.3f,
+					ExtraData = new(),
+					transform = new(),
+					type = PlanetTypes.MarsLike,
+				},
+				new PlanetData
+				{
+					id= "P9995",
+					Description = "Gigante enorme",
+					Children = new(){ },
+					GasColors = new List<Color> { new Color (232, 195, 158), Color.white, new Color (232, 195, 158) ,Color.white, new Color (232, 195, 158)  },//gigantes de gas requieren 5 colores : polo norte, arriba, ecuador,abajo, polo sur
+					HMapID = null,
+					Seed = 1,
+					IsSaveFile = false,
+					ParentID = "E9999",
+					Name = "Júpiter",
+					radius =  0.9f,
+					ExtraData = new(),
+					transform = new(),
+					type = PlanetTypes.BasicGas,
+				},
+				new PlanetData
+				{
+					id= "P9996",
+					Description = "Gigante Anillado",
+					Children = new(){ },
+					GasColors = new List<Color> { Saturnbeige,Saturnbeige,Saturnbeige,Saturnbeige,Saturnbeige  },
+					HMapID = null,
+					Seed = 1,
+					IsSaveFile = false,
+					ParentID = "E9999",
+					Name = "Satuirno",
+					radius =  0.85f,
+					ExtraData = new()
+					{ 
+						stats = new()
+						{ 
+							new("Rings", "true"),
+							new("RingThick", "1")
+						}
+					},
+					transform = new(),
+					type = PlanetTypes.BasicGas,
+				},
+				new PlanetData
+				{
+					id= "P9997",
+					Description = "Gigante gracisoso (en inglés)",
+					Children = new(){ },
+					GasColors = new List<Color> { OuranoosBlue,OuranoosBlue,OuranoosBlue,OuranoosBlue,OuranoosBlue },
+					HMapID = null,
+					Seed = 1,
+					IsSaveFile = false,
+					ParentID = "E9999",
+					Name = "Urano",
+					radius =  0.85f,
+					ExtraData = new()
+					{ 
+						stats = new()
+						{ 
+							new("Rings", "true"),
+							new("RingThick", "0.1")
+						}
+					},
+					transform = new(),
+					type = PlanetTypes.IceGas,
+				},
+				new PlanetData
+				{
+					id= "P9998",
+					Description = "Gigante Azul no tan azul",
+					Children = new(){ },
+					GasColors = new List<Color> { OuranoosBlue,OuranoosBlue,OuranoosBlue,OuranoosBlue,OuranoosBlue },
+					HMapID = null,
+					Seed = 1,
+					IsSaveFile = false,
+					ParentID = "E9999",
+					Name = "Neptuno",
+					radius =  0.85f,
+					ExtraData = new()
+					{ 
+						stats = new()
+						{ 
+							new("Rings", "true"),
+							new("RingThick", "0.1")
+						}
+					},
+					transform = new(),
+					type = PlanetTypes.IceGas,
+				},
+			};
+			CrossScenePackageSender.Instance.SendTypedPackage<List<PlanetData>>("A", "Planets", plts, new string[] { });
+			CrossScenePackageSender.Instance.SendTypedPackage("A", "Parent", "P9993", new string[] { }); // Parent aka MAin planet
+			LoadWithLoadingScreen.LoadScene(8, Stages.Creature);
 		}
 	}
 	public static class EditorLoader

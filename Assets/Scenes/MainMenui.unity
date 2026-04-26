@@ -60421,9 +60421,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GalaxyScale: 10
-  BasMat: {fileID: -876546973899608171, guid: f578aa3d91f252647bf0fb06f9ad6f4f, type: 3}
+  BasMat: {fileID: 2100000, guid: 667ec4bb9942a8947b5c201c5562ef0a, type: 2}
   BholMat: {fileID: 2100000, guid: dd67431989bb8b740859c711f08c6dfb, type: 2}
-  OpaceMat: {fileID: -876546973899608171, guid: b327d0be7d75f2844a8b5480412bfb0f, type: 3}
+  OpaceMat: {fileID: 2100000, guid: 1a5619fdfa1c78a41b612f66ba8b6f3c, type: 2}
   starParent: {fileID: 427197799}
   Generator: {fileID: 1498985392}
   IsDebug: 0
@@ -73966,7 +73966,7 @@ RectTransform:
   m_GameObject: {fileID: 2030201383}
   m_LocalRotation: {x: -0, y: -0, z: 0.28464007, w: 0.9586345}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9496076, y: 0.9496076, z: 0.9496076}
+  m_LocalScale: {x: 1.0332847, y: 1.0332847, z: 1.0332847}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1336602438}
@@ -73991,7 +73991,7 @@ MonoBehaviour:
   PulseSpeed: 8.13
   PulseAmplitude: 0.1
   ChangeTimeInMinutes: 0.5
-  timer: 1.3866861
+  timer: 0.2550344
   text: {fileID: 2030201386}
   Override: 0
   idx: 0
@@ -74016,7 +74016,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: <color=#0000FF>BLUE</color>
+  m_text: Maybe it needs comic SANS
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1f251fab3f3063343aa12b35ff14bc77, type: 2}
   m_sharedMaterial: {fileID: -4311610417880198931, guid: 1f251fab3f3063343aa12b35ff14bc77, type: 2}
@@ -74043,7 +74043,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 45.85
+  m_fontSize: 22.9
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1

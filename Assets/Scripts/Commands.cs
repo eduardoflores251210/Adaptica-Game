@@ -284,7 +284,7 @@ creado por {Application.companyName}";
 				Debug.Log("Entando a editor " + (Editors )editor);
 				EditorLoader.EnterEditor((Editors)editor);
 			}
-			[ConsoleCommand("!newgamee", true)] //esto es un cheat
+			[ConsoleCommand("!newgame", true)] //esto es un cheat
 			public static void EE(int Stage, ulong planet)
 			{
 				var a = (Stages)Stage;
