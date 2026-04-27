@@ -1,40 +1,32 @@
-Esto no es codigo C#. aunque este en la carpeta de Scripts  XD.
-Es un archivo de texto plano utilizado para planificar las etapas del desarrollo del proyecto.
+# PLANEACION DE ETAPAS (esto era antes un txt)
 
-Celula:
-	A menudo lo llamo celula pero en realidad se llama Microbio.
-	Es la primera etapa del juego.
-	EL jugador controla un microbio Multicelular temprano.
-	el objetivo es comer, sovrevir y evolucionar. como en Spore.
-	El jugador puede evolucionar su microbio agregando nuevas partes y habilidades.
-	Los otros microbios son tontos y solo buscan comida.
+MICROBIO:
+
+A menudo lo llamo celula pero en realidad se llama Microbio.Es la primera etapa del juego. El jugador controla un microbio Multicelular temprano. El objetivo es comer, sovrevir y evolucionar. como en Spore.El jugador puede evolucionar su microbio agregando nuevas partes y habilidades. Los otros microbios son tontos y solo buscan comida.
+
+	 
 Criatura:
-	La segunda etapa del juego.
-	El jugador controla una criatura acu·tica.
-	El objetivo es explorar el ocÈano, encontrar comida y evitar depredadores.
-	El jugador puede evolucionar su criatura agregando nuevas partes y habilidades.
-	Los otros animales tienen IA b·sica y pueden cazar o huir.
-	Puede migrar a tierra o devuelta al agua en cualquier momento. a diferencia de Thrive y Spore.
-	En tierra, el jugador debe encontrar comida y evitar depredadores terrestres.
-	ademas en tierra los meteoritos que caen pueden darte una concusion temporal.
+
+La segunda etapa del juego. El jugador controla una criatura acu√°tica. El objetivo es explorar el oc√©ano, encontrar comida y evitar depredadores. El jugador puede evolucionar su criatura agregando nuevas partes y habilidades. Los otros animales tienen IA b√°sica y pueden cazar o huir. Puede migrar a tierra o devuelta al agua en cualquier momento (las ballenas lo hicieron). a diferencia de Thrive y Spore. En tierra, el jugador debe encontrar comida y evitar depredadores terrestres.ademas en tierra los meteoritos que caen pueden darte una concusion temporal.
+
+	
 Tribal:
-	basicamente edad de piedra
-	El objetivo es desarollar tecnologias y interactuar con otras tribus
-	es un city builder
+
+basicamente edad de piedra El objetivo es desarollar tecnologias y interactuar con otras tribus es un city builder el jugador es introducido al arbol tecnologico BASICO
+
+
 Feudal: 
-	es un city builder mas avanzado el objetivo es mejorar la tecnologia inicias en la edad feudal
-	este estadio es especial por que No termina en si aun puede acceder sus caracteristicas desde espacio y civilizaciÛn
-	aunque si solo sobrevive el editor de ciudades en los otros estadios no la parte feudal antes que pienses eso
-NaciÛn:
-	es un juego de estrategia en tiempo real como victoria 2
-	hay acceso al editor de ciudad de Feudal aka City
+	es un city builder mas avanzado el objetivo es mejorar la tecnologia inicias en la edad feudaleste estadio es especial por que No termina en si aun puede acceder sus caracteristicas desde espacio y civilizaci√≥n aunque si solo sobrevive el editor de ciudades en los otros estadios no la parte feudal antes que pienses eso
+	
+Naci√≥n:
+
+es un juego de estrategia en tiempo real como victoria 2 hay acceso al editor de ciudad de Feudal aka City y ademas debes progresar en tecnologia
+
 Space:
-	En esta etapa exploras el universo interactuas ocn demas especies
-	colizas planetas
-	teraforams planetas.
-	y el resto de cosas que su version de spore
 
+En esta etapa exploras el universo interactuas ocn demas especies colonizas planetas teraforams planetas. y el resto de cosas que su version de spore  no se mas que decir OK
 
+# ESTO SOLO SE QUEDA COMO HISTORIA de cuando me andaba peleando con el texo predictivo o creo que era github copilot IGNORALO 
 Ideas para el nombre del juego por que Thrive, Adapt y OBIAMENTE SPORE ya estan tomados:
 1. EvoQuest
 2. Adaptica
@@ -48,18 +40,19 @@ NUEVAS IDEAS:
 1. MicroMundo
 2. Adaptaville
 3. BioJourney
-4. VidaL˙dica (que bueno que no gano este nombre XD)
-5. EvoL˙dico
-6. MundoCÈlula ( ni este eso suena a juego de moviles para niÒos XD)
+4. VidaL√∫dica (que bueno que no gano este nombre XD)
+5. EvoL√∫dico
+6. MundoC√©lula ( ni este eso suena a juego de moviles para ni√±os XD)
 Pensandolo bien Adaptica no suena tan epico XD
 asi que es OFICIAL el nombre del juego sera ADAPTICA ya no mas SporeLikeEditor XDD OK CREO QUE YA VOY A DEJAR DE PONER NOMBRES PROVISIONALES AL JUEGO Y VOVER A  reformar
 el sistema de guardado pues falta corregir la creacion de nuevas partidas y demas VAMOS A microbe saver a corregir eso
 
-la silaba tonica de Adaptica es la "ti" asi que se pronuncia "AdaptÌca" y no "Adaptic·" XD pues 
-Adaptic· es una conjugaciÛn del verbo imaginario
+# ESTO NO LO DEBES IGNORAR
+la silaba tonica de Adaptica es la "ti" asi que se pronuncia "Adapt√≠ca" y no "Adaptic√°" XD pues 
+Adaptic√° es una conjugaci√≥n del verbo imaginario
 Adapticar.
-y ¡daptica no existe
-ademas segun las reglas del espaÒol Las palabras llanas (o graves) acabadas en ´nª, ´sª o vocal no llevan tilde.
+y √Ådaptica no existe
+ademas segun las reglas del espa√±ol Las palabras llanas (o graves) acabadas en ¬´n¬ª, ¬´s¬ª o vocal no llevan tilde.
 
 
 asi que NO ADAPTIQUES ADAPTICA XD
