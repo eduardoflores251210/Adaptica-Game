@@ -30,3 +30,5 @@ esos los dejo POR QUE SON DEL FORMATO INEFICIETE VIEJISIMO
 
 
 [Guía de Modding](./MODDING.md)
+[Roadmap](./Assets/Roadmap.md)
+[Guia Musical](./Assets/MusicGuide.md)
