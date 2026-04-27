@@ -29,4 +29,4 @@ esos los dejo POR QUE SON DEL FORMATO INEFICIETE VIEJISIMO
 
 
 
-[Guía de Modding](./Modding.md)
+[Guía de Modding](./MODDING.md)
