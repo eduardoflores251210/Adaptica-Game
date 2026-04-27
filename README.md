@@ -22,3 +22,11 @@ COSAS QUE NO SE AÑADIRAN:
 
 **NOTA AUNQUE HAYA TRADUCCIONES A LENGUAJS NO GARANTIZO QUE LAS ACTUALES SEAN PRECISAS PUES SON UN PLACEHOLDER**
 **EN ESPECIFICO CON LAS LEnGUAS IONDIGENAS COMO EL NAHUATL Y MAYA YUCATECO**
+**y en el caso del inglés no es mi lengua materna asi que puede haber igual errores pero menos que con las otras traducciones**
+
+y si te preguntas que son esos archivos con nombre SHA son criaturas las cuales  olvide eliminar despues de undezlis donde guarde datos a Assets al igual paso eso con Planets pero 
+esos los dejo POR QUE SON DEL FORMATO INEFICIETE VIEJISIMO 
+
+
+
+[Guía de Modding](./Modding.md)
