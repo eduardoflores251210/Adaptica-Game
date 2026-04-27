@@ -1,1 +1,0 @@
-"Copyright (C) 2026 Jesús Eduardo Flores Zamudio. All rights reserved. The previous MIT license file was committed in error and is hereby revoked for all future versions."
