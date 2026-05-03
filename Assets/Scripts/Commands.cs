@@ -499,7 +499,7 @@ creado por {Application.companyName}";
 			return string.Compare(m1.Groups[3].Value, m2.Groups[3].Value, StringComparison.OrdinalIgnoreCase);
 		}
 
-		private static AdapticaDevPhases GetPhase(string v)
+		public static AdapticaDevPhases GetPhase(string v)
 		{
 			if (v.StartsWith("Alpha", StringComparison.OrdinalIgnoreCase)) return AdapticaDevPhases.Alpha;
 			if (v.StartsWith("Beta", StringComparison.OrdinalIgnoreCase)) return AdapticaDevPhases.Beta;
@@ -520,7 +520,7 @@ creado por {Application.companyName}";
 
 			return VersionSubPhase.Normal;
 		}
-		private enum VersionSubPhase
+		public enum VersionSubPhase
 		{
 			Pre,
 			PreRC,
@@ -528,8 +528,54 @@ creado por {Application.companyName}";
 			Normal,
 			Snapshot
 		}
+		public static bool IsSnapshot(string v)
+		{
+			return GetSubPhase(v) == VersionSubPhase.Snapshot;
+		}
+		public static string GetSnapshotPart(string v)
+		{
 
 
+			// 1. ¿Tiene guion? Si no, ¡no hay snapshot!
+			int indiceGuion = v.IndexOf('-');
+
+			if (indiceGuion == -1)
+				return null; // O lanzar una excepción: "¡No hay nada que ver aquí!"
+
+			// 2. Cortar todo lo que está DESPUÉS del guion
+			// "Alpha 3.1.0-26n0a" -> "26n0a"
+			string snapshotRaw = v.Substring(indiceGuion + 1);
+
+			return snapshotRaw;
+
+		}
+		/// <summary>
+		/// Extrae la parte numérica principal de cualquier string de versión.
+		/// Soporta formatos como: "TextoLArgo 1.0.0 26n55a", "Alpha 3.1.0-26n0a", "v2.5", etc.
+		/// Devuelve la parte numérica (ej: "1.0.0") o null si no encuentra nada.
+		/// </summary>
+		public static string ExtraerParteNumerica(string versionCompleta)
+		{
+			if (string.IsNullOrWhiteSpace(versionCompleta))
+				return null;
+
+			// El patrón mágico: Busca dígitos seguidos de puntos.
+			// \d+       -> Uno o más dígitos (el primer número)
+			// (?:\.\d+)* -> (Opcional) Un punto seguido de dígitos, repetido cero o más veces.
+			// Ejemplos que captura: "1", "1.0", "1.0.0", "10.20.30"
+			Regex regex = new Regex(@"\d+(?:\.\d+)*");
+
+			Match match = regex.Match(versionCompleta);
+
+			if (match.Success)
+			{
+				// Devolvemos solo el primer grupo de números encontrado (la versión principal)
+				return match.Value;
+			}
+
+			// Si no encuentra nada (ej: "Alpha Beta Gamma"), devolvemos null o una cadena vacía
+			return null;
+		}
 	}
 	enum minecraftGamemodes//solo para el comando de huevo de pascua /gamemodes
 	{

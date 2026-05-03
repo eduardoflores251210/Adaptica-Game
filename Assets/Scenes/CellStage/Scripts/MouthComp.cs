@@ -1,6 +1,7 @@
 ﻿using ActualUtils;
 using SerializableTypes;
 using SerializableTypes.Biology;
+
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -192,7 +193,7 @@ public static class MeshUtils
 	/// con altura 'height' (por defecto 14) y anchura/profundidad según bounds de la malla.
 	/// Seguro para mallas no-readable (usa bounds como fallback).
 	/// </summary>
-	public static Mesh CreateMicrobePartCollider(this Mesh originalMesh, float height = 14f)
+	public static Mesh CreateMicrobePartCollider(this Mesh originalMesh, float height = 24f)
 	{
 		if (originalMesh == null)
 		{
@@ -283,6 +284,31 @@ public static class MeshUtils
 		cubeMesh.RecalculateBounds();
 
 		return cubeMesh;
+	}
+
+
+	public static Mesh CreateMicrobePartCollider(this BiologicalPart original, float height = 24)
+	{
+		Mesh mesh = null;
+		if (original.prefab == null)
+			throw new System.ArgumentException("NO HAY PREFAB");
+
+		var filt = original.prefab.GetComponent<MeshFilter>();
+
+		if (filt != null)
+		{
+			mesh = filt.sharedMesh;
+			return mesh.CreateMicrobePartCollider(height);
+		}
+		throw new System.ArgumentException("algo paso a lo mejor no hay meshfilter");
+	}
+
+	public static Mesh CreateMicrobeBodyCollider(this MicrobeData data , float height = 24)
+	{
+		Mesh mesh = (UnityEngine.Mesh) data.Mesh; //que bueno que tengo esta conversion implementada
+		mesh.RecalculateNormals();
+		mesh.RecalculateBounds();
+		return  mesh.CreateMicrobePartCollider(height);
 	}
 }
 

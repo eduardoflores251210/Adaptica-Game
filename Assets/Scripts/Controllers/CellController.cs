@@ -6,7 +6,9 @@ using SerializableTypes.Biology;
 using StandartUtilities;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections.LowLevel.Unsafe; // NO eso yo no lo añadi lo puso el IDE por alguna razon pero no se usa en este script asi que no se para que esta
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -20,7 +22,8 @@ public class CellController : MonoBehaviour
 {
 	[Header("ParametrosIA")]
 	public bool isAI;
-	public string ID ="0";
+	public string ID = "0";
+	public float RBDisableDistance = 150f;
 	[Header("Referencias")]
 	public RectTransform Cursor;         // Cursor UI (en pantalla)
 	public PartsDatabase Parts;
@@ -31,8 +34,8 @@ public class CellController : MonoBehaviour
 	public float CursorSpeed = 10f;      // Sensibilidad del cursor UI
 
 	[Header("Input")]
-    public float YCamOffset =10;
-    public InputActionAsset inputActions;
+	public float YCamOffset = 10;
+	public InputActionAsset inputActions;
 	public float BaseSpeedMultiplier;
 	public float SpeedMultiplier;
 	private InputAction MoveMicrobe;
@@ -51,7 +54,11 @@ public class CellController : MonoBehaviour
 	private Vector3 targetPosition;
 	private float wanderRadius = 5f;      // radio de deambulación
 	public float viewRadius = 0;
-	public SizeRespectPlayer SizeRespect = SizeRespectPlayer.igual; 
+	public SizeRespectPlayer SizeRespect = SizeRespectPlayer.igual;
+	public Rigidbody rigidbody;
+	public static Dictionary<CellController, string> CellsAndIDS = new Dictionary<CellController, string>();
+	public static List<CellController> Players = new List<CellController>();
+
 	InputActionMap map;
 	private void OnEnable()
 	{
@@ -68,7 +75,7 @@ public class CellController : MonoBehaviour
 
 
 
-		moveCursorAction.performed += ctx => MoveCursor(ctx.ReadValue<Vector2>(),ctx.control.device);
+		moveCursorAction.performed += ctx => MoveCursor(ctx.ReadValue<Vector2>(), ctx.control.device);
 	}
 	private void Start()
 	{
@@ -136,11 +143,44 @@ public class CellController : MonoBehaviour
 		}
 	}
 
-	//metodo legacy que nadie usa
-	private void MoverMicrobio(Vector2 input)
+	private void Update()
 	{
-		transform.Translate(new(input.x,0,input.y), Space.Self);
+		if (!CellsAndIDS.ContainsKey(this))
+		{
+			ID = (string.IsNullOrEmpty(ID) || string.IsNullOrWhiteSpace(ID)) ? MicrobeData.GenerateMicrobeID(BaseData) : ID;
+			CellsAndIDS.Add(this, ID);
+		}
+		if (isAI && Players.Contains(this))
+			Players.Remove(this);	 
+		if (!isAI && !Players.Contains(this))
+			Players.Add(this);
+
+		if (isAI)
+		{
+			CellController NearestPlayer = null;
+			if (Players!=null)
+			{
+				if (Players.Count > 0)
+				{
+					var f = Players.OrderBy(a => Vector3.Distance(a.transform.position, transform.position));
+					NearestPlayer = f.FirstOrDefault();
+				}
+			}
+			if (NearestPlayer != null)
+			{
+				if (rigidbody == null) { Debug.Log(name + "NULL RB");
+					rigidbody = gameObject.AddComponent<Rigidbody>();
+						}
+
+				rigidbody.isKinematic = (Vector3.Distance(transform.position, NearestPlayer.transform.position) > RBDisableDistance)
+				; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
+					
+				
+			}
+
+		}
 	}
+
 
 
 	private void OnMoveCursor(InputAction.CallbackContext ctx) => MoveCursor(ctx.ReadValue<Vector2>(), ctx.control.device);
@@ -242,6 +282,8 @@ public class CellController : MonoBehaviour
 		// Control manual
 		if (!isAI && MoveMicrobe != null && MoveMicrobe.IsPressed())
 		{
+			if (rigidbody !=  null) 
+				rigidbody.velocity = Vector3.zero;
 			Vector2 direction = MoveMicrobe.ReadValue<Vector2>();
 			Vector3 movimiento = direction.To3DXZ() * (BaseSpeedMultiplier * SpeedMultiplier) * Time.fixedDeltaTime;
 
@@ -286,7 +328,7 @@ public class CellController : MonoBehaviour
 	{
 		cursorPosition = Pointer.current.position.value;
 	}
-
+	public MicrobeData BaseData;
 	/// <summary>
 	/// Configura el/la Microbi@ 
 	/// 
@@ -300,7 +342,7 @@ public class CellController : MonoBehaviour
 	void SetupMicrobe()
 	{
 		Vector3 OldPos = transform.position;
-		var aa = LoadMicrobe();
+		BaseData = LoadMicrobe();
 		MeshRenderer renderer = GetComponent<MeshRenderer>();
 		if (renderer == null)
 			renderer = gameObject.AddComponent<MeshRenderer>();
@@ -308,7 +350,7 @@ public class CellController : MonoBehaviour
 		Material mat = new Material(BaseMat);
 		transform.position = Vector3.zero;
 		// Determinar género si hay ambos disponibles
-		if (aa.HasMale)
+		if (BaseData.HasMale)
 		{
 			CurrentGen = StandartUtilities.StdUtils.Randomness.CoinFlip() ?
 						 GéneroBiológico.Female : // ES UNA NIÑA
@@ -329,13 +371,13 @@ public class CellController : MonoBehaviour
 
 		if (CurrentGen == GéneroBiológico.Female || CurrentGen == GéneroBiológico.None)
 		{
-			color = aa.FemaleColor;
-			partsList = aa.PartsF;
+			color = BaseData.FemaleColor;
+			partsList = BaseData.PartsF;
 		}
 		else // GéneroBiológico.Male
 		{
-			color = aa.MaleColor;
-			partsList = aa.PartsM;
+			color = BaseData.MaleColor;
+			partsList = BaseData.PartsM;
 		}
 
 		mat.color = color;
@@ -361,19 +403,23 @@ public class CellController : MonoBehaviour
 			meshf.mesh = meshI.sharedMesh;
 			red.materials = Ren.sharedMaterials;
 
-			try
+			//try
 			{
 				if (Parts.GetPartByID(ff.Id) is BiologicalPart bio && bio.function == BiologicalPartFunction.Mouth)
 				{
 
-					GO.AddComponent<MeshCollider>();
+					var col = GO.GetOrAddComponent<MeshCollider>();
+					if (col == null)
+						col = GO.AddComponent<MeshCollider>();
+					col.convex = true;
 
-
-					var rb = GO.AddComponent<Rigidbody>();
+					var rb = GO.GetOrAddComponent<Rigidbody>();
+					if (rb == null) rb = GO.AddComponent<Rigidbody>();
 					rb.useGravity = false;
 					rb.isKinematic = true;
 
-					var MC = GO.AddComponent<MouthComp>();
+					var MC = GO.GetOrAddComponent<MouthComp>();
+					if (MC == null)GO.AddComponent<MouthComp>();
 					MC.cellController = this;
 					MC.Is2D = false;
 					if (bio.tags.Contains("Carn"))
@@ -392,11 +438,34 @@ public class CellController : MonoBehaviour
 						OmCount++;
 					}
 				}
-			} catch(System.Exception ex) 
+				if (Parts.GetPartByID(ff.Id)is BiologicalPart bioa &&( bioa.function == BiologicalPartFunction.Weapon || bioa.categories.Contains(PartCategories.Defense) ))
+				{
+					var col = GO.GetOrAddComponent<MeshCollider>();
+					if (col == null)
+					{
+						
+						if (GO.TryGetComponent<MeshFilter>(out var filt))
+						{
+							col = GO.AddComponent<MeshCollider>();
+							col.sharedMesh = filt.mesh.CreateMicrobePartCollider();
+						}
+						
+					}
+					col.convex = true;
+
+					var rb = GO.GetOrAddComponent<Rigidbody>();
+					if (rb == null)
+					{
+						gameObject.AddComponent<Rigidbody>();
+					}
+					rb.useGravity = false;
+					rb.isKinematic = true;
+				}
+			}/* catch(System.Exception ex) 
 			{
 				Debug.Log(ex)
 				;
-			}
+			}*/
 			i++;
 		}
 		if (HeCount > 0 && CaCount == 0)
@@ -415,22 +484,40 @@ public class CellController : MonoBehaviour
 		{
 			CreatureDiet = Diets.none;
 		}
-		SpeedMultiplier = CalculateSpeedMultiplier(aa, CurrentGen);
+		SpeedMultiplier = CalculateSpeedMultiplier(BaseData, CurrentGen);
 		viewRadius = CalculateViewRadius(LoadMicrobe(), CurrentGen);
 		// Configurar mesh
 		MeshFilter meshFilter = GetComponent<MeshFilter>();
 		if (meshFilter == null)
 			meshFilter = gameObject.AddComponent<MeshFilter>();
 
-		var mesh = (UnityEngine.Mesh)aa.Mesh; // mesh es del tipo StandartUtilities.StdUtils.Serializable.Mesh
+		var mesh = (UnityEngine.Mesh)BaseData.Mesh; // mesh es del tipo StandartUtilities.StdUtils.Serializable.Mesh
 		mesh.RecalculateNormals();
 		mesh.RecalculateBounds();
 		mesh.RecalculateTangents();
 		meshFilter.mesh = mesh;
-		ID = MicrobeData.GenerateMicrobeID(aa);
+		ID = MicrobeData.GenerateMicrobeID(BaseData);
 		transform.position = OldPos;
 		if (!isAI)
 			PlayerManager.RegisterPlayer(this, Stages.Microbe);
+		if (rigidbody == null)
+		{
+			rigidbody = gameObject.AddComponent<Rigidbody>();
+			if (!TryGetComponent<MeshCollider>(out var MS))
+			{
+				MS = gameObject.AddComponent<MeshCollider>();
+			
+			}
+			MS.sharedMesh = BaseData.CreateMicrobeBodyCollider();
+			rigidbody.isKinematic = false;
+			rigidbody.useGravity = false;
+			MS.convex = true;
+			if (!isAI)
+			{
+				rigidbody.freezeRotation = true;
+
+			}
+		}
 	}
 
 	/// <summary>

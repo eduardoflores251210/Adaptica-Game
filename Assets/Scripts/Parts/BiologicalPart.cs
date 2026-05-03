@@ -14,5 +14,6 @@ public enum BiologicalPartFunction
     Mouth = 0,
     eye= 1,
     healthincreace= 2,
-    VelIncreace = 3
+    VelIncreace = 3,
+    Weapon = 4,
 }
