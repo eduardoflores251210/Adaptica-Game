@@ -606,6 +606,9 @@ Application.platform == RuntimePlatform.WindowsEditor || Application.platform ==
 		public static bool HasLoadedAnySave() => !(CurrentGame == null || CurrentSaveName == null);
 
 	}
+	/// <summary>
+	/// Excepción personalizada para errores relacionados con el guardado de partidas. Puede ser lanzada cuando ocurre un error al crear, cargar o guardar una partida, proporcionando información adicional sobre el problema específico.
+	/// </summary>
 	[System.Serializable]
 	public class GameSavingException : System.Exception
 	{

@@ -1,10 +1,10 @@
 using aaa;
 using ActualUtils;
-using ModelosDeIdioma; //No se cuando probe aqui el generador de idiomas
+using ModelosDeIdioma; //No se cuando probe aqui el generador de idiomas pero se quedo el using :)
 using SerializableTypes; //remanente de cuando los 3 serializables estaban en Utils.cs pero AUn se usa para otras cosas probablemente por el enum stages
 using SerializableTypes.Biology;
 using StandartUtilities;
-using System.Collections;
+using System.Collections;//un using no usado pero lo dejo por flojera
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections.LowLevel.Unsafe; // NO eso yo no lo añadi lo puso el IDE por alguna razon pero no se usa en este script asi que no se para que esta
@@ -16,6 +16,9 @@ using UnityEngine.UI;
 /// <summary>
 /// Contolador principal del microbio en juego ademas tiene IA para NPC
 /// aunque son muy tontos por ahora
+/// ademas los controles SON incomodisimos por el Rigidbody ...
+/// OH NO REGRESO EL TEXTO PREDICTIVO 
+/// el que dice XD a  cada ratooooooooo OH NOOOOOOOOOOOOOOOOOOOOOOOOOOOO.
 /// </summary>
 
 public class CellController : MonoBehaviour
@@ -171,7 +174,7 @@ public class CellController : MonoBehaviour
 				if (rigidbody == null) { Debug.Log(name + "NULL RB");
 					rigidbody = gameObject.AddComponent<Rigidbody>();
 						}
-
+				//desactivar el rigidbody si el jugador esta muy lejos para ahorrar recursos
 				rigidbody.isKinematic = (Vector3.Distance(transform.position, NearestPlayer.transform.position) > RBDisableDistance)
 				; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
 					
@@ -192,6 +195,7 @@ public class CellController : MonoBehaviour
 		var posY = transform.position;
 		posY.y = 0;
 		transform.position = posY;
+		//ia tonta comer y moverse hacia la comida mas cercana dentro de su rango de vision, si no hay comida se mueve a una posicion aleatoria dentro de un radio de 5 unidades
 		if (isAI)
 		{
 			// Obtener todas las bocas de los hijos
@@ -226,9 +230,15 @@ public class CellController : MonoBehaviour
 			Collider[] hits = Physics.OverlapSphere(transform.position, scaledViewRadius);
 
 			FoodComp closestFood = null;
-			MouthComp closestMouth = null;
+			MouthComp closestMouthToFoodPiece = null;
+			MouthComp closestMouthToPrey = null;
+			CellController ClosestThing = null; //para la depredacion 
 			float closestDist = Mathf.Infinity;
-
+			bool ChosePreyOverFood = false;
+			bool isThereAnyFood = false;
+			bool isThereAnyPrey = false;
+			float DistToFood = Mathf.Infinity;
+			float DistToPrey = Mathf.Infinity;
 			foreach (var hit in hits)
 			{
 				if (hit.TryGetComponent<FoodComp>(out var food))
@@ -244,20 +254,63 @@ public class CellController : MonoBehaviour
 						{
 							closestDist = dist;
 							closestFood = food;
-							closestMouth = mouth;
+							closestMouthToFoodPiece = mouth;
+							isThereAnyFood = true;
+							DistToFood = dist;
+						}
+					}
+				}
+				if (CreatureDiet == Diets.Omnivore || CreatureDiet == Diets.Carnivore)
+				{
+					if (hit.TryGetComponent<CellController>(out var cell) && cell != this)
+					{
+						foreach (var mouth in mouths)
+						{
+							float dist = Vector3.Distance(mouth.transform.position, cell.transform.position);
+							if (dist < closestDist)
+							{
+								closestDist = dist;
+								ClosestThing = cell;
+								closestMouthToPrey = mouth;
+								isThereAnyPrey = true;
+								DistToPrey = dist;
+							}
 						}
 					}
 				}
 			}
-
+			if (isThereAnyFood)
+			{
+				if (isThereAnyPrey)
+				{
+					if (DistToPrey < DistToFood + Random.value)
+					{
+						ChosePreyOverFood = true;
+					}
+				}
+				else
+				{
+									ChosePreyOverFood = false; //indentacion exagerada xD
+				}
+			}else if (isThereAnyPrey)
+			{
+				ChosePreyOverFood = true;
+			}
 			// Establecer objetivo desde la boca más cercana
-			if (closestFood != null && closestMouth != null)
+			if (closestFood != null && closestMouthToFoodPiece != null && !ChosePreyOverFood)
 			{
 				targetPosition = closestFood.transform.position;
 				// Opcional: mover el microbio de forma que la boca llegue primero
-				Vector3 offset = closestMouth.transform.position - transform.position;
+				Vector3 offset = closestMouthToFoodPiece.transform.position - transform.position;
 				targetPosition -= offset;
 				targetPosition.y = 0;
+			}else if (ClosestThing != null && closestMouthToPrey != null)
+			{
+				targetPosition = ClosestThing.transform.position;
+				Vector3 offset = closestMouthToPrey.transform.position - transform.position;
+				targetPosition -= offset;
+				targetPosition.y = 0;
+				ChosePreyOverFood = true;
 			}
 			else if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
 			{
@@ -283,12 +336,12 @@ public class CellController : MonoBehaviour
 		if (!isAI && MoveMicrobe != null && MoveMicrobe.IsPressed())
 		{
 			if (rigidbody !=  null) 
-				rigidbody.velocity = Vector3.zero;
+				rigidbody.velocity = rigidbody.velocity * 0.5f; // Reducir velocidad actual para suavizar el movimiento
 			Vector2 direction = MoveMicrobe.ReadValue<Vector2>();
 			Vector3 movimiento = direction.To3DXZ() * (BaseSpeedMultiplier * SpeedMultiplier) * Time.fixedDeltaTime;
 
 			// Mover el microbio
-			transform.Translate(movimiento, Space.World);
+			rigidbody.AddForce(movimiento, ForceMode.VelocityChange);
 
 			// Rotar suavemente hacia el objetivo
 			if (direction != Vector2.zero)
@@ -402,7 +455,7 @@ public class CellController : MonoBehaviour
 			var meshf = GO.AddComponent<MeshFilter>();
 			meshf.mesh = meshI.sharedMesh;
 			red.materials = Ren.sharedMaterials;
-
+			//try commentado por que es mas facil ver la stacktrace sin el try catch aunque no es tan seguro pero bueno
 			//try
 			{
 				if (Parts.GetPartByID(ff.Id) is BiologicalPart bio && bio.function == BiologicalPartFunction.Mouth)
@@ -490,7 +543,7 @@ public class CellController : MonoBehaviour
 		MeshFilter meshFilter = GetComponent<MeshFilter>();
 		if (meshFilter == null)
 			meshFilter = gameObject.AddComponent<MeshFilter>();
-
+		// Mesh --> Mesh......... confuso ¿verdad?
 		var mesh = (UnityEngine.Mesh)BaseData.Mesh; // mesh es del tipo StandartUtilities.StdUtils.Serializable.Mesh
 		mesh.RecalculateNormals();
 		mesh.RecalculateBounds();
@@ -646,3 +699,6 @@ public enum SizeRespectPlayer
 	GIGANTE,
 	COLOSAL,
 }
+
+
+//es chistoso que el codigo tenga licencia MIT pero el repo de GitHub es privado xD

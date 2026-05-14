@@ -443,7 +443,7 @@ public class SplashText : MonoBehaviour
 		esp.AgregarLexema("calcetin", PartOfSpeech.Sustantivo, 600);
 		//quite a guatemala por si la gente se ofende por que el programa haya generado algo como Piña come guatemala.
 		esp.AgregarLexema("agua", PartOfSpeech.Sustantivo, 700);
-		esp.AgregarLexema("baño", PartOfSpeech.Sustantivo, 800);
+		esp.AgregarLexema("baño", PartOfSpeech.Sustantivo, 800); //jejeje
 		esp.AgregarLexema("Refresco de cola", PartOfSpeech.Sustantivo, 600);
 		esp.AgregarLexema("Jugo", PartOfSpeech.Sustantivo, 600);
 		esp.AgregarLexema("come", PartOfSpeech.Verbo, 300);

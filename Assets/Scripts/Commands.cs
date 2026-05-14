@@ -18,6 +18,10 @@ namespace AdapticaDebugStuff
 	{
 		public static class UtiliraryComands
 		{
+			/// <summary>
+			/// Probablemente JAMAS LLEGE 
+			/// por flojera :D xD
+			/// </summary>
 			[ConsoleCommand("fbxexport")]
 			public static void FBX_Export()
 			{
@@ -575,6 +579,25 @@ creado por {Application.companyName}";
 
 			// Si no encuentra nada (ej: "Alpha Beta Gamma"), devolvemos null o una cadena vacía
 			return null;
+		}
+
+		public static string GenerateRandomVersion(System.Random rnd)
+		{
+			string[] phases = { "Alpha", "Beta", "Release" };
+			string phase = phases[rnd.Next(phases.Length)];
+			int major = rnd.Next(0, 10);
+			int minor = rnd.Next(0, 10);
+			int patch = rnd.Next(0, 10);
+			string version = $"{phase} {major}.{minor}.{patch}";
+			// Opcional: Agregar un snapshot aleatorio
+			if (rnd.NextDouble() < 0.3) // 30% de probabilidad de ser snapshot
+			{
+				int snapYear = rnd.Next(26, 99); // Años entre 2026 y 2099
+				int snapNum = rnd.Next(0, 100); // Número de snapshot
+				char snapLetter = (char)('a' + rnd.Next(0, 26)); // Letra entre a-z
+				version += $"-{snapYear}n{snapNum}{snapLetter}";
+			}
+			return version;
 		}
 	}
 	enum minecraftGamemodes//solo para el comando de huevo de pascua /gamemodes
