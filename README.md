@@ -2,8 +2,12 @@
 
 Un juego similar a spore (tm) de Electronic Arts 
 Esta actualmente en la etapa Alpha y solo tiene prototipos de lo que sera 
-
+(No es una captura de pantalla eso es un render)
 <img width="1920" height="1080" alt="Adaptica 100th Commit" src="https://github.com/user-attachments/assets/9774e350-ac82-4792-999e-c7e7b5268661" />
+(menu principal)
+<img width="1039" height="569" alt="image" src="https://github.com/user-attachments/assets/db335a79-cc23-407b-8182-5fdd70393dda" />
+(prototipo del estadio Microbio)
+<img width="1034" height="650" alt="image" src="https://github.com/user-attachments/assets/2655982f-fe97-4172-b92e-0aa1263b1e3a" />
 
 **COSAS QUE TIENE ACTUALMENTE**
 
