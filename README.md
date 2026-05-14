@@ -26,9 +26,13 @@ COSAS QUE NO SE AÑADIRAN:
 
 y si te preguntas que son esos archivos con nombre SHA son criaturas las cuales  olvide eliminar despues de undezlis donde guarde datos a Assets al igual paso eso con Planets pero 
 esos los dejo POR QUE SON DEL FORMATO INEFICIETE VIEJISIMO 
-
-
+ademas tengo que aclara que NO he usado Generacion de imagenes con IA en este proyecto solo mis dibujos mal hechos
 
 [Guía de Modding](./MODDING.md)
 [Roadmap](./Assets/Roadmap.md)
 [Guia Musical](./Assets/MusicGuide.md)
+
+
+
+
+(si alguien se pregunta por que hay un tm es por que originalemte el juego iba a aser distribuido con la licencia de todos los derechos resevados pero ya no es asi ahora uso licencia MIT )
