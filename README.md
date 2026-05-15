@@ -1,6 +1,6 @@
 # Adaptica
 
-Un juego similar a spore (tm) de Electronic Arts 
+Un juego similar a spore (tm) de Electronic Arts hecho en Unity
 Esta actualmente en la etapa Alpha y solo tiene prototipos de lo que sera 
 (No es una captura de pantalla eso es un render)
 <img width="1920" height="1080" alt="Adaptica 100th Commit" src="https://github.com/user-attachments/assets/9774e350-ac82-4792-999e-c7e7b5268661" />
@@ -31,6 +31,8 @@ COSAS QUE NO SE AÑADIRAN:
 y si te preguntas que son esos archivos con nombre SHA son criaturas las cuales  olvide eliminar despues de undezlis donde guarde datos a Assets al igual paso eso con Planets pero 
 esos los dejo POR QUE SON DEL FORMATO INEFICIETE VIEJISIMO 
 ademas tengo que aclara que NO he usado Generacion de imagenes con IA en este proyecto solo mis dibujos mal hechos
+
+la version de Unity usada es 2023.2.22f1
 
 [Guía de Modding](./MODDING.md)
 [Roadmap](./Assets/Roadmap.md)
