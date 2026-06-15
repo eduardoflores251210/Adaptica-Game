@@ -24,6 +24,6 @@ MonoBehaviour:
   - Omn
   Stats:
     stats: []
-  attackPower: 5
+  attackPower: 2.5
   movementBoost: 0
   function: 0

@@ -1,7 +1,14 @@
+using NUnit.Framework;
+using SerializableTypes.Biology;
 using StandartUtilities; //basicamente como una libreria personal que tiene funciones utiles 
 using System.Collections;
-using UnityEngine.SceneManagement;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
+
+
 /// <summary>
 /// El generador de comida del estadio celula solo puede generar 2 tipos de comida por que no es criatura que tiene variedad
 /// </summary>
@@ -35,6 +42,9 @@ public class FoodSpawner : MonoBehaviour
 	///Radio de generación
 	///</summary>
 	public float SpawnRadius;
+	List<FoodComp> Food = new();
+
+
 	/// <summary>
 	/// inicializa el spawbner
 	/// </summary>
@@ -56,6 +66,7 @@ public class FoodSpawner : MonoBehaviour
 			return;
 		}
 		StartCoroutine(nameof(Spawn));
+		StartCoroutine(nameof(N));
 	}
 	string DestroyMsg = "razon desconocida";
 	private void OnDestroy()
@@ -85,20 +96,59 @@ public class FoodSpawner : MonoBehaviour
 				pos = Random.insideUnitCircle * SpawnRadius;
 				if (StdUtils.Randomness.CoinFlip()) //mi random true false
 				{
-					GO = Instantiate(AlgaePrefab,transform.position+ new Vector3(pos.x,0,pos.y), AlgaePrefab.transform.rotation);
+					GO = Instantiate(AlgaePrefab, transform.position + new Vector3(pos.x, 0, pos.y), AlgaePrefab.transform.rotation);
 					foodComp = GO.GetComponent<FoodComp>();
 					foodComp.tipo = TipoDeComida.Alga;
+					Food.Add(foodComp);
 				}
 				else
 				{
-					GO = Instantiate(MeatPrefab,transform.position+ new Vector3(pos.x, 0, pos.y), AlgaePrefab.transform.rotation);
+					GO = Instantiate(MeatPrefab, transform.position + new Vector3(pos.x, 0, pos.y), AlgaePrefab.transform.rotation);
 					foodComp = GO.GetComponent<FoodComp>();
 					foodComp.tipo = TipoDeComida.Carne;
+					Food.Add(foodComp);
+
 				}
-				foodComp.ExtraOnDelete = delegate { foodCount--; };
+				foodComp.ExtraOnDelete = delegate { foodCount--; Food.Remove(foodComp); };
 				foodCount++;
 			}
+			else if (Food.Count > 0)
+			{
+				int i = 0;
+				List<int> ints = new();
+				foreach (var food in Food)
+				{
+					if(foodComp == null)
+					{
+						ints.Add(i);
+						continue;
+					}
+
+					if (Vector3.Distance(transform.position, food.transform.position) < SpawnRadius)
+					{
+						 food .transform.position = Random.insideUnitCircle* SpawnRadius;
+
+					}
+					if (i%2 == 0)
+						yield return null;
+					i++;
+				}
+
+			}
 			yield return new WaitForSeconds(SpawnWaitTime);
+		}
+	}
+	IEnumerator N()
+	{ 
+		while (true)
+		{
+			var objs = FindObjectsByType<FoodComp>(FindObjectsSortMode.None);
+			if (Food.Count != objs.Length)
+			{
+				Food.Clear();
+				Food = objs.ToList();
+			}
+			yield return new WaitForSecondsRealtime(10);
 		}
 	}
 
@@ -114,5 +164,36 @@ public class FoodSpawner : MonoBehaviour
 	private void OnApplicationQuit()
 	{
 		DestroyMsg = ("Se está cerrando el juego");
+	}
+
+	internal void SpawnFood(Vector3 position, int v, Diets FoodType)
+	{
+		GameObject GO = null;
+		FoodComp foodComp = null;
+		Vector2 pos = new Vector2(position.x, position.z)+ Random.insideUnitCircle*2;
+		foodComp = null;
+		pos += Random.insideUnitCircle * 1.25f;
+		for (int i = 0; i < v; i++)
+		{
+			if (FoodType == Diets.Herbivore) //mi random true false
+			{
+				GO = Instantiate(AlgaePrefab, transform.position + new Vector3(pos.x, 0, pos.y), AlgaePrefab.transform.rotation);
+				foodComp = GO.GetComponent<FoodComp>();
+				foodComp.tipo = TipoDeComida.Alga;
+				Food.Add(foodComp);
+
+			}
+			else
+			{
+				GO = Instantiate(MeatPrefab, transform.position + new Vector3(pos.x, 0, pos.y), AlgaePrefab.transform.rotation);
+				foodComp = GO.GetComponent<FoodComp>();
+				foodComp.tipo = TipoDeComida.Carne;
+				Food.Add(foodComp);
+
+			}
+			foodComp.ExtraOnDelete = delegate { foodCount--; Food.Remove(foodComp); };
+			foodCount++;
+		}
+
 	}
 }

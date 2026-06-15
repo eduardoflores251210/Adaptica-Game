@@ -10,7 +10,9 @@ using UnityEngine;
 public class MouthComp : MonoBehaviour
 {
 	public Diets ComidasQuePuedeComer;
+	public float DamageAmount;
 	public bool Is2D = false;
+	public bool Trigger = false;
 	public Rigidbody Rigidbody;
 	public Rigidbody2D Rigidbody2D;
 	public CellController cellController;
@@ -33,24 +35,31 @@ public class MouthComp : MonoBehaviour
 					collider.sharedMesh = filter.mesh.CreateMicrobePartCollider(14f);
 				}
 			}
-
-			Rigidbody = GetComponent<Rigidbody>();
-			if (Rigidbody == null)
+			if (!Trigger)
 			{
-				Rigidbody = gameObject.AddComponent<Rigidbody>();
+				Rigidbody = GetComponent<Rigidbody>();
+				if (Rigidbody == null)
+				{
+					Rigidbody = gameObject.AddComponent<Rigidbody>();
+				}
+				Rigidbody.isKinematic = true; // no queremos que haga tonterias
+				Rigidbody.useGravity = false;
 			}
-			Rigidbody.isKinematic = true; // no queremos que haga tonterias
-			Rigidbody.useGravity = false;
-		}else
-		{
-			Rigidbody2D = GetComponent<Rigidbody2D>();
-			if (Rigidbody2D == null)
-			{
-				Rigidbody2D = gameObject.AddComponent<Rigidbody2D>();
-			}
-			Rigidbody2D.isKinematic = true ;
-			Rigidbody2D.gravityScale = 0f;
 		}
+		else
+		{
+			if (!Trigger)
+			{
+				Rigidbody2D = GetComponent<Rigidbody2D>();
+				if (Rigidbody2D == null)
+				{
+					Rigidbody2D = gameObject.AddComponent<Rigidbody2D>();
+				}
+				Rigidbody2D.isKinematic = true;
+				Rigidbody2D.gravityScale = 0f;
+			}
+		}
+
 	}
 	
 	// Update is called once per frame
@@ -66,7 +75,14 @@ public class MouthComp : MonoBehaviour
 	{
 		Eat(collision.gameObject);
 	}
-
+	private void OnTriggerEnter(Collider other)
+	{
+		Eat(other.gameObject);
+	}
+	private void OnTriggerStay(Collider other)
+	{
+		Eat(other.gameObject);
+	}
 	void Eat(GameObject collision)
 	{
 		if (collision.TryGetComponent<FoodComp>(out var Food))
@@ -107,6 +123,21 @@ public class MouthComp : MonoBehaviour
 				Destroy(collision);
 			}
 		}
+		else if (collision.TryGetComponent<CellController>(out var cellController))
+		{
+			if ( cellController == this.cellController)
+			{
+				return
+					;
+			}
+			Debug.Log("ÑAM");
+			cellController.Damage(DamageAmount, DamageType.Predator);
+		}
+	}
+	private void OnCollisionStay(Collision collision)
+	{
+		Eat(collision.gameObject);
+
 	}
 	public static bool IsFoodCompatibleWithDiet(TipoDeComida a, Diets b)
 	{

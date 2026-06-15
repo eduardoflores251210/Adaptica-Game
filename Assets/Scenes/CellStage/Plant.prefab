@@ -101,7 +101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   age: 0
-  SpoilAge: 540
+  SpoilAge: 100
   IsSpoiled: 0
   CanSpoil: 1
   tipo: 0

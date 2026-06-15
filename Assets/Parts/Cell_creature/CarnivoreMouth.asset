@@ -32,6 +32,6 @@ MonoBehaviour:
       value: 
     - key: 
       value: 
-  attackPower: 5
+  attackPower: 2.5
   movementBoost: 0
   function: 0

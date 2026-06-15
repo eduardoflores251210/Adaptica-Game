@@ -58,7 +58,9 @@ public class CellController : MonoBehaviour
 	private float wanderRadius = 5f;      // radio de deambulación
 	public float viewRadius = 0;
 	public SizeRespectPlayer SizeRespect = SizeRespectPlayer.igual;
+#pragma warning disable CS0108 // El miembro oculta el miembro heredado. Falta una contraseña nueva
 	public Rigidbody rigidbody;
+#pragma warning restore CS0108 // El miembro oculta el miembro heredado. Falta una contraseña nueva
 	public static Dictionary<CellController, string> CellsAndIDS = new Dictionary<CellController, string>();
 	public static List<CellController> Players = new List<CellController>();
 
@@ -171,6 +173,9 @@ public class CellController : MonoBehaviour
 			}
 			if (NearestPlayer != null)
 			{
+				if (rigidbody == null)
+					rigidbody = GetComponent<Rigidbody>();
+
 				if (rigidbody == null) { Debug.Log(name + "NULL RB");
 					rigidbody = gameObject.AddComponent<Rigidbody>();
 						}
@@ -185,16 +190,16 @@ public class CellController : MonoBehaviour
 	}
 
 
-
+	
 	private void OnMoveCursor(InputAction.CallbackContext ctx) => MoveCursor(ctx.ReadValue<Vector2>(), ctx.control.device);
 
 	private void FixedUpdate()
 	{
 		PlayTime += Time.fixedDeltaTime;
 
-		var posY = transform.position;
-		posY.y = 0;
-		transform.position = posY;
+		var pos = transform.position;
+		pos.y = 0f;
+		transform.position = (pos);
 		//ia tonta comer y moverse hacia la comida mas cercana dentro de su rango de vision, si no hay comida se mueve a una posicion aleatoria dentro de un radio de 5 unidades
 		if (isAI)
 		{
@@ -264,8 +269,15 @@ public class CellController : MonoBehaviour
 				{
 					if (hit.TryGetComponent<CellController>(out var cell) && cell != this)
 					{
+						
+
 						foreach (var mouth in mouths)
 						{
+							if (mouth.TryGetComponent<MouthComp>(out var mouthComp))
+								if (mouthComp.ComidasQuePuedeComer == Diets.Herbivore)//no queremos que intente comer con una voca herbivora xd
+									continue;
+							//si ESTO ES predate
+
 							float dist = Vector3.Distance(mouth.transform.position, cell.transform.position);
 							if (dist < closestDist)
 							{
@@ -335,8 +347,6 @@ public class CellController : MonoBehaviour
 		// Control manual
 		if (!isAI && MoveMicrobe != null && MoveMicrobe.IsPressed())
 		{
-			if (rigidbody !=  null) 
-				rigidbody.velocity = rigidbody.velocity * 0.5f; // Reducir velocidad actual para suavizar el movimiento
 			Vector2 direction = MoveMicrobe.ReadValue<Vector2>();
 			Vector3 movimiento = direction.To3DXZ() * (BaseSpeedMultiplier * SpeedMultiplier) * Time.fixedDeltaTime;
 
@@ -352,10 +362,28 @@ public class CellController : MonoBehaviour
 				BG.position = transform.position + new Vector3(0, -4.62f, 0);
 			}
 			//Debug.Log($"Movimiento por FixedUpdate: {movimiento} (m por frame)");
+			Debug.Log($"Velocidad real estimada (m/s): {rigidbody.velocity}");
+
 			float velocidadReal = movimiento.magnitude / Time.fixedDeltaTime;
-			//Debug.Log($"Velocidad real estimada (m/s): {velocidadReal}");
 		}
+		else if (!isAI && MoveMicrobe != null && !MoveMicrobe.IsPressed())
+		{
+			float drag = 3f;
+
+			if (rigidbody != null)
+				rigidbody.velocity *= Mathf.Exp(-drag * Time.fixedDeltaTime);
+			if (!isOnCreatureStage)
+			{
+				Cam.position = transform.position + new Vector3(0, YCamOffset, 0);
+				BG.position = transform.position + new Vector3(0, -4.62f, 0);
+			}
+			Debug.Log($"Velocidad real estimada (m/s): {rigidbody.velocity}");
+
+		}
+
 	}
+
+
 
 	//voy a seguir comentando todo aunque no tenga sentido por que hay gente que dice que comentar todo es cosa de IA :)
 	//Metodo para obtener una posición aleatoria para la IA TONTISIMA (si es MUY tonta) que deambula
@@ -465,16 +493,18 @@ public class CellController : MonoBehaviour
 					if (col == null)
 						col = GO.AddComponent<MeshCollider>();
 					col.convex = true;
-
-					var rb = GO.GetOrAddComponent<Rigidbody>();
+					col.isTrigger = true;
+					/*var rb = GO.GetOrAddComponent<Rigidbody>();
 					if (rb == null) rb = GO.AddComponent<Rigidbody>();
 					rb.useGravity = false;
 					rb.isKinematic = true;
-
+					*/
 					var MC = GO.GetOrAddComponent<MouthComp>();
 					if (MC == null)GO.AddComponent<MouthComp>();
 					MC.cellController = this;
 					MC.Is2D = false;
+					MC.Trigger = true; ;
+					MC.DamageAmount = bio.attackPower;
 					if (bio.tags.Contains("Carn"))
 					{
 						MC.ComidasQuePuedeComer = Diets.Carnivore;
@@ -509,7 +539,7 @@ public class CellController : MonoBehaviour
 					var rb = GO.GetOrAddComponent<Rigidbody>();
 					if (rb == null)
 					{
-						gameObject.AddComponent<Rigidbody>();
+						rb = gameObject.AddComponent<Rigidbody>();
 					}
 					rb.useGravity = false;
 					rb.isKinematic = true;
@@ -553,6 +583,12 @@ public class CellController : MonoBehaviour
 		transform.position = OldPos;
 		if (!isAI)
 			PlayerManager.RegisterPlayer(this, Stages.Microbe);
+		if (!TryGetComponent<Rigidbody>(out rigidbody))
+		{
+			rigidbody = gameObject.AddComponent<Rigidbody>();
+
+		}
+
 		if (rigidbody == null)
 		{
 			rigidbody = gameObject.AddComponent<Rigidbody>();
@@ -561,7 +597,25 @@ public class CellController : MonoBehaviour
 				MS = gameObject.AddComponent<MeshCollider>();
 			
 			}
+
 			MS.sharedMesh = BaseData.CreateMicrobeBodyCollider();
+			rigidbody.isKinematic = false;
+			rigidbody.useGravity = false;
+			MS.convex = true;
+			if (!isAI)
+			{
+				rigidbody.freezeRotation = true;
+
+			}
+		}
+		else
+		{
+			if (!TryGetComponent<MeshCollider>(out var MS))
+			{
+				MS = gameObject.AddComponent<MeshCollider>();
+
+			}
+
 			rigidbody.isKinematic = false;
 			rigidbody.useGravity = false;
 			MS.convex = true;
@@ -687,6 +741,84 @@ public class CellController : MonoBehaviour
 		if (!isAI && PlayerManager.Player == this)
 			PlayerManager.UnRegisterPlayer();
 	}
+	bool ImDiyingPLeaseStopTringTOMakeMeDieAgain;
+	internal void Damage(float damageAmount, DamageType DamageType)
+	{
+		if (inmortal)
+			return;
+
+		Health -= damageAmount;
+		if (Health <= 0)
+			DIE( DamageType);
+		StartCoroutine(DamageTimer());
+	}
+	void DIE(DamageType DamageType)
+	{
+		if (ImDiyingPLeaseStopTringTOMakeMeDieAgain)
+			return;
+		FoodSpawner Spwn = FindAnyObjectByType<FoodSpawner>();
+		if (!isAI)
+		{
+			Saver.CurrentGame.Actions.Add(new() { Path = HistoryPaths.Neutral, Tipo = ActionType.Die, propieties = new() { }, Tags = new[] { $"DED.{DamageType}" } });
+			Spwn.SpawnFood(transform.position, 5, Diets.Carnivore);
+			
+			StartCoroutine(RespawnTimer());
+		}
+		else
+		{
+			Spwn.SpawnFood(transform.position, 5, Diets.Carnivore);
+			Destroy(this.gameObject);
+		}
+		ImDiyingPLeaseStopTringTOMakeMeDieAgain = true;
+	}
+
+	public IEnumerator RespawnTimer ()
+	{
+		Hide();
+		yield return new	 WaitForSecondsRealtime(5);
+		Health = MaxHealth;
+		transform.position = Vector3.zero;
+		UnHide();
+		ImDiyingPLeaseStopTringTOMakeMeDieAgain = false;
+
+	}
+	bool inmortal;
+	public IEnumerator DamageTimer ()
+	{
+		inmortal = true;
+		yield return new	 WaitForSecondsRealtime(1);
+		inmortal = false;
+
+	}
+
+	void Hide()
+	{
+		if (TryGetComponent<Renderer>(out var MyRd))
+		{
+			MyRd.enabled = false;
+		}
+		foreach (Transform child in transform)
+		{
+			if (child.TryGetComponent<Renderer>(out var rd))
+			{
+				rd.enabled = false;
+			}
+		}
+	}
+	void UnHide()
+	{
+		if (TryGetComponent<Renderer>(out var MyRd))
+		{
+			MyRd.enabled = !false;
+		}
+		foreach (Transform child in transform)
+		{
+			if (child.TryGetComponent<Renderer>(out var rd))
+			{
+				rd.enabled = !false;
+			}
+		}
+	}
 }
 
 public enum SizeRespectPlayer
@@ -699,6 +831,16 @@ public enum SizeRespectPlayer
 	GIGANTE,
 	COLOSAL,
 }
+public enum DamageType
+{
+	None = 0,
+	Predator,
+	Hunger,
+	Poison,
+	Electricity,
+
+}
 
 
 //es chistoso que el codigo tenga licencia MIT pero el repo de GitHub es privado xD
+//Esto esta desactualizado Se que lo puede leer la Gente por que el repo es publico :)
