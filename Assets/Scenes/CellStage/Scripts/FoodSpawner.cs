@@ -4,6 +4,7 @@ using StandartUtilities; //basicamente como una libreria personal que tiene func
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -116,9 +117,9 @@ public class FoodSpawner : MonoBehaviour
 			{
 				int i = 0;
 				List<int> ints = new();
-				foreach (var food in Food)
+				foreach (var food in Food.ToList())
 				{
-					if(foodComp == null)
+					if(food  == null)
 					{
 						ints.Add(i);
 						continue;

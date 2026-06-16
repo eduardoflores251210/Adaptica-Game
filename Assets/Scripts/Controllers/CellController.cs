@@ -362,7 +362,7 @@ public class CellController : MonoBehaviour
 				BG.position = transform.position + new Vector3(0, -4.62f, 0);
 			}
 			//Debug.Log($"Movimiento por FixedUpdate: {movimiento} (m por frame)");
-			Debug.Log($"Velocidad real estimada (m/s): {rigidbody.velocity}");
+			//Debug.Log($"Velocidad real estimada (m/s): {rigidbody.velocity}");
 
 			float velocidadReal = movimiento.magnitude / Time.fixedDeltaTime;
 		}
@@ -377,7 +377,7 @@ public class CellController : MonoBehaviour
 				Cam.position = transform.position + new Vector3(0, YCamOffset, 0);
 				BG.position = transform.position + new Vector3(0, -4.62f, 0);
 			}
-			Debug.Log($"Velocidad real estimada (m/s): {rigidbody.velocity}");
+	
 
 		}
 
@@ -530,7 +530,7 @@ public class CellController : MonoBehaviour
 						if (GO.TryGetComponent<MeshFilter>(out var filt))
 						{
 							col = GO.AddComponent<MeshCollider>();
-							col.sharedMesh = filt.mesh.CreateMicrobePartCollider();
+							col.sharedMesh = filt.mesh.CreateMicrobePartCollider().ScaleMesh(new Vector3(1.7f, 1, 1.7f));
 						}
 						
 					}

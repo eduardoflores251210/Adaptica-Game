@@ -1,4 +1,5 @@
-﻿using ActualUtils;
+﻿using aaa;
+using ActualUtils;
 using SerializableTypes;
 using SerializableTypes.Biology;
 
@@ -32,7 +33,7 @@ public class MouthComp : MonoBehaviour
 					}
 
 					// Asignar la malla de colisión creada (altura 14)
-					collider.sharedMesh = filter.mesh.CreateMicrobePartCollider(14f);
+					collider.sharedMesh = filter.mesh.CreateMicrobePartCollider(14f).ScaleMesh(new Vector3(1.7f, 1, 1.7f));
 				}
 			}
 			if (!Trigger)
@@ -130,7 +131,7 @@ public class MouthComp : MonoBehaviour
 				return
 					;
 			}
-			Debug.Log("ÑAM");
+			//Debug.Log("ÑAM");
 			cellController.Damage(DamageAmount, DamageType.Predator);
 		}
 	}
