@@ -6,7 +6,8 @@ using GuineaPigDos.MathStuff;
 using System.Drawing;
 using GuineaPigDos.Extentions;
 using GuineaPigDos.Overrides.MiniLinq;
-
+using GuineaPigDos.Overrides;
+using GuineaPigDos.Overrides.InheritedFromAdaptica;
 #else
 
 using UnityEngine;
@@ -16,10 +17,8 @@ using Random = UnityEngine.Random;
 using ColorFloat = UnityEngine.Color;
 using ColorExtentions = UnityEngine.ColorUtility;
 #endif
-//standard utilities  1.1
-// añadida compatibilidad con guineapig dos
-// fusionado StandardUtilities For Unity 
-// Con StandardUtilities For GuineaPigDos
+//standard utilities  1.1.2
+// corregidos los comentarios 
 namespace StandartUtilities
 {
 	public static class StdUtils
@@ -345,7 +344,8 @@ namespace StandartUtilities
 					Triangles = triangulos;
 				}
 
-				/*     public Mesh(UnityEngine.Mesh mesh)
+#if UNITY_5_6_OR_NEWER
+				public Mesh(UnityEngine.Mesh mesh)
 					 {
 						 Triangles = new List<TRIANGLE>();
 						 Vertices = mesh.vertices.ToList();
@@ -360,9 +360,9 @@ namespace StandartUtilities
 								 triingulos.Clear();
 							 }
 						 }
-					 }*/
+					 }
 
-				/*  // ¡Aquí está la magia para convertir a UnityEngine.Mesh!
+				// ¡Aquí está la magia para convertir a UnityEngine.Mesh!
 				  public UnityEngine.Mesh ToUnityMesh()
 				  {
 					  var unityMesh = new UnityEngine.Mesh();
@@ -389,7 +389,8 @@ namespace StandartUtilities
 				  public static explicit operator UnityEngine.Mesh(Mesh Mesh)
 				  {
 					  return Mesh.ToUnityMesh();
-				  }*/
+				  }
+#endif
 				public override string ToString()
 				{
 					return $"vs {StdUtils.General.ListToString(Vertices)}, tris {StdUtils.General.ListToString(Triangles)}";
@@ -536,19 +537,22 @@ namespace StandartUtilities
 				{
 					return Pos.GetHashCode() ^ Rot.GetHashCode() ^ Scale.GetHashCode();
 				}
-				/* public static explicit operator Transform(UnityEngine.Transform t)
+#if UNITY_5_6_OR_NEWER
+				public static explicit operator Transform(UnityEngine.Transform t)
 				 {
 					 return new Transform(t.position, t.rotation.eulerAngles, t.localScale);
-				 }*/
+				 }
+				public void ApplyTransformToUnity(ref UnityEngine.Transform B)
+				{
+					 B.SetPositionAndRotation(this.Pos, Quaternion.Euler(this.Rot));
+					 B.localScale = this.Scale;
+				}
+#endif
 				public static bool operator ==(Transform a, Transform b)
 				{
 					return (a.Pos == b.Pos && a.Rot == b.Rot && a.Scale == b.Scale);
 				}
-				/* public void ApplyTransformToUnity(ref UnityEngine.Transform B)
-				 {
-					 B.SetPositionAndRotation(this.Pos, Quaternion.Euler(this.Rot));
-					 B.localScale = this.Scale;
-				 }*/
+
 				public static bool operator !=(Transform a, Transform b)
 				{
 					return !(a.Pos == b.Pos && a.Rot == b.Rot && a.Scale == b.Scale);
@@ -560,10 +564,12 @@ namespace StandartUtilities
 						Transform t = (Transform)obj;
 						return t == this;
 					}
-					/* else if (obj is UnityEngine.Transform)
+#if UNITY_5_6_OR_NEWER
+					 else if (obj is UnityEngine.Transform)
 					 {
 						 return ((Transform)(UnityEngine.Transform)obj) == this;
-					 }*/
+					 }
+#endif
 					else return false;
 				}
 			}
