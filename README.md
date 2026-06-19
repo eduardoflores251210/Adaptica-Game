@@ -28,8 +28,8 @@ COSAS QUE NO SE AÑADIRAN:
 **EN ESPECIFICO CON LAS LEnGUAS IONDIGENAS COMO EL NAHUATL Y MAYA YUCATECO**
 **y en el caso del inglés no es mi lengua materna asi que puede haber igual errores pero menos que con las otras traducciones**
 
-y si te preguntas que son esos archivos con nombre SHA son criaturas las cuales  olvide eliminar despues de undezlis donde guarde datos a Assets al igual paso eso con Planets pero 
-esos los dejo POR QUE SON DEL FORMATO INEFICIETE VIEJISIMO 
+y si te preguntas que son esos archivos con nombre SHA son criaturas las cuales  olvide eliminar despues de un dezlis
+ donde guarde datos a Assets al igual paso eso con una carpeta llamada Planets la cual ya elimine
 ademas tengo que aclara que NO he usado Generacion de imagenes con IA en este proyecto solo mis dibujos mal hechos
 
 la version de Unity usada es 2023.2.22f1
@@ -41,4 +41,4 @@ la version de Unity usada es 2023.2.22f1
 
 
 
-(si alguien se pregunta por que hay un tm es por que originalemte el juego iba a aser distribuido con la licencia de todos los derechos resevados pero ya no es asi ahora uso licencia MIT )
+(si alguien se pregunta por que hay un tm es por que originalemte el juego iba a aser distribuido con la licencia de todos los derechos resevados y no iba a ser gratuito pero ya no es asi ahora uso licencia MIT  y es gratis)
