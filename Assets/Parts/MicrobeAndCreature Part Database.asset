@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 652e236a43923eb49bafe5395a075a96, type: 3}
-  m_Name: "Cell\u2215Creature Part Database"
+  m_Name: MicrobeAndCreature Part Database
   m_EditorClassIdentifier: 
   allParts:
   - {fileID: 11400000, guid: 84e18e84dc5e4aa478b1792eca37f388, type: 2}
