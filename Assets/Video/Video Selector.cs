@@ -1,4 +1,3 @@
-using FixedMath;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,11 +28,11 @@ public class VideoSelector : MonoBehaviour
 
 
 		}
-		Fixed128 aspect = (Fixed128)Screen.width / (Fixed128)Screen.height;
+		double aspect = (double)Screen.width / (double)Screen.height;
 
 		VideoClip selected;
 
-		Fixed128 aspect16_9 = (Fixed128)16 / (Fixed128)9;
+		double aspect16_9 = (double)16 / (double)9;
 
 		if (aspect >= aspect16_9)
 		{

@@ -1,7 +1,6 @@
 ﻿//advertencia hay MUCHO comentario XD y NO hay que tocar mucho de este archivo por que es el corazon del juego
 //un momento de silencio por el pobre SHA512 que se queda sin su gloria de nombrar galaxias y ahora solo nombra guardados XD
 using ActualUtils;
-using FixedMath;
 using SerializableTypes;
 using SerializableTypes.Biology;
 using SerializableTypes.Space;

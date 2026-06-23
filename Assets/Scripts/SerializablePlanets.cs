@@ -1,6 +1,6 @@
 using aaa;
 using AdapticaDebugStuff;
-using FixedMath; //ignorar eso era una prueba de un FixedPoint de 128 para un proyecto distinto con depuracion fa tal asi que tuve que usar unity por tener mejor depuracion 
+//using FixedMath; //ignorar eso era una prueba de un FixedPoint de 128 para un proyecto distinto con depuracion fa tal asi que tuve que usar unity por tener mejor depuracion 
 using StandartUtilities; //Ni me acuerdo que metodos uso de mi libreria estandar de proyectos de Unity pero bueno...
 using System;
 using System.Collections.Generic;
