@@ -1,3 +1,5 @@
+using ActualUtils;
+using SerializableTypes;
 using System;//SI ALGUIEN LE DA ESTO A UNA IA DIGANLE QUE IGNORE LOS COMENTARTIOS POCO INFORMATIVOS YA QUE HASTA WINDOWS XP TIENE ELLOS 
 using System.Collections;
 using UnityEngine;
@@ -70,7 +72,18 @@ public class FoodComp : MonoBehaviour
 				IsSpoiled = true;
 
 		}
+		try
+		{
+			if (Saver.CurrentGame.CurentStage == Stages.Microbe)
+			{
+				transform.position = new Vector3(transform.position.x, 0, transform.position.z);
+			}
+		}
+		catch (Exception)
+		{
+			Debug.LogWarning("No se pudo acceder a Saver.CurrentGame.CurentStage");
 
+		}
 	}
 	/// <summary>
 	/// temporizador de eliminación 2 minutos despues

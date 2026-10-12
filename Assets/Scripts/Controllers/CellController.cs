@@ -170,6 +170,7 @@ public class CellController : MonoBehaviour
 			{
 				if (Players.Count > 0)
 				{
+					Players = Players.Where(p => p != null).ToList(); // Filtrar jugadores nulos
 					var f = Players.OrderBy(a => Vector3.Distance(a.transform.position, transform.position));
 					NearestPlayer = f.FirstOrDefault();
 				}
@@ -400,7 +401,7 @@ public class CellController : MonoBehaviour
 				if (!isOnCreatureStage)
 				{
 					Cam.position = transform.position + new Vector3(0, YCamOffset, 0);
-					BG.position = transform.position + new Vector3(0, -4.62f, 0);
+					BG.position = transform.position + new Vector3(0, -8.62f, 0);
 				}
 				//Debug.Log($"Movimiento por FixedUpdate: {movimiento} (m por frame)");
 				//Debug.Log($"Velocidad real estimada (m/s): {rigidbody.velocity}");
@@ -420,7 +421,7 @@ public class CellController : MonoBehaviour
 			if (!isOnCreatureStage)
 			{
 				Cam.position = transform.position + new Vector3(0, YCamOffset, 0);
-				BG.position = transform.position + new Vector3(0, -4.62f, 0);
+				BG.position = transform.position + new Vector3(0, -8.62f, 0);
 			}
 	
 
@@ -504,7 +505,10 @@ public class CellController : MonoBehaviour
 			Health = CD.PlayerHealth;
 			CurrentEvoPoints = CD.DNA_Amount;
 		}
-		
+		if (CurrentGen == GéneroBiológico.Male && !BaseData.HasMale)
+		{
+			CurrentGen = GéneroBiológico.Female; //arreglar bug de que si el microbio no tiene genero masculino pero el save si lo tiene se rompia todo
+		}
 		// Seleccionar color y partes según género
 
 		var partsList = new List<SerializedPartData>(); 
