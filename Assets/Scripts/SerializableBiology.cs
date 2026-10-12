@@ -152,6 +152,7 @@ namespace SerializableTypes.Biology
 	[Serializable]
 	public abstract class CreatureBase
 	{
+		public int DATA_VERSION = -1; //inicialmente -1 para indicar que no se ha establecido una versión de datos válida
 		public string Name;
 		public string Description;
 		public bool HasMale;
@@ -161,7 +162,7 @@ namespace SerializableTypes.Biology
 		public List<SerializedPartData> PartsM;
 		public List<SegmentData> Segments;
 		public Mesh Mesh;
-
+		public BehaviourStats behaviour;
 		protected CreatureBase() { }
 
 		protected CreatureBase(string name, string description, bool hasMale, Color femaleColor, Color maleColor, List<SerializedPartData> partsF, List<SerializedPartData> partsM, List<SegmentData> segments, Mesh mesh)
@@ -287,7 +288,7 @@ namespace SerializableTypes.Biology
 	public class MicrobeData : CreatureBase
 	{
 		public reproductionTypes RepType;
-		public ReproductionMethod RepMeth; //DICE metodo no metanfetamina
+		public ReproductionMethod RepMeth; //DICE metodo no metanfetamina ENTIENDANLOOOOOOOOOOOOOOOOOOOOO ok esas son muchas Oes
 		public MicrobeData(string name, string description, bool hasMale, reproductionTypes repType, ReproductionMethod repMeth, List<SerializedPartData> partsF, List<SerializedPartData> partsM, Color femaleColor, Color maleColor, List<SegmentData> segments, Mesh mesh)
 			: base(name, description, hasMale, femaleColor, maleColor,  partsF, partsM, segments, mesh)
 		{
@@ -430,6 +431,8 @@ namespace SerializableTypes.Biology
 					}
 				}
 			}
+
+		
 			//evitamso rotar mas de 1 vez
 			if (StdUtils.Comparisons.ListsAreEqual(PartsF, PartsM))
 			{
@@ -455,7 +458,10 @@ namespace SerializableTypes.Biology
 				}
 			}
 		}
-
+		public void RotateMicrobeEuler ( float x, float y, float z)
+		{
+			RotateMicrobeEuler(new Vector3(x, y, z));
+		}
 		// Overrides to use base virtual contract
 		public override void CenterCreature()
 		{

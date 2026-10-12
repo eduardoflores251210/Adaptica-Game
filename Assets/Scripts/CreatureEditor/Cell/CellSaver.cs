@@ -228,11 +228,12 @@ public class CellSaver : MonoBehaviour
 			Segs.Add(SerializeSegment(sg));
 		}
 		StdUtils.Serializable.Mesh Smesh = (StdUtils.Serializable.Mesh)mesh;
-		return new MicrobeData(Name, Descrition, HasMale, reproductionTypes, reproductionMethod, PartsSF, PartsSM, FemaleColor, MaleColor,Segs,Smesh);
+		return new MicrobeData(Name, Descrition, HasMale, reproductionTypes, reproductionMethod, PartsSF, PartsSM, FemaleColor, MaleColor, Segs, Smesh) { DATA_VERSION = DevInfo.CurrentCreatureDataVersion };
 	}
 }
 public static class Paths
 {
+	public static string CustomIntros = Path.Join(Application.persistentDataPath, "INTROS");
 	public static string Cells = Path.Join(Application.persistentDataPath, "SavedCells");
 	public static string Plants = Path.Join(Application.persistentDataPath, "SavedPlants");
 	public static string Creatures = Path.Join(Application.persistentDataPath, "SavedCreatures");

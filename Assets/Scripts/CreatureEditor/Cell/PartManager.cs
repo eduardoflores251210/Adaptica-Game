@@ -128,8 +128,8 @@ public class PartManager : MonoBehaviour
 
 		var root = iDoc.rootVisualElement;
 
-		RepMethodEnum = root.Q<EnumField>("MTD");
-		RepTypeEnum = root.Q<EnumField>("ASE");
+		RepMethodEnum = root.Q<EnumField>("ASE");
+		RepTypeEnum = root.Q<EnumField>("MTD"); //si CONFUSO pero este bug lleva desde la 3.0 xd	
 		DIM = root.Q<Toggle>("DIM");
 		Next = root.Q<Button>("Sig");
 		AppPaint = root.Q<Button>("ApplyPaint");
@@ -348,15 +348,15 @@ public class PartManager : MonoBehaviour
 	void ShowWarning(Button label)
 	{
 		label.SetEnabled(true);
-
+		//Debug.Log ("before ()" +RepMethodEnum.value + " " + RepTypeEnum.value + " " + DIM.value);
 		ReproductionMethod method = (ReproductionMethod)RepMethodEnum.value;
 		reproductionTypes RepTyp = (reproductionTypes)RepTypeEnum.value;
-
+		//Debug.Log($"AFTER () method: {method}, RepTyp: {RepTyp}, DIM.value: {DIM.value}");
 		bool A = (!SerializableTypes.Biology.SerializedPartData.IsValidMethodTypePair(RepTyp, method));
-		bool B = (!(IsDimorphic() && RepTyp != reproductionTypes.SingleCell) && DIM.value);
+		bool B = (!(IsDimorphic() && RepTyp != reproductionTypes.MultiCell) && DIM.value);
 		bool C = DIM.value && (RepTyp == reproductionTypes.SingleCell);
 		bool D = (FemaleMouthCount <= 0 || (MaleMouthCount <= 0 && DIM.value));
-
+		//Debug.Log($"A: {A}, B: {B}, C: {C}, D: {D}");	
 		if (A && !B)
 			label.tooltip = $"Metodo de reproduccion invalido {method} para {RepTyp}";
 		else if (A && B && (!C))

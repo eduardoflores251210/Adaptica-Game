@@ -1,24 +1,24 @@
 using aaa;
 using ActualUtils;
-using ModelosDeIdioma; //No se cuando probe aqui el generador de idiomas pero se quedo el using :)
 using SerializableTypes; //remanente de cuando los 3 serializables estaban en Utils.cs pero AUn se usa para otras cosas probablemente por el enum stages
 using SerializableTypes.Biology;
 using StandartUtilities;
-using System.Collections;//un using no usado pero lo dejo por flojera
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Collections.LowLevel.Unsafe; // NO eso yo no lo añadi lo puso el IDE por alguna razon pero no se usa en este script asi que no se para que esta
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 /// <summary>
 /// Contolador principal del microbio en juego ademas tiene IA para NPC
 /// aunque son muy tontos por ahora
-/// ademas los controles SON incomodisimos por el Rigidbody ...
-/// OH NO REGRESO EL TEXTO PREDICTIVO 
-/// el que dice XD a  cada ratooooooooo OH NOOOOOOOOOOOOOOOOOOOOOOOOOOOO.
+/// ademas  aunquie se llame cell controller es Microbio no celula es un animal microscopico no
+/// una celula pero sieopre me confundo
+/// 
 /// </summary>
 
 public class CellController : MonoBehaviour
@@ -46,6 +46,8 @@ public class CellController : MonoBehaviour
 	public bool isOnCreatureStage = false; //esto acirvara en el futuro el salto
 	[Header("PlayInfo")]
 	public float Health = 20;
+	public float Hunger = 100;
+	public float HungerMultiplier = 1;
 	public float MaxHealth = 20;
 	public float CurrentEvoPoints = 0;
 	public float MaxEvoPointsGotStat = 0;
@@ -58,12 +60,13 @@ public class CellController : MonoBehaviour
 	private float wanderRadius = 5f;      // radio de deambulación
 	public float viewRadius = 0;
 	public SizeRespectPlayer SizeRespect = SizeRespectPlayer.igual;
+	public BehaviourStats Behaviour;
 #pragma warning disable CS0108 // El miembro oculta el miembro heredado. Falta una contraseña nueva
 	public Rigidbody rigidbody;
 #pragma warning restore CS0108 // El miembro oculta el miembro heredado. Falta una contraseña nueva
 	public static Dictionary<CellController, string> CellsAndIDS = new Dictionary<CellController, string>();
 	public static List<CellController> Players = new List<CellController>();
-
+	Color Normalcolor;
 	InputActionMap map;
 	private void OnEnable()
 	{
@@ -77,7 +80,7 @@ public class CellController : MonoBehaviour
 		moveCursorAction.performed += OnMoveCursor;
 
 
-
+		
 
 
 		moveCursorAction.performed += ctx => MoveCursor(ctx.ReadValue<Vector2>(), ctx.control.device);
@@ -196,7 +199,8 @@ public class CellController : MonoBehaviour
 	private void FixedUpdate()
 	{
 		PlayTime += Time.fixedDeltaTime;
-
+		Hunger -= Time.fixedDeltaTime*HungerMultiplier;
+		Hunger = Mathf.Clamp(Hunger, 0, 100);
 		var pos = transform.position;
 		pos.y = 0f;
 		transform.position = (pos);
@@ -273,20 +277,55 @@ public class CellController : MonoBehaviour
 
 						foreach (var mouth in mouths)
 						{
+							bool dobreak = false;
 							if (mouth.TryGetComponent<MouthComp>(out var mouthComp))
 								if (mouthComp.ComidasQuePuedeComer == Diets.Herbivore)//no queremos que intente comer con una voca herbivora xd
 									continue;
 							//si ESTO ES predate
+							float PersonalSpaceRadius = viewRadius * (this.Behaviour.Territoriaklity / 100) - 0.1f;
 
 							float dist = Vector3.Distance(mouth.transform.position, cell.transform.position);
-							if (dist < closestDist)
+							if (dist < closestDist && this.SizeRespect >= cell.SizeRespect)
 							{
-								closestDist = dist;
-								ClosestThing = cell;
-								closestMouthToPrey = mouth;
-								isThereAnyPrey = true;
-								DistToPrey = dist;
+								//aqui pondre el calculo de probabilñidad para predar ...
+								float Bra = StdUtils.Math.Remap(Behaviour.Bravery, -100, 100, 0, 1);
+								float Ag = StdUtils.Math.Remap(Behaviour.Angrssivness, -100, 100, 0, 1);
+								float Hun = StdUtils.Math.Remap(Hunger, 0, 100, 0, 1);
+								float chan = (Ag * 0.4f) + (Hun * 0.4f) + (Bra * 0.2f);
+								chan = StdUtils.Math.Clamp01Fancy(chan); //si excies mathf pero se ve raro meter algo de otra libreria en una pared de una
+								StdUtils.Randomness.ExecuteWithProbability(chan, pre);
+								void pre()
+								{
+									closestDist = dist;
+									ClosestThing = cell;
+									closestMouthToPrey = mouth;
+									isThereAnyPrey = true;
+									DistToPrey = dist;
+
+								}
 							}
+							else if (dist < PersonalSpaceRadius && this.SizeRespect >= cell.SizeRespect)
+							{
+								//aqui pondre el calculo de probabilñidad para predar ...
+								float Bra = StdUtils.Math.Remap(Behaviour.Bravery, -100, 100, 0, 1);
+								float Ag = StdUtils.Math.Remap(Behaviour.Angrssivness, -100, 100, 0, 1);
+								float Hun = StdUtils.Math.Remap(Hunger, 0, 100, 0, 1);
+								float chan = (Ag * 0.4f) + (Hun * 0.2f) + (Bra * 0.4f);
+								chan = StdUtils.Math.Clamp01Fancy(chan); //si excies mathf pero se ve raro meter algo de otra libreria en una pared de una
+								StdUtils.Randomness.ExecuteWithProbability(chan, pre);
+								void pre()
+								{
+									closestDist = dist;
+									ClosestThing = cell;
+									closestMouthToPrey = mouth;
+									isThereAnyPrey = true;
+									DistToPrey = dist;
+									dobreak = true;
+
+								}
+							}
+							if (dobreak)
+								break;
 						}
 					}
 				}
@@ -347,24 +386,30 @@ public class CellController : MonoBehaviour
 		// Control manual
 		if (!isAI && MoveMicrobe != null && MoveMicrobe.IsPressed())
 		{
-			Vector2 direction = MoveMicrobe.ReadValue<Vector2>();
-			Vector3 movimiento = direction.To3DXZ() * (BaseSpeedMultiplier * SpeedMultiplier) * Time.fixedDeltaTime;
-
-			// Mover el microbio
-			rigidbody.AddForce(movimiento, ForceMode.VelocityChange);
-
-			// Rotar suavemente hacia el objetivo
-			if (direction != Vector2.zero)
-				transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction.To3DXZ(), Vector3.up), 0.1f);
-			if (!isOnCreatureStage)
+			if (!ImDiyingPLeaseStopTringTOMakeMeDieAgain)
 			{
-				Cam.position = transform.position + new Vector3(0, YCamOffset, 0);
-				BG.position = transform.position + new Vector3(0, -4.62f, 0);
-			}
-			//Debug.Log($"Movimiento por FixedUpdate: {movimiento} (m por frame)");
-			//Debug.Log($"Velocidad real estimada (m/s): {rigidbody.velocity}");
+				Vector2 direction = MoveMicrobe.ReadValue<Vector2>();
+				Vector3 movimiento = direction.To3DXZ() * (BaseSpeedMultiplier * SpeedMultiplier) * Time.fixedDeltaTime;
 
-			float velocidadReal = movimiento.magnitude / Time.fixedDeltaTime;
+				// Mover el microbio
+				rigidbody.AddForce(movimiento, ForceMode.VelocityChange);
+
+				// Rotar suavemente hacia el objetivo
+				if (direction != Vector2.zero)
+					transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction.To3DXZ(), Vector3.up), 0.1f);
+				if (!isOnCreatureStage)
+				{
+					Cam.position = transform.position + new Vector3(0, YCamOffset, 0);
+					BG.position = transform.position + new Vector3(0, -4.62f, 0);
+				}
+				//Debug.Log($"Movimiento por FixedUpdate: {movimiento} (m por frame)");
+				//Debug.Log($"Velocidad real estimada (m/s): {rigidbody.velocity}");
+
+				float velocidadReal = movimiento.magnitude / Time.fixedDeltaTime;
+#if DEBUG
+				Debug.Log(velocidadReal);
+#endif
+			}
 		}
 		else if (!isAI && MoveMicrobe != null && !MoveMicrobe.IsPressed())
 		{
@@ -424,6 +469,18 @@ public class CellController : MonoBehaviour
 	{
 		Vector3 OldPos = transform.position;
 		BaseData = LoadMicrobe();
+		if (BaseData.DATA_VERSION == -1)
+		{
+			Debug.LogWarning("ESTAS cargando un microbio de Alpha 3.1 o anterior, puede que no funcione correctamente");
+		}
+		else if (BaseData.DATA_VERSION > DevInfo.CurrentCreatureDataVersion)
+		{
+			Debug.LogWarning("El Microbio que estas intentando cargar es de una version mas nueva que la del juego, puede que no funcione correctamente");
+			
+		}
+		if (BaseData.DATA_VERSION != -1)
+			BaseData.RotateMicrobeEuler(new(0, 0, 0));
+
 		MeshRenderer renderer = GetComponent<MeshRenderer>();
 		if (renderer == null)
 			renderer = gameObject.AddComponent<MeshRenderer>();
@@ -437,6 +494,7 @@ public class CellController : MonoBehaviour
 						 GéneroBiológico.Female : // ES UNA NIÑA
 						 GéneroBiológico.Male; // ES UN NIÑO
 		}
+		else CurrentGen = GéneroBiológico.Female;	
 		if (Saver.HasLoadedAnySave())
 		{
 			var CD = Saver.CurrentGame.CellGameData;
@@ -446,22 +504,23 @@ public class CellController : MonoBehaviour
 			Health = CD.PlayerHealth;
 			CurrentEvoPoints = CD.DNA_Amount;
 		}
+		
 		// Seleccionar color y partes según género
-		Color color;
+
 		var partsList = new List<SerializedPartData>(); 
 
 		if (CurrentGen == GéneroBiológico.Female || CurrentGen == GéneroBiológico.None)
 		{
-			color = BaseData.FemaleColor;
+			Normalcolor = BaseData.FemaleColor;
 			partsList = BaseData.PartsF;
 		}
 		else // GéneroBiológico.Male
 		{
-			color = BaseData.MaleColor;
+			Normalcolor = BaseData.MaleColor;
 			partsList = BaseData.PartsM;
 		}
 
-		mat.color = color;
+		mat.color = Normalcolor;
 		renderer.material = mat;
 		int HeCount=0; //no no es cuenta de helio
 		int CaCount=0; // no no es cuenta calcio
@@ -507,17 +566,18 @@ public class CellController : MonoBehaviour
 					MC.DamageAmount = bio.attackPower;
 					if (bio.tags.Contains("Carn"))
 					{
-						MC.ComidasQuePuedeComer = Diets.Carnivore;
+						MC.ComidasQuePuedeComer = Diets.Carnivore; // CARNITAS
 						CaCount++;
 					}
 					if (bio.tags.Contains("Herb"))
 					{
-						MC.ComidasQuePuedeComer = Diets.Herbivore;
+						MC.ComidasQuePuedeComer = Diets.Herbivore; //ensalada fea
 						HeCount++;
 					}
 					if (bio.tags.Contains("Omn"))
 					{
-						MC.ComidasQuePuedeComer = Diets.Herbivore;
+						MC.ComidasQuePuedeComer = Diets.Omnivore; //ensalada con carne o Tacos de carnitas normales
+
 						OmCount++;
 					}
 				}
@@ -763,6 +823,14 @@ public class CellController : MonoBehaviour
 			Spwn.SpawnFood(transform.position, 5, Diets.Carnivore);
 			
 			StartCoroutine(RespawnTimer());
+			if (BaseData.HasMale)
+			{
+				CurrentGen = StandartUtilities.StdUtils.Randomness.CoinFlip() ?
+						 GéneroBiológico.Female : // ES UNA NIÑA
+						 GéneroBiológico.Male; // ES UN NIÑO
+			}
+
+
 		}
 		else
 		{
@@ -783,14 +851,27 @@ public class CellController : MonoBehaviour
 
 	}
 	bool inmortal;
-	public IEnumerator DamageTimer ()
+	public float rotateAmnt = -90;
+
+	public IEnumerator DamageTimer()
 	{
+		var rend = GetComponent<Renderer>();
 		inmortal = true;
-		yield return new	 WaitForSecondsRealtime(1);
+
+		if (rend != null)
+		{
+			rend.material.color = Color.red;
+		}
+
+		yield return new WaitForSecondsRealtime(1);
+
+		if (rend != null)
+		{
+			rend.material.color = Normalcolor;
+		}
+
 		inmortal = false;
-
 	}
-
 	void Hide()
 	{
 		if (TryGetComponent<Renderer>(out var MyRd))
@@ -819,6 +900,8 @@ public class CellController : MonoBehaviour
 			}
 		}
 	}
+
+
 }
 
 public enum SizeRespectPlayer
@@ -841,6 +924,19 @@ public enum DamageType
 
 }
 
+/// <summary>
+/// guarda los stats de comprotameinto de uan criatura 
+/// pueden variar   de individuo en individuo por eso es un struct
+/// cada float va de -100 a +100  la variabiulidad entre misma especie 
+/// es de -10 a +10   
+/// </summary>
+[Serializable]
+public struct BehaviourStats
+{
+	public float Angrssivness; // agresivo xd 
+	public float Movility; //aka flojera si es -100 ay que flojera mejor me quedo aqui  +100 es DEVO MOVERME POOR TODOS LADOOOS
+	public float Territoriaklity; // Teritorialidad  porque a algunos uqieren estar solos 0 a 100
+	public float Opurtunism; //oportunismo porque OH mira esos 2 estan pelenaodlse me como lo quye quede
+	public float Bravery; //-100 Miedeso  + 100 Valiente... xd no se mas que decir... 
 
-//es chistoso que el codigo tenga licencia MIT pero el repo de GitHub es privado xD
-//Esto esta desactualizado Se que lo puede leer la Gente por que el repo es publico :)
+}

@@ -24,9 +24,11 @@ public class SplashText : MonoBehaviour
 	/// </summary>
 	public static List<string> Lines = new List<string>()
 	{
-		"Hecho en México", //si es verdad, soy MEXICANo,   []MEXICANOS AL GRITO DE GUERRA, el acero aprestad... No no me pondre a cantar el himno por que ni soy Patriotico. solo se me ocurio este splahs trext por  que vi la tele y salio un anuncio que decia ¡Hecho en México! mostrando productos mexicanos, y me parecio gracioso, asi que lo puse como splash text, ademas de que es verdad, el juego esta hecho en México, asi que es un buen mensaje para mostrar en el splash text, ademas de que es un buen mensaje para mostrar el orgullo por el trabajo hecho en México, aunque no se si alguien mas lo va a entender o si alguien mas se va a sentir identificado con ese mensaje, pero bueno, es parte de la experiencia y merece ser apreciado por su creatividad y humor.",
+		"Hecho en México", //si es verdad, soy MEXICANo,
+						   //[]solo se me ocurio este splahs trext por  que vi la tele y salio un anuncio que decia ¡Hecho en México!
+						   //mostrando productos mexicanos, y me parecio gracioso, asi que lo puse como splash text XD ... si ya elimine el mensaje corporativo de la IA de los commits anteriores
 		"Please don't Make Horrors beyond my comprehendsion",
-		"Also Try minecraft", //clasico por que mine craft pone Also try terraria.
+		"Also Try minecraft", //clasico por que minecraft pone Also try terraria.
 		"Now in HD",
 		"Now in 3D",
 		$"Now in {DevInfo.CurrentDevPhase.ToString()}",
@@ -191,14 +193,14 @@ public class SplashText : MonoBehaviour
 		"May contain traces of previous versions",
 		"Now with optional sarcasm mode",
 		"The penguin Ate all food in the land were the Pink Blob lives",
-		"Your keyboard is a hero",
-		"Your keyboard is a TRUE hero",
-		"May Contain Papyrus",
-		"May not Contain TwoTailed Foxes ",
+		"Your keyboard is a Noisy",
+		"Your keyboard is a VERY Noisy",
+		"Tribe Stage May Contain Papyrus", //doble referncia xd al Papyrus de undertale y el Papiro el ancestro del papel XD
+		"May not Contain TwoTailed Foxes ", //es en serio Tails? creo que escribi esto a las 3 AM
 		"Warning: May cause sudden mutation",
 		"Playable in imaginary dimensions",
 		"Contains tiny references to your childhood",
-		"I'm NOT AMERICAN, I'm 🇲🇽🇲🇽🇲🇽🇲🇽🇲🇽",
+		"May not contain Fun",
 		"Now with extra randomness",
 		"Evolving microbe culture since 2026",
 		"MITOSIS",
@@ -228,7 +230,7 @@ public class SplashText : MonoBehaviour
 		"NOW With a Not Scrapped Plant Editor", //spore elimino el suyo
 		"Dun dun Next station Pantitlan",
 		//v3.0
-		"Este juego NO es un verbo. No intentes twilightearlo, ni adapticarlo, ni pantitlanearlo.",
+		"Este juego NO es un verbo. No intentes twilightearlo, ni adapticarlo, ni Sporearlo.",
 		"Now With Less cubes",
 		"Keep clicking. The flour isn't going to sift itself.",
 		"That delta is full of runes",
@@ -236,7 +238,6 @@ public class SplashText : MonoBehaviour
 		"0% Raytracing, 100% Hope",
 		"CAKE.CAKE.CAKE.CAKE.CAKE.CAKE.CAKE.",
 		"IS THAT A SPHERE",
-		"Your mouse switch has a lifespan. Use it on the CAKE button.",
 		"The mitochondrion is the powerhouse of the crash",
 		"Only the determined shall taste the Strawberry Patch v2.0.",
 		"Confirmed: The cake is still a lie, but the microbes are real",
@@ -248,7 +249,7 @@ public class SplashText : MonoBehaviour
 		"Strawberry jam is the new red coloring",
 		"Now with organic textures (Strawberry flavor)",
 		"IS THAT A SEED? (No, it's a pixel)",
-		"The cake in the settings is 100% biodegradable",
+		"The cake in the settings is 100% biodegradable try to Find it :)",
 		"Check the recipe: No artificial bugs added",
 		"Now with yeast: Because we hate flat designs",
 		"Our cake has more volume than an the Fruit Company Hardware",
@@ -269,17 +270,14 @@ public class SplashText : MonoBehaviour
 		"Survival of the fittest (and the least buggy).",
 		"Evolution is just a series of hotfixes.",
 		"Our microbes have more personality than your ex.",
-		"Now with 4D hyper-triangles (Patent pending).",
 		"Optimized for quantum potatoes.",
 		"Fixed a bug where the universe deleted itself.",
 		"Gravity is just a suggestion in version 2026.",
 		"If the game stays open for 7 years, it might evolve into a spreadsheet.",
 		"This splash text is currently being garbage collected.",
-		"Circles are just triangles with social anxiety.",
-		"Geometry is hard, let's go eat... nothing. Let's go Evolve.",
 		"A sphere is just a 1-sided polygon if you squint hard enough.",
 		"Edges are overrated. Points are the future.",
-		"Made with 99% Theobromine 0% caffeine and 1% documentation.",
+		"Made with 90% Theobromine 0% caffeine 9% not sleeping and 1% documentation.",
 		"The code is staring back at me. Send help.",
 		"NOOO LUCY WHY DID YOU MADE A GIANT LOAF", //referencia a  I love lucy
 		"If you find a bug, call it a 'feature-rich mutation'.",
@@ -314,7 +312,15 @@ public class SplashText : MonoBehaviour
 		"Load system works… probably",
 		"Refactor coming soon™",
 		"Adaptica!",
-		"New galaxies... Almost real",
+		"New galaxies... Almost real", //google translate hizo eso al distorisonar notas del parche 
+		"¡Adaptica!", //español 
+		"¡its Adaptica!", //spanglish xd
+		"its dangerous to go alone, take this", //referencia a zelda
+		"May lack Beans", //referencia a bean la criatura de spore 
+		"¿que?",
+		"Cogito ergo sum",
+		"To be, or not to be", 
+		"what where when why how??????", 
 	};
 	Idioma esp;//si español 
 	void Start()
@@ -324,7 +330,7 @@ public class SplashText : MonoBehaviour
 			if (Lines.Contains($"Made by [REPLACE IN RUNTIME]"))
 			{
 				Lines.Remove($"Made by [REPLACE IN RUNTIME]");
-				Lines.Add($"Made by {Application.companyName}"); 
+				Lines.Add($"Made by {Application.companyName} and the eventual Contributors"); 
 			}
 		}
 		catch (Exception)
@@ -365,9 +371,9 @@ public class SplashText : MonoBehaviour
 
 	void configurarIdioma()
 	{
-		esp = new Idioma("Español juguetón");
+		esp = new Idioma("Español roto juguetón");
 
-		eng = new Idioma("English playful");
+		eng = new Idioma("playful broken English ");
 
 		// Sustantivos (nouns)
 		eng.AgregarLexema("cat", PartOfSpeech.Sustantivo, 500);

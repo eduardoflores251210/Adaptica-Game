@@ -7,12 +7,16 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
-// Añadir estos usings junto al resto (arriba del fichero)
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
 using Mesh = StandartUtilities.StdUtils.Serializable.Mesh;
-
+/// <summary>
+/// ADVERTENCIA esta cosa es taaan inentendible que NO deves de tocarla
+/// HASTA QUE SEA ESTRICTAMENTE NECESARIO
+/// aka cuando este en desarollo el estadio Criatura
+/// por favor por el bien de tu sanidad xD
+/// </summary>
 public class PlanetGen : MonoBehaviour
 {
 #region Campos
@@ -21,7 +25,7 @@ public class PlanetGen : MonoBehaviour
 	public static PlanetGen ActiveIns;
 
 	// Diccionario para guardar los datos de los chunks y poder editarlos después
-	// Si lo rellenaste por fuera antes de Start(), respetamos esos valores y no los limpiamos.
+	// Si lo se rellena por fuera antes de Start(), se respetyan los valores y no los limpiamos.
 	public Dictionary<Vector3Int, AbstractGridPoint[,,]> WorldData = new Dictionary<Vector3Int, AbstractGridPoint[,,]>();
 
 	// Lista de chunks activos (para inspección / iteración)

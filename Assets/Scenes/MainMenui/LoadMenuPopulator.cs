@@ -73,6 +73,7 @@ public class LoadMenuPopulator : MonoBehaviour
             {
                 return false;
             }
+            if (savefile.CurentStage == Stages.MainMenu) return false;
             return true;
         }
         else
@@ -93,7 +94,7 @@ public class LoadMenuPopulator : MonoBehaviour
         }
         else return false;
     }
-    bool TryRepair(string contents, string FilePath)
+   /* bool TryRepair(string contents, string FilePath)
     {
         try
         {
@@ -153,7 +154,7 @@ public class LoadMenuPopulator : MonoBehaviour
             else return true; //el juego esta bien
         }
         catch (System.Exception) { return false; }
-    }
+    }*/
 
     private void LoadButtons()
     {
@@ -170,11 +171,11 @@ public class LoadMenuPopulator : MonoBehaviour
         foreach (var fil in ACTUALSAVES)
         {
             string fil2 = Path.Combine(SavesFolderPath, fil);
-            string file = Path.Combine(fil2, "Save.json"); //ahora cada guardado es una carpeta con varios archivos dentro
+            string file = Path.Combine(fil2, "Save.Json"); //ahora cada guardado es una carpeta con varios archivos dentro
             /*Debug.Log(file);*/ try
             {
-                string content = File.ReadAllText(file).Trim();
-                if (TryRepair(content, file))
+                string content = File.ReadAllText(file);
+                if (validateSave(content)) 
                 {
 
                     // Instanciar el botón desde la plantilla

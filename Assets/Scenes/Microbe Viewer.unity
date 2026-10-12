@@ -388,7 +388,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Path: 
   Parts: {fileID: 11400000, guid: 983c8c5cc3bfdd84fb478d91b60df101, type: 2}
-  ActiveSex: 0
+  ActiveGender: 1
   FMat: {fileID: 0}
   MMat: {fileID: 0}
 --- !u!1 &1160234425
@@ -469,9 +469,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b38948fd8ac4bff4299fd6f0adf328be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Path: "C:\\Users\\Eduar\\AppData\\LocalLow\\Jes\xFAs Eduardo\\SporeLikeeditor\\SavedCells\\SNIL.json"
+  Path: "C:\\Users\\Eduar\\AppData\\LocalLow\\Jes\xFAs Eduardo\\Adaptica\\SavedCells\\asadsadsa.json"
   Parts: {fileID: 11400000, guid: 983c8c5cc3bfdd84fb478d91b60df101, type: 2}
-  ActiveSex: 1
+  ActiveGender: 1
   FMat: {fileID: 2100000, guid: b2f9ca2be7f262141aacb55657a7812f, type: 2}
   MMat: {fileID: 2100000, guid: b32dd0a6b81a27a4ab0d4a6243f9a488, type: 2}
 --- !u!4 &1880618029

@@ -5,12 +5,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Linq;// magia XDDD
 using System.Security.Cryptography;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Random = System.Random;
+using Random = System.Random; //sin esto todo explota porque el compilador no sabe cual random
 
 public class GalaxyGenerator : MonoBehaviour
 {
@@ -136,8 +136,8 @@ public class GalaxyGenerator : MonoBehaviour
 	int GetSeed()
 	{
 		Span<byte> b = stackalloc byte[4];
-		System.Security.Cryptography.RandomNumberGenerator.Fill(b);
-		Seed = BitConverter.ToInt32(b);
+		System.Security.Cryptography.RandomNumberGenerator.Fill(b); //cosas raras que nadie entiende XDD
+		Seed = BitConverter.ToInt32(b); //aaaaaaaaaaaaaaaaaaa magia negra de la computación que nadie entiende pero funciona
 		return Seed;
 	}
 	#endregion
@@ -387,11 +387,12 @@ public class GalaxyGenerator : MonoBehaviour
 		{
 			id = "E0",
 			Name = $"Center {galaxyName}",
-			Description = "Agujero negro masivo central",
+			Description = "el Agujero negro masivo central de esta galaxia",
 			Children = new List<string> { controlPlanet.id, "E1" },
 			transform = new StdUtils.Serializable.Transform(Vector3.zero, Vector3.zero, Vector3.one),
 			type = StarTypes.X,
-			ParentID = $"S{sectorIndex}"
+			ParentID = $"S{sectorIndex}",
+			ExtraData = new() { stats = new() { new Stat("IsQuasar", StdUtils.Randomness.CoinFlip().ToString()) } } //uso futuro porque aun no existen los Jets de agujerp negro
 		};
 
 		sector.Stars[0] = centralStar;
@@ -408,7 +409,7 @@ public class GalaxyGenerator : MonoBehaviour
 		List<PlanetData> allPlanets = new List<PlanetData> { controlPlanet };
 		for (int i = 2; i < totalStars; i++)
 		{
-			float Y = (type == GalaxyTypes.Eliptica) ? Random.Range(-(float)sectorSize.x / 2f, (float)sectorSize.x / 2f) : 0;
+			float Y = (type == GalaxyTypes.Eliptica|| type == GalaxyTypes.Irregular) ? Random.Range(-(float)sectorSize.x / 2f, (float)sectorSize.x / 2f) : 0;
 			Vector3 starLocalPos = new Vector3(
 				Random.Range(-(float)sectorSize.x / 2f, (float)sectorSize.x / 2f),
 				Y,
@@ -418,7 +419,7 @@ public class GalaxyGenerator : MonoBehaviour
 			StarData star = new StarData
 			{
 				id = "E" + i,
-				Name = $"G Star {i}",
+				Name = $"G Nro{i}",
 				Description = GenerateStarDescription(StarTypes.G),
 				Children = new List<string> { "P" + i },
 				transform = new StdUtils.Serializable.Transform(starLocalPos, Vector3.zero, Vector3.one),
@@ -1359,6 +1360,7 @@ float galaxyRadius, out bool Exeded
 		Directory.CreateDirectory(Paths.MiscGalaxy);
 		Directory.CreateDirectory(Paths.SaveFiles);
 	}
+	//referencia obligatoria a alguna cossa de ficcione en el archivo: Edward the Blue Engine.. SI una Locomotora porque PUES porque hiperfijación a thomas xddddd
 	#endregion
 }
 

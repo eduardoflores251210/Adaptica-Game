@@ -35,7 +35,7 @@
                     <engine:Tab label="Comportamiento" name="Beh" focusable="false">
                         <engine:Label text="Reproduccion" />
                         <engine:Label text="&#x9;Tipo" />
-                        <engine:EnumField type="SerializableTypes.Biology.reproductionTypes, Assembly-CSharp" name="MTD" />
+                        <engine:EnumField type="SerializableTypes.Biology.reproductionTypes, Assembly-CSharp" name="MTD" value="SingleCell" />
                         <engine:Label text="&#x9;Metodo" />
                         <engine:EnumField type="SerializableTypes.Biology.ReproductionMethod, Assembly-CSharp" include-obsolete-values="false" name="ASE" />
                         <engine:Toggle label="Hay Dimorfismo?" name="DIM" />
@@ -46,17 +46,17 @@
         </engine:Foldout>
     </engine:VisualElement>
     <engine:VisualElement style="flex-grow: 0; height: 7%; flex-direction: row; align-items: auto; align-self: auto; justify-content: space-between; -unity-text-outline-color: rgba(0, 188, 255, 0.94); background-color: rgb(53, 139, 229);">
-        <engine:Button enable-rich-text="false" emoji-fallback-support="false" select-word-by-double-click="false" style="align-self: flex-start; background-image: url(&quot;project://database/Assets/UIS/GEARS%20fsdihusdfhuisdfuihfsd0001.png?fileID=21300000&amp;guid=e468ecad4c6e5f845ba57e7012d9bc91&amp;type=3#GEARS fsdihusdfhuisdfuihfsd0001&quot;); flex-grow: 0; -unity-background-scale-mode: scale-to-fit; flex-basis: auto; height: 90%;" />
+        <engine:Button enable-rich-text="false" emoji-fallback-support="false" select-word-by-double-click="false" style="align-self: flex-start; background-image: url(&quot;project://database/Assets/UIS/Settings%20Button.png?fileID=21300000&amp;guid=e468ecad4c6e5f845ba57e7012d9bc91&amp;type=3#Settings Button&quot;); flex-grow: 0; -unity-background-scale-mode: scale-to-fit; flex-basis: auto; height: 90%;" />
         <engine:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: flex-end;">
-            <engine:Button enable-rich-text="false" emoji-fallback-support="false" name="Exit" style="align-self: flex-end; justify-content: flex-end; align-items: center; background-image: url(&quot;project://database/Assets/UIS/---esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs.png?fileID=21300000&amp;guid=ca932e011acd5c34ab8e3df9c4818680&amp;type=3#---esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs&quot;);" />
-            <engine:Button tooltip="Tool" name="Sig" style="background-image: url(&quot;project://database/Assets/UIS/esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs.png?fileID=21300000&amp;guid=285cbd1f0d868be46b77dfb66ad0cfd3&amp;type=3#esfdsdfsfdfsdfsdfsdsfdsdfsdfdfs&quot;);" />
+            <engine:Button enable-rich-text="false" emoji-fallback-support="false" name="Exit" style="align-self: flex-end; justify-content: flex-end; align-items: center; background-image: url(&quot;project://database/Assets/UIS/CancelButton.png?fileID=21300000&amp;guid=ca932e011acd5c34ab8e3df9c4818680&amp;type=3#CancelButton&quot;);" />
+            <engine:Button tooltip="Tool" name="Sig" style="background-image: url(&quot;project://database/Assets/UIS/ConfirmButtton.png?fileID=21300000&amp;guid=285cbd1f0d868be46b77dfb66ad0cfd3&amp;type=3#ConfirmButtton&quot;);" />
         </engine:VisualElement>
     </engine:VisualElement>
     <engine:Button text="Button" name="ButtonName" style="position: absolute; top: auto; bottom: 0; left: 40%; right: auto; width: 17%;" />
     <engine:VisualElement name="up" style="flex-grow: 1; position: absolute; left: 33%; background-color: rgb(212, 212, 212); bottom: -35%; height: 35%; width: 30%;">
         <engine:TextField label="#name" placeholder-text="filler text" hide-mobile-input="false" multiline="false" name="Nam" style="flex-direction: column;" />
         <engine:TextField label="#des" placeholder-text="filler text" name="Desc" style="flex-direction: column;" />
-        <engine:Button name="dadso" style="position: absolute; right: 0; background-image: url(&quot;project://database/Assets/UIS/ghhgfhgfhgffgh.png?fileID=21300000&amp;guid=753ad664af5aedc40892dfc5faf2fb49&amp;type=3#ghhgfhgfhgffgh&quot;);" />
+        <engine:Button name="dadso" style="position: absolute; right: 0; background-image: url(&quot;project://database/Assets/UIS/RandomNameButton.png?fileID=21300000&amp;guid=753ad664af5aedc40892dfc5faf2fb49&amp;type=3#RandomNameButton&quot;);" />
     </engine:VisualElement>
     <engine:Button name="BDPT" style="position: absolute; left: 36%; top: 0; bottom: auto; background-image: url(&quot;project://database/Assets/Textures/CIRCULO.png?fileID=2800000&amp;guid=39185288d1e258842aff2b02df554b2b&amp;type=3#CIRCULO&quot;); width: 5%; height: 8%;" />
     <engine:Button name="TestMODE" style="position: absolute; left: 46%; top: 0; bottom: auto; background-image: url(&quot;project://database/Assets/Textures/CIRCULO.png?fileID=2800000&amp;guid=39185288d1e258842aff2b02df554b2b&amp;type=3#CIRCULO&quot;); width: 4%; height: 7%;" />

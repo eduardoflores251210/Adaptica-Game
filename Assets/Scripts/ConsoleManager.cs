@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,7 +13,7 @@ public class ConsoleManager : MonoBehaviour
 	public static ConsoleManager Instance { get; private set; }
 
 	[Header("UI")]
-	[SerializeField] private GameObject consoleUI;
+	public GameObject consoleUI;
 	[SerializeField] private TMPro.TextMeshProUGUI outputText;
 	[SerializeField] private TMPro.TMP_InputField inputField;
 	[SerializeField] private int maxLines = 15;
@@ -25,7 +26,7 @@ public class ConsoleManager : MonoBehaviour
 	private readonly List<string> lines = new();
 
 	private readonly Dictionary<string, CommandInfo> commands = new();
-
+	bool isExecuaatingReadFunc; 
 	#region Unity Lifecycle
 
 	void Awake()
@@ -119,12 +120,36 @@ public class ConsoleManager : MonoBehaviour
 		if (consoleUI.activeSelf)
 			inputField.ActivateInputField();
 	}
+	bool f  = false;
+	//uso: await ConsoleManager.Instance.ReadLine() para leer la entrada del usuario en un comando
+	public async Task<string> ReadLine ()
+	{
+		isExecuaatingReadFunc = true;
+		string result = null;
+		while (!f)
+		{
+			await Task.Yield();
+			result = inputField.text;
+		}
+		inputField.text = "";
+		isExecuaatingReadFunc = false;
+		f = false;
+
+		return result;
+	}
 
 	public void ExecuteInput()
 	{
+		f = true;
+		if (isExecuaatingReadFunc)
+		{
+			return;
+		}
+
 		string input = inputField.text;
 		inputField.text = "";
 		Execute(input);
+		f= false;
 	}
 
 	public void Log(string msg)
@@ -241,7 +266,7 @@ public class ConsoleManager : MonoBehaviour
 	{
 		Debug.Log("📖 Comandos disponibles:");
 
-		//si asi es PARECE Python ohno
+		//si asi es PARECE Python ohno xd
 		foreach (var cmd in Instance.commands.Values)
 			if (!cmd.Attribute.IsEgg)
 				Debug.Log($" - {cmd.Attribute.Name} -{cmd.Attribute.Description}"); //aunque a mayoria no tiene descripción, pero bueno

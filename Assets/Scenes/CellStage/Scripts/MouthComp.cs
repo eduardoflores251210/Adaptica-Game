@@ -2,11 +2,12 @@
 using ActualUtils;
 using SerializableTypes;
 using SerializableTypes.Biology;
-
+using StandartUtilities;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.ProBuilder;
 
 public class MouthComp : MonoBehaviour
 {
@@ -94,11 +95,23 @@ public class MouthComp : MonoBehaviour
 				{
 					cellController.Health += 0.25f;
 					cellController.Health = Mathf.Clamp(cellController.Health, 0, cellController.MaxHealth);
+					cellController.Hunger += 0.15f;
+					cellController.Hunger = Mathf.Clamp(cellController.Hunger, 0, 100);
+					var olfMult = cellController.HungerMultiplier;
+					cellController.HungerMultiplier = 2.5f;
+					StdUtils.Timing.DelayAction(2, delegate { cellController.HungerMultiplier = olfMult; });
 				}
 				else
 				{
 					cellController.Health += 1f;
 					cellController.Health = Mathf.Clamp(cellController.Health, 0, cellController.MaxHealth);
+
+					cellController.Hunger += 1f;
+					cellController.Hunger = Mathf.Clamp(cellController.Hunger, 0, 100);
+
+					var olfMult = cellController.HungerMultiplier;
+					cellController.HungerMultiplier = 0.25f;
+					StdUtils.Timing.DelayAction(2, delegate { cellController.HungerMultiplier = olfMult; });
 				}
 
 
@@ -216,7 +229,7 @@ public class MouthComp : MonoBehaviour
 }
 
 
- 
+
 
 public static class MeshUtils
 {
@@ -335,13 +348,22 @@ public static class MeshUtils
 		throw new System.ArgumentException("algo paso a lo mejor no hay meshfilter");
 	}
 
-	public static Mesh CreateMicrobeBodyCollider(this MicrobeData data , float height = 24)
+	public static Mesh CreateMicrobeBodyCollider(this MicrobeData data, float height = 24)
 	{
-		Mesh mesh = (UnityEngine.Mesh) data.Mesh; //que bueno que tengo esta conversion implementada
+		goto Normal;
+	ñ:
+		goto ñ;
+	Normal:
+		Mesh mesh = (UnityEngine.Mesh)data.Mesh; //que bueno que tengo esta conversion implementada
 		mesh.RecalculateNormals();
 		mesh.RecalculateBounds();
+		var g = height;
+		if (height != g)
+			goto ñ;
+
 		return  mesh.CreateMicrobePartCollider(height);
-	}
+
+	}	
 }
 
 

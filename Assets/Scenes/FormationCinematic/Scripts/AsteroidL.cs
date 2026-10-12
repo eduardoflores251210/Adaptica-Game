@@ -6,9 +6,9 @@ public class AsteroidL : MonoBehaviour
 {
     public GameObject Target;
     public float gravityStrength = 9.8f;  // ¿Qué tan fuerte es la gravedad del objetivo?
-    public float maxSpeed = 90f;          // Velocidad máxima para no salir disparado al infinito
-    
-    public GameObject ExplosionPrefab;
+    public float maxSpeed = 90f;          // Velocidad máxima para no salir disparado al infinito y más allá
+
+	public GameObject ExplosionPrefab;
 
     [SerializeField]
     public static List<GameObject> Asteroids = new();
@@ -32,7 +32,7 @@ public class AsteroidL : MonoBehaviour
             Debug.LogWarning("Este asteroide no tiene Rigidbody. ¡No podrá sentir la gravedad!");
         }
     }
-
+    //matematicas raras XDDDDDDD
     void FixedUpdate()
     {
         if (Target == null || rb == null)
