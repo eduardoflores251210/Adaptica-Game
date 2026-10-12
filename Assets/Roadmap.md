@@ -1,11 +1,12 @@
-﻿AQUI esta el roadmap añada una palomita emoji al terminar un elemento al acabar un roadmap totoalmente favor de crear uno nuevo pues sin o no sabras que hacer
+(nota este documento fue escrito orginalmente para MI eduardoflores251210 el usuario que empezo todo por esta escrito de esta forma)
+ AQUI esta el roadmap añada una palomita emoji al terminar un elemento al acabar un roadmap totoalmente favor de crear uno nuevo pues sin o no sabras que hacer
 
 ROAMAP  ACTUAL: 
 
 * 3.0.1 optimizar el visualizador de estrellas ✅
 * 3.1.0 Corregir la generación de galaxia y volver al sistema flexible ✅
-* 3.2.0 volver al editor de microbios parte del gameplay y no solo lo primero que usas hacer menos tonta la IA de los microbios la cual no toma en cuenta su tamaño ni sus partes encontrar comida ademas podria implementar la depredación entre microbios y que los microbios puedan comer a otros microbios
-* 3.3.0 Añadir colisiones al erstadio microbio y aplicar la escala  en relación al progreso ademas de conbinar lso puntos iguales en historia 
+* 3.2.0 volver al editor de microbios parte del gameplay y no solo lo primero que usas hacer menos tonta la IA de los microbios la cual no toma en cuenta su tamaño ni sus partes encontrar comida ademas podria implementar la depredación entre microbios y que los microbios puedan comer a otros microbios Añadir colisiones al erstadio microbio 🕐 (en progreso)
+* 3.3.0 aplicar la escala  en relación al progreso ademas de conbinar lso puntos iguales en historia 
 * 3.4.0 optimizar la generación de planeta para  para manejar tamaño grandes  y añadir la evolución de partes
 * 3.5.0 Añadir guardado al editor de Plantas y  generar los datos del planeta al iniciar juego  (tecnicamebnte ya estoy empezando pero aqui ya le dare mas atención)
 * 4.0.0  empezar con el prototipo de Criatura (sin guardado ni animaciones de extremidades) 
