@@ -264,6 +264,7 @@ namespace ActualUtils
 		}
 
 
+
 		/// <summary>
 		/// Try to load Save.Json for a savefolder
 		/// </summary>
@@ -574,6 +575,26 @@ namespace ActualUtils
 				SavedGame game = JsonUtility.FromJson<SavedGame>(json);
 				if (game != null)
 					return game.CreatureName;
+				else
+					return null;
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError(ex);
+				return null;
+			}
+		}
+		public static SavedGame GetSaveFileForFolder(string SaveFolder)
+		{
+			string dir = J(Paths.SaveFiles, SaveFolder);
+			string sav = J(dir, "Save.Json");
+			if (!File.Exists(sav)) return null;
+			try
+			{
+				string json = File.ReadAllText(sav);
+				SavedGame game = JsonUtility.FromJson<SavedGame>(json);
+				if (game != null)
+					return game;
 				else
 					return null;
 			}

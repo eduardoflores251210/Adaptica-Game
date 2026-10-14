@@ -192,7 +192,7 @@ public class PauseMenuManager : MonoBehaviour
 			// IMPORTANTÍSIMO:
 			// conservar el estado Finished actual para no resetear el save
 			bool wasFinished = Saver.CurrentGame.CellGameData.Finished;
-
+			Saver.CurrentGame.PlayTime = Player.PlayTime;
 			Saver.CurrentGame.CellGameData = new()
 			{
 				DNA_Amount = Player.CurrentEvoPoints,

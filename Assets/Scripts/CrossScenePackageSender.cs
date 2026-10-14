@@ -1,6 +1,7 @@
 using System;
 using System.Collections;// se importa por que se me olvido quitarlo
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 /// <summary>
 /// el cartero interdimensional que envia paquetes entre escenas...

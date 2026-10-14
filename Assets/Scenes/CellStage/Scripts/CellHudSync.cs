@@ -32,6 +32,8 @@ public class CellHudSync : MonoBehaviour
 				PauseManager.ToggleHistory();
 			}
 		};
+
+		
 	}
 	void Update()
 	{

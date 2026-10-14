@@ -201,7 +201,7 @@ public class NewGameMaker : MonoBehaviour
 			string planetID = pid;
 			if (!SpaceUtils.SystemObjectsBuilder.TryToLoadABody(es,BodyID.FromString(pid), out CelestialBody body, out CelestialBodyType d))
 			{
-				Debug.Log ("EEOE AL CARGAR " +pid);	
+				Debug.Log ("ERROR AL CARGAR " +pid);	
 
 				return;
 			}

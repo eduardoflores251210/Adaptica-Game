@@ -89,6 +89,7 @@ namespace SerializableTypes
 	[Serializable]
 	public class SavedGame
 	{
+		public int dataVersion = -1;// -1 porque lo que no se carga devera dar -1
 		public ulong PlanetID;
 		public bool isCPUEmpire; //para los imperios de CPU en estadio del espacio
 		public Stages CurentStage;
@@ -96,6 +97,7 @@ namespace SerializableTypes
 		public List<HistoryActions> Actions;
 		public Diets CreatureDiet = Diets.Omnivore;
 		public double ingameTime = 0;
+		public double PlayTime = 0;
 		public CellGameData CellGameData;
 
 		public SavedGame(ulong planetID, bool isCPUEmpire, Stages curentStage, string creatureName, List<HistoryActions> actions, Diets creatureDiet, double ingameTime = 0)
@@ -118,6 +120,10 @@ namespace SerializableTypes
 			Actions = actions ?? throw new ArgumentNullException(nameof(actions) + "ES NULL!!!!!");
 			CreatureDiet = creatureDiet;
 			this.ingameTime = ingameTime;
+		}
+		public string ToString()
+		{
+			return $"Criatura {CreatureName}, T{TimeSpan.FromSeconds(PlayTime)} v{dataVersion}";
 		}
 	}
 
@@ -192,11 +198,12 @@ namespace SerializableTypes
 	/// aun no estoy seguro de si habra
 	/// logros pero por si acaso aqui esta el enum de logros, a lo mejor algunos logros se desbloquean al hacer ciertas acciones o al alcanzar ciertos hitos en el juego, pero por ahora no hay ninguno definido
 	/// y si los logro temporales son graciosos pero no se guardan en el guardado del juego, asi que no se si valen la pena o si solo deberian ser logros permanentes que se guardan en el guardado del juego, pero bueno por si acaso aqui esta el enum de logros
+	/// Ademads se escirbieron a las 3 AM 
 	/// </summary>
 	public enum Logros
 	{
 		ninguno = 0,
-		AprendesRapido = 1, // si copie el nombre del logro de Woobledogs pero EJEM esto seri ala temrinalr el tutorial inexistente del juego, o sea hacer algo por primera vez en el juego
+		AprendesRapido = 1, // si copie el nombre del logro de Woobledogs pero EJEM esto seriaal temrinalr el tutorial inexistente del juego, o sea hacer algo por primera vez en el juego
 		ÑamÑam = 2, // si comes por primera vez
 		OhNoSoyUnPez = 3, // Avanza al estadio de criatura por primera vez
 		TribuTribu = 4, // Avanza al estadio de tribu por primera vez
@@ -246,8 +253,8 @@ namespace SerializableTypes
 		HmmmTraicionero, //traiciona a una alianza, si es que hay alianzas en el juego XD
 		HMMMM_Pizza, // traiciona 2 alianzas con el mismo pais,  (si referencia a italia en ambas guerras mundiales XD)
 		P_A_N, // descubre el pan, desbloquea la panaderia en estadio tribal
-		IPN, // crea una universidad tecnica en un lugar dodne habia una granja de burros, (si referencia al IPN de mexico y su mascota la burra blanca XD)
-
+		ElPoli, // crea una universidad tecnica en un lugar dodne habia una granja de burros, (si referencia al IPN de mexico y su mascota la burra blanca XD)
+		
 
 
 		Spore, //Completa el juego, desbloquea el reinicio de la galaxia y el modo New Game Plus

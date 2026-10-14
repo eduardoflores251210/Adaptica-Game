@@ -600,10 +600,11 @@ namespace SerializableTypes.Space
 	}
 	#endregion
 
-
-	// ==========================================
+	#region PESADO
 	// ========== COSAS MALDITAS ABAJO =========
-	// ==========================================
+
+
+
 	//aka galaxydata
 	[Serializable]
 	///<summary>
@@ -2208,6 +2209,7 @@ namespace SerializableTypes.Space
 		#endregion
 
 	}
+#endregion
 }
 // Este nombre es temporal luego lo cambiare
 // Espero...

@@ -54,7 +54,7 @@ public class CellController : MonoBehaviour
 	public float StageProgress = 0;
 	public Diets CreatureDiet;
 	public GéneroBiológico CurrentGen = GéneroBiológico.None;
-	public float PlayTime = 0;
+	public double PlayTime = 0;
 	private Vector2 cursorPosition = Vector2.zero;
 	private Vector3 targetPosition;
 	private float wanderRadius = 5f;      // radio de deambulación
@@ -407,9 +407,7 @@ public class CellController : MonoBehaviour
 				//Debug.Log($"Velocidad real estimada (m/s): {rigidbody.velocity}");
 
 				float velocidadReal = movimiento.magnitude / Time.fixedDeltaTime;
-#if DEBUG
-				Debug.Log(velocidadReal);
-#endif
+
 			}
 		}
 		else if (!isAI && MoveMicrobe != null && !MoveMicrobe.IsPressed())
@@ -479,8 +477,8 @@ public class CellController : MonoBehaviour
 			Debug.LogWarning("El Microbio que estas intentando cargar es de una version mas nueva que la del juego, puede que no funcione correctamente");
 			
 		}
-		if (BaseData.DATA_VERSION != -1)
-			BaseData.RotateMicrobeEuler(new(0, 0, 0));
+		if (BaseData.DATA_VERSION != -1 && HMail)
+			BaseData.RotateMicrobeEuler(new(0, 180, 0));
 
 		MeshRenderer renderer = GetComponent<MeshRenderer>();
 		if (renderer == null)
@@ -496,7 +494,7 @@ public class CellController : MonoBehaviour
 						 GéneroBiológico.Male; // ES UN NIÑO
 		}
 		else CurrentGen = GéneroBiológico.Female;	
-		if (Saver.HasLoadedAnySave())
+		if (Saver.HasLoadedAnySave() && !isAI)
 		{
 			var CD = Saver.CurrentGame.CellGameData;
 			CurrentGen = CD.Gender;
@@ -504,6 +502,7 @@ public class CellController : MonoBehaviour
 			MaxEvoPointsGotStat = CD.MaxDNA_Got;
 			Health = CD.PlayerHealth;
 			CurrentEvoPoints = CD.DNA_Amount;
+			PlayTime = Saver.CurrentGame.PlayTime;
 		}
 		if (CurrentGen == GéneroBiológico.Male && !BaseData.HasMale)
 		{
@@ -603,6 +602,9 @@ public class CellController : MonoBehaviour
 					var rb = GO.GetOrAddComponent<Rigidbody>();
 					if (rb == null)
 					{
+						rb = GetComponent<Rigidbody>();
+
+						if (rb == null )
 						rb = gameObject.AddComponent<Rigidbody>();
 					}
 					rb.useGravity = false;
@@ -714,24 +716,32 @@ public class CellController : MonoBehaviour
 								  Color.magenta,
 								  Color.blue,
 								  new() { new() { radius = 3 } }, mesh: EmergencyMEsh);
-	   
-		if (CrossScenePackageSender.Instance == null) return Tempdata;
+
+		MicrobeData ReturnData = null;
+		if (CrossScenePackageSender.Instance == null) ReturnData = Tempdata;
 		if (!CrossScenePackageSender.Instance.IsThereAnyTypedMailForMe<MicrobeData>(gameObject, out var Mail))
 		{
 			if (!Saver.HasLoadedAnySave())
-				return Tempdata;
+				ReturnData = Tempdata;
 			else
 			{
 				if (Saver.TryToLoadLastMicrobeRevision(Saver.CurrentSaveName, out var MC))
 				{
-					return MC;
+					ReturnData = MC;
 				}
-				else return Tempdata;
+				else ReturnData = Tempdata;
 			}
 
 		}
-		else return Mail[0].Contents; 
+		else 
+		{ 
+			ReturnData = Mail[0].Contents;
+			CrossScenePackageSender.Instance.DeleteMyPackage(Mail[0]);
+			HMail = true;
+		}
+		return ReturnData;
 	}
+	bool HMail= false;
 	float CalculateSpeedMultiplier(MicrobeData MicrobeData, GéneroBiológico género)
 	{
 
@@ -834,7 +844,7 @@ public class CellController : MonoBehaviour
 						 GéneroBiológico.Male; // ES UN NIÑO
 			}
 
-
+			
 		}
 		else
 		{

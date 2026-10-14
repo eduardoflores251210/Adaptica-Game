@@ -56,6 +56,7 @@ public class CellSaver : MonoBehaviour
 		MicrobeData microbe = SerializeMicrobe(segmentmanager.Segments, Fp, Mp, namedescManager.Name, namedescManager.Description, partmanager.MaleColor, partmanager.FemaleColor, partmanager.IsDimorphic(), phasemanager.Mesh, partmanager.ReproductionType, partmanager.ReproductionMethod);
 		microbe.CenterMicrobe();// centramos la celula antes de guardarla
 								//err Microbio no celula SIEMPRE me confundo de termino
+		microbe.DATA_VERSION = DevInfo.CurrentCreatureDataVersion ;
 		string json = JsonUtility.ToJson(microbe, prettyPrint: true);
 		string fullPath = System.IO.Path.Combine(SavePath, $"{microbe.Name}.json");
 		System.IO.File.WriteAllText(fullPath, json);
