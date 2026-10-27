@@ -478,8 +478,9 @@ public class CellController : MonoBehaviour
 			
 		}
 		if (BaseData.DATA_VERSION != -1 && HMail)
+			BaseData.RotateMicrobeEuler(new(0, 0, 0));
+		else
 			BaseData.RotateMicrobeEuler(new(0, 180, 0));
-
 		MeshRenderer renderer = GetComponent<MeshRenderer>();
 		if (renderer == null)
 			renderer = gameObject.AddComponent<MeshRenderer>();

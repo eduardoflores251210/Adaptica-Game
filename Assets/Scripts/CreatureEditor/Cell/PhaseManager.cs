@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UIElements;
-[Obsolete]
+[Obsolete ("se elimianra PRONTO NO USAR ", true)]
 public class PhaseManager : MonoBehaviour
 {
     public EditPhases CurrentPhase;
@@ -84,7 +84,7 @@ public class PhaseManager : MonoBehaviour
         saver.Save();
     }
 }
-[Obsolete]
+[Obsolete("se elimianra PRONTO NO USAR ", true)]
 public enum EditPhases
 {
     BodyEdit,

@@ -13,11 +13,21 @@ public class AsteroidLauncher : MonoBehaviour
     public float orbitRadius;
     private float launchTimer = 0f;
 
-
-
-    void Update()
+    float fps;
+    void getFPS()
     {
-        if (IsWaiting)
+		fps = (int)(1f / Time.deltaTime);
+	}
+	private void Start()
+	{
+        InvokeRepeating(nameof(getFPS), 1, 1);
+	}
+
+	void Update()
+    {
+		
+
+		if (IsWaiting)
         {
             // Hacemos una pausa, el lanzador está tomando té de flores mágicas
             return;
@@ -72,6 +82,7 @@ public class AsteroidLauncher : MonoBehaviour
 
     void LaunchAsteroidAtRandomDirection()
     {
+        if (fps < 10) return;
         // Creamos el asteroide en la posición del lanzador
         GameObject asteroid = Instantiate(AsteroidPrefab, transform.position, Quaternion.identity);
 

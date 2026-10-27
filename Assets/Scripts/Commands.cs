@@ -216,13 +216,10 @@ creado por {Application.companyName}";
 				if (sc.name == "MainMenui" )
 				{
 					var gOL = sc.GetRootGameObjects();
-					foreach (var gol in gOL)
+					var g = GameObject.FindAnyObjectByType<StartVideoPlayer>();
+					if (g != null)
 					{
-						if (gol.name == "NEG" || gol.name == "VID")
-						{
-							gol.SetActive(false);
-						}
-
+						g.Done = true;
 					}
 				}
 			}

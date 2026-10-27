@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
-[Obsolete("ESTO SE REEMPLAZARA CON UN VIDEO pero lo soporto aun POR QUE ESO ES COSA DE LA ALPHA 3.2.0 no la 3.1.0 actual")]
+[Obsolete("ESTO SE REEMPLAZARA CON UN VIDEO pero lo soporto aun POR QUE ESO ES COSA DE LA ALPHA 3.2.0 no la snapshot 2 de la 3.2.0 actual")]
 public class Adysgsdfhjfdhdfdf : MonoBehaviour //aka SolarSys_Born_Cinematic
 {
 	public StarData Stardata; // para generar los planetas

@@ -321,6 +321,14 @@ public class SplashText : MonoBehaviour
 		"Cogito ergo sum",
 		"To be, or not to be", 
 		"what where when why how??????", 
+		"NOW with  more rotation bugs",
+		"They're two, they're four, they're six...",
+		"I like Trains",
+		"short stumpy funnel, a short stumpy boiler...",
+		"NOT a (tm)",
+		"OH The indignity",
+		"cinders and ashes",
+		"Confusion and Delay",
 	};
 	Idioma esp;//si español 
 	void Start()
